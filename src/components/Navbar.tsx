@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Coffee, Home, BookOpen, User } from "lucide-react";
+import { Home, BookOpen, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const location = useLocation();
@@ -15,9 +16,8 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-primary">
-            <Coffee className="h-6 w-6" />
-            <span>Barista Akademi</span>
+          <Link to="/" className="flex items-center gap-3">
+            <img src={logo} alt="TheCompany Coffee Academy" className="h-10" />
           </Link>
 
           <div className="flex items-center gap-2">

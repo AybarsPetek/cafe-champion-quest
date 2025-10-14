@@ -44,7 +44,7 @@ const Index = () => {
               Profesyonel Barista Olma Yolculuğunuz Burada Başlıyor
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Uzman eğitmenlerimizden video eğitimleri alın, becerilerinizi geliştirin ve puan kazanarak barista akademisinde ilerleyin.
+              Uzman eğitmenlerimizden video eğitimleri alın, becerilerinizi geliştirin ve puan kazanarak TheCompany Coffee Academy'de ilerleyin.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button size="lg" asChild className="gap-2">
@@ -66,7 +66,7 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Neden Barista Akademi?
+              Neden TheCompany Coffee Academy?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Kahve tutkusunu profesyonel kariyere dönüştürmek için ihtiyacınız olan her şey
@@ -101,7 +101,7 @@ const Index = () => {
             Bugün Başlayın
           </h2>
           <p className="text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Barista akademisine katılın ve profesyonel kahve sanatında uzmanlaşın
+            TheCompany Coffee Academy'ye katılın ve profesyonel kahve sanatında uzmanlaşın
           </p>
           <Button size="lg" variant="secondary" asChild>
             <Link to="/courses">
