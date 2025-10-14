@@ -1,10 +1,38 @@
-import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, User } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, BookOpen, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { User as SupabaseUser } from "@supabase/supabase-js";
 import logo from "@/assets/logo.png";
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast({
+      title: "Çıkış Yapıldı",
+      description: "Başarıyla çıkış yaptınız.",
+    });
+    navigate("/");
+  };
 
   const navItems = [
     { path: "/", label: "Ana Sayfa", icon: Home },
@@ -38,6 +66,17 @@ const Navbar = () => {
                 </Button>
               );
             })}
+            
+            {user ? (
+              <Button variant="ghost" onClick={handleLogout} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Çıkış</span>
+              </Button>
+            ) : (
+              <Button asChild>
+                <Link to="/auth">Giriş Yap</Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>
