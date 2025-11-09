@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      badges: {
+        Row: {
+          created_at: string | null
+          criteria_type: string
+          criteria_value: number
+          description: string
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          criteria_type: string
+          criteria_value: number
+          description: string
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          criteria_type?: string
+          criteria_value?: number
+          description?: string
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      course_videos: {
+        Row: {
+          course_id: string
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          order_index: number
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          course_id: string
+          created_at?: string | null
+          duration_minutes: number
+          id?: string
+          order_index: number
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          course_id?: string
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          order_index?: number
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_videos_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string | null
+          description: string
+          duration_minutes: number
+          enrolled_count: number | null
+          id: string
+          image_url: string | null
+          instructor: string | null
+          level: string
+          points: number
+          rating: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          duration_minutes: number
+          enrolled_count?: number | null
+          id?: string
+          image_url?: string | null
+          instructor?: string | null
+          level: string
+          points?: number
+          rating?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          duration_minutes?: number
+          enrolled_count?: number | null
+          id?: string
+          image_url?: string | null
+          instructor?: string | null
+          level?: string
+          points?: number
+          rating?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -44,12 +157,136 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_id: string
+          earned_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_id: string
+          earned_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string
+          earned_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_course_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          course_id: string
+          enrolled_at: string | null
+          id: string
+          last_watched_video_id: string | null
+          progress_percentage: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          course_id: string
+          enrolled_at?: string | null
+          id?: string
+          last_watched_video_id?: string | null
+          progress_percentage?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          course_id?: string
+          enrolled_at?: string | null
+          id?: string
+          last_watched_video_id?: string | null
+          progress_percentage?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_course_progress_last_watched_video_id_fkey"
+            columns: ["last_watched_video_id"]
+            isOneToOne: false
+            referencedRelation: "course_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_video_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          last_position_seconds: number | null
+          updated_at: string | null
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          last_position_seconds?: number | null
+          updated_at?: string | null
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          last_position_seconds?: number | null
+          updated_at?: string | null
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_video_progress_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "course_videos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      calculate_course_progress: {
+        Args: { p_course_id: string; p_user_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
