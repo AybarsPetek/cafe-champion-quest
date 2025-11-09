@@ -1,70 +1,69 @@
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Award, BookOpen, Star, Trophy } from "lucide-react";
 import CourseCard from "@/components/CourseCard";
-import latteArtImage from "@/assets/course-latte-art.jpg";
-import beansImage from "@/assets/course-beans.jpg";
+import { useUserDashboard } from "@/hooks/useUserDashboard";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Dashboard = () => {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const { data: dashboardData, isLoading } = useUserDashboard(user?.id || "");
+
+  if (!user || isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="container mx-auto px-4 py-12 flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
   const stats = [
     {
       icon: BookOpen,
       label: "Tamamlanan Eğitimler",
-      value: "3",
+      value: dashboardData?.stats.completedCourses.toString() || "0",
       color: "text-primary",
     },
     {
       icon: Star,
       label: "Toplam Puan",
-      value: "850",
+      value: dashboardData?.stats.totalPoints.toString() || "0",
       color: "text-accent",
     },
     {
       icon: Trophy,
       label: "Rozetler",
-      value: "5",
+      value: dashboardData?.stats.badgesCount.toString() || "0",
       color: "text-primary",
     },
     {
       icon: Award,
       label: "Seviye",
-      value: "İleri",
+      value: dashboardData?.stats.level || "Başlangıç",
       color: "text-accent",
     },
-  ];
-
-  const inProgressCourses = [
-    {
-      id: "2",
-      title: "Latte Art Uzmanlığı",
-      description: "Süt köpürtme ve latte art tekniklerinde uzmanlaşın.",
-      image: latteArtImage,
-      duration: "3 saat",
-      level: "Orta",
-      points: 150,
-      progress: 35,
-    },
-    {
-      id: "5",
-      title: "Müşteri Hizmetleri",
-      description: "Profesyonel bir barista olarak müşteri memnuniyetini en üst seviyeye çıkarın.",
-      image: beansImage,
-      duration: "2 saat",
-      level: "Başlangıç",
-      points: 90,
-      progress: 65,
-    },
-  ];
-
-  const badges = [
-    { name: "İlk Adım", description: "İlk eğitimi tamamladınız", earned: true },
-    { name: "Kahve Uzmanı", description: "5 eğitim tamamladınız", earned: true },
-    { name: "Latte Artist", description: "Latte Art eğitimini bitirdiniz", earned: false },
-    { name: "Espresso Master", description: "Espresso eğitimini bitirdiniz", earned: true },
-    { name: "Puan Avcısı", description: "1000 puana ulaştınız", earned: false },
-    { name: "Süreklilik", description: "7 gün üst üste giriş yaptınız", earned: true },
   ];
 
   return (
@@ -107,34 +106,46 @@ const Dashboard = () => {
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Seviye 3: İleri Barista</span>
-                <span className="font-semibold">850 / 1000 Puan</span>
+                <span className="text-muted-foreground">{dashboardData?.stats.level} Barista</span>
+                <span className="font-semibold">{dashboardData?.stats.totalPoints} Puan</span>
               </div>
-              <Progress value={85} className="h-3" />
+              <Progress value={dashboardData?.stats.progressToNextLevel || 0} className="h-3" />
               <p className="text-sm text-muted-foreground">
-                Bir sonraki seviyeye ulaşmak için 150 puan daha kazanmalısınız!
+                Bir sonraki seviyeye ulaşmak için daha fazla puan kazanın!
               </p>
             </div>
           </CardContent>
         </Card>
 
         {/* In Progress Courses */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Devam Eden Eğitimler</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {inProgressCourses.map((course) => (
-              <CourseCard key={course.id} {...course} />
-            ))}
+        {dashboardData?.inProgressCourses && dashboardData.inProgressCourses.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Devam Eden Eğitimler</h2>
+            <div className="grid md:grid-cols-2 gap-6">
+              {dashboardData.inProgressCourses.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  id={course.id}
+                  title={course.title}
+                  description={course.description}
+                  image={course.image_url || ""}
+                  duration={`${Math.floor(course.duration_minutes / 60)} saat ${course.duration_minutes % 60} dk`}
+                  level={course.level}
+                  points={course.points}
+                  progress={course.progress}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Badges */}
         <div>
           <h2 className="text-2xl font-bold mb-6">Rozetlerim</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {badges.map((badge, index) => (
+            {dashboardData?.badges.map((badge) => (
               <Card
-                key={index}
+                key={badge.id}
                 className={`text-center p-4 ${
                   badge.earned
                     ? "bg-gradient-card shadow-soft"
@@ -144,9 +155,7 @@ const Dashboard = () => {
                 <div className="flex flex-col items-center gap-2">
                   <div
                     className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                      badge.earned
-                        ? "bg-accent/20"
-                        : "bg-muted"
+                      badge.earned ? "bg-accent/20" : "bg-muted"
                     }`}
                   >
                     <Award

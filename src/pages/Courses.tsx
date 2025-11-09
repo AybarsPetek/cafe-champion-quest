@@ -1,72 +1,39 @@
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import CourseCard from "@/components/CourseCard";
-import brewingImage from "@/assets/course-brewing.jpg";
-import latteArtImage from "@/assets/course-latte-art.jpg";
-import beansImage from "@/assets/course-beans.jpg";
+import { useCourses } from "@/hooks/useCourses";
+import { supabase } from "@/integrations/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 const Courses = () => {
-  const courses = [
-    {
-      id: "1",
-      title: "Kahve Demleme Teknikleri",
-      description: "Pour-over, French press, AeroPress ve daha fazlası. Her demleme yöntemini profesyonel seviyede öğrenin.",
-      image: brewingImage,
-      duration: "2 saat 30 dk",
-      level: "Başlangıç",
-      points: 100,
-      progress: 0,
-    },
-    {
-      id: "2",
-      title: "Latte Art Uzmanlığı",
-      description: "Süt köpürtme ve latte art tekniklerinde uzmanlaşın. Kalp, rozet ve tulip desenlerini öğrenin.",
-      image: latteArtImage,
-      duration: "3 saat",
-      level: "Orta",
-      points: 150,
-      progress: 35,
-    },
-    {
-      id: "3",
-      title: "Kahve Çekirdeği Bilgisi",
-      description: "Kahve çeşitlerini, kavurma seviyelerini ve lezzet profillerini keşfedin.",
-      image: beansImage,
-      duration: "1 saat 45 dk",
-      level: "Başlangıç",
-      points: 80,
-      progress: 0,
-    },
-    {
-      id: "4",
-      title: "Espresso Mastery",
-      description: "Mükemmel espresso çekimi için gereken tüm teknikleri öğrenin. Öğütme, tamping ve ekstraksiyon.",
-      image: brewingImage,
-      duration: "4 saat",
-      level: "İleri",
-      points: 200,
-      progress: 0,
-    },
-    {
-      id: "5",
-      title: "Müşteri Hizmetleri",
-      description: "Profesyonel bir barista olarak müşteri memnuniyetini en üst seviyeye çıkarın.",
-      image: latteArtImage,
-      duration: "2 saat",
-      level: "Başlangıç",
-      points: 90,
-      progress: 65,
-    },
-    {
-      id: "6",
-      title: "Alternatif Demleme Yöntemleri",
-      description: "V60, Chemex, Siphon ve Cold Brew gibi özel demleme tekniklerini keşfedin.",
-      image: beansImage,
-      duration: "3 saat 15 dk",
-      level: "Orta",
-      points: 120,
-      progress: 0,
-    },
-  ];
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const { data: courses, isLoading } = useCourses(user?.id);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="container mx-auto px-4 py-12 flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -81,8 +48,18 @@ const Courses = () => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <CourseCard key={course.id} {...course} />
+          {courses?.map((course) => (
+            <CourseCard
+              key={course.id}
+              id={course.id}
+              title={course.title}
+              description={course.description}
+              image={course.image_url || ""}
+              duration={`${Math.floor(course.duration_minutes / 60)} saat ${course.duration_minutes % 60} dk`}
+              level={course.level}
+              points={course.points}
+              progress={course.progress || 0}
+            />
           ))}
         </div>
       </div>
