@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookOpen, User, LogOut } from "lucide-react";
+import { Home, BookOpen, User, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,28 @@ const Navbar = () => {
     navigate("/");
   };
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) {
+        setIsAdmin(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+      
+      setIsAdmin(!!data);
+    };
+
+    checkAdminStatus();
+  }, [user]);
+
   const navItems = [
     { path: "/", label: "Ana Sayfa", icon: Home },
     { path: "/courses", label: "Eğitimler", icon: BookOpen },
@@ -66,6 +88,15 @@ const Navbar = () => {
                 </Button>
               );
             })}
+            
+            {isAdmin && (
+              <Button variant="outline" asChild>
+                <Link to="/admin" className="gap-2">
+                  <Shield className="h-4 w-4" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Link>
+              </Button>
+            )}
             
             {user ? (
               <Button variant="ghost" onClick={handleLogout} className="gap-2">
