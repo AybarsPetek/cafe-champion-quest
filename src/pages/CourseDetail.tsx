@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import VideoPlayer from "@/components/VideoPlayer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -79,23 +80,26 @@ const CourseDetail = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Video Player */}
             <Card className="overflow-hidden shadow-soft">
-              <div className="relative aspect-video bg-muted">
-                <img
-                  src={course.image_url || "/placeholder.svg"}
-                  alt={course.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/20 backdrop-blur-sm gap-4">
-                  <Button size="lg" className="rounded-full w-20 h-20">
-                    <PlayCircle className="h-10 w-10" />
+              <VideoPlayer
+                videoUrl={
+                  currentVideoId
+                    ? course.videos.find((v) => v.id === currentVideoId)?.video_url || null
+                    : null
+                }
+                title={
+                  currentVideoId
+                    ? course.videos.find((v) => v.id === currentVideoId)?.title || course.title
+                    : course.title
+                }
+              />
+              {user && currentVideoId && (
+                <CardContent className="pt-4">
+                  <Button onClick={handleMarkComplete} className="w-full">
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Videoyu Tamamla
                   </Button>
-                  {user && currentVideoId && (
-                    <Button onClick={handleMarkComplete} variant="secondary">
-                      Videoyu Tamamla
-                    </Button>
-                  )}
-                </div>
-              </div>
+                </CardContent>
+              )}
             </Card>
 
             {/* Course Info */}

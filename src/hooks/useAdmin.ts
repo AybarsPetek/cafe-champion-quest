@@ -42,6 +42,25 @@ export const useAdminCourses = () => {
   });
 };
 
+export const useAdminVideos = () => {
+  return useQuery({
+    queryKey: ['admin-videos'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('course_videos')
+        .select(`
+          *,
+          course:courses(title)
+        `)
+        .order('course_id', { ascending: true })
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
 export const useCreateCourse = () => {
   const queryClient = useQueryClient();
   
@@ -153,7 +172,8 @@ export const useCreateVideo = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] });
-      queryClient.invalidateQueries({ queryKey: ['course-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-videos'] });
+      queryClient.invalidateQueries({ queryKey: ['course'] });
       toast({
         title: "Başarılı",
         description: "Video başarıyla eklendi.",
@@ -186,7 +206,8 @@ export const useUpdateVideo = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] });
-      queryClient.invalidateQueries({ queryKey: ['course-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-videos'] });
+      queryClient.invalidateQueries({ queryKey: ['course'] });
       toast({
         title: "Başarılı",
         description: "Video başarıyla güncellendi.",
@@ -216,7 +237,8 @@ export const useDeleteVideo = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-courses'] });
-      queryClient.invalidateQueries({ queryKey: ['course-detail'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-videos'] });
+      queryClient.invalidateQueries({ queryKey: ['course'] });
       toast({
         title: "Başarılı",
         description: "Video başarıyla silindi.",

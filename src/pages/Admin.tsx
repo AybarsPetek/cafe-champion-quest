@@ -13,6 +13,7 @@ import { Plus, Pencil, Trash2, Users, BookOpen, Video } from "lucide-react";
 import {
   useAdminUsers,
   useAdminCourses,
+  useAdminVideos,
   useCreateCourse,
   useUpdateCourse,
   useDeleteCourse,
@@ -25,6 +26,7 @@ import {
 const Admin = () => {
   const { data: users } = useAdminUsers();
   const { data: courses } = useAdminCourses();
+  const { data: videos } = useAdminVideos();
   
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
@@ -111,6 +113,18 @@ const Admin = () => {
       image_url: course.image_url || "",
     });
     setCourseDialogOpen(true);
+  };
+
+  const openEditVideo = (video: any) => {
+    setSelectedVideo(video);
+    setVideoFormData({
+      course_id: video.course_id,
+      title: video.title,
+      video_url: video.video_url || "",
+      duration_minutes: video.duration_minutes,
+      order_index: video.order_index,
+    });
+    setVideoDialogOpen(true);
   };
 
   return (
@@ -370,9 +384,59 @@ const Admin = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Video detaylarını görmek için bir kurs seçin veya yukarıdan yeni video ekleyin.
-                </p>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kurs</TableHead>
+                      <TableHead>Video Başlığı</TableHead>
+                      <TableHead>URL</TableHead>
+                      <TableHead>Süre</TableHead>
+                      <TableHead>Sıra</TableHead>
+                      <TableHead>İşlemler</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {videos && videos.length > 0 ? (
+                      videos.map((video: any) => (
+                        <TableRow key={video.id}>
+                          <TableCell className="font-medium">
+                            {video.course?.title || "Bilinmiyor"}
+                          </TableCell>
+                          <TableCell>{video.title}</TableCell>
+                          <TableCell className="max-w-[200px] truncate">
+                            {video.video_url || "-"}
+                          </TableCell>
+                          <TableCell>{video.duration_minutes} dk</TableCell>
+                          <TableCell>{video.order_index}</TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openEditVideo(video)}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => deleteVideo.mutate(video.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          Henüz video eklenmemiş
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </CardContent>
             </Card>
           </TabsContent>
