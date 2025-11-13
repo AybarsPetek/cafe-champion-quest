@@ -16,7 +16,9 @@ const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
     for (const pattern of youtubePatterns) {
       const match = url.match(pattern);
       if (match) {
-        return `https://www.youtube.com/embed/${match[1]}?rel=0`;
+        const videoId = match[1];
+        console.log('YouTube video detected, ID:', videoId);
+        return `https://www.youtube.com/embed/${videoId}`;
       }
     }
 
@@ -24,18 +26,22 @@ const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
     const vimeoPattern = /vimeo\.com\/(\d+)/;
     const vimeoMatch = url.match(vimeoPattern);
     if (vimeoMatch) {
+      console.log('Vimeo video detected, ID:', vimeoMatch[1]);
       return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
     }
 
     // If it's already an embed URL or direct video file
     if (url.includes('embed') || url.match(/\.(mp4|webm|ogg)$/)) {
+      console.log('Direct video URL detected:', url);
       return url;
     }
 
+    console.log('No valid video URL pattern found for:', url);
     return null;
   };
 
   const embedUrl = videoUrl ? getEmbedUrl(videoUrl) : null;
+  console.log('VideoPlayer - Input URL:', videoUrl, 'Embed URL:', embedUrl);
 
   if (!embedUrl) {
     return (

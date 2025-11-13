@@ -50,12 +50,16 @@ export const useAdminVideos = () => {
         .from('course_videos')
         .select(`
           *,
-          course:courses(title)
+          courses!inner(title)
         `)
-        .order('course_id', { ascending: true })
-        .order('order_index', { ascending: true });
+        .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching admin videos:', error);
+        throw error;
+      }
+      
+      console.log('Admin videos fetched:', data);
       return data;
     },
   });

@@ -397,37 +397,40 @@ const Admin = () => {
                   </TableHeader>
                   <TableBody>
                     {videos && videos.length > 0 ? (
-                      videos.map((video: any) => (
-                        <TableRow key={video.id}>
-                          <TableCell className="font-medium">
-                            {video.course?.title || "Bilinmiyor"}
-                          </TableCell>
-                          <TableCell>{video.title}</TableCell>
-                          <TableCell className="max-w-[200px] truncate">
-                            {video.video_url || "-"}
-                          </TableCell>
-                          <TableCell>{video.duration_minutes} dk</TableCell>
-                          <TableCell>{video.order_index}</TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => openEditVideo(video)}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => deleteVideo.mutate(video.id)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      videos.map((video: any) => {
+                        const courseTitle = video.courses?.title || "Bilinmiyor";
+                        return (
+                          <TableRow key={video.id}>
+                            <TableCell className="font-medium">
+                              {courseTitle}
+                            </TableCell>
+                            <TableCell>{video.title}</TableCell>
+                            <TableCell className="max-w-[200px] truncate">
+                              {video.video_url || "-"}
+                            </TableCell>
+                            <TableCell>{video.duration_minutes} dk</TableCell>
+                            <TableCell>{video.order_index}</TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => openEditVideo(video)}
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => deleteVideo.mutate(video.id)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     ) : (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground">
