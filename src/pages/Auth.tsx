@@ -9,6 +9,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Coffee } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Geçerli bir e-posta adresi giriniz").max(255, "E-posta çok uzun"),
+  password: z.string().min(6, "Şifre en az 6 karakter olmalıdır").max(128, "Şifre çok uzun"),
+});
+
+const signupSchema = z.object({
+  email: z.string().email("Geçerli bir e-posta adresi giriniz").max(255, "E-posta çok uzun"),
+  password: z.string().min(8, "Şifre en az 8 karakter olmalıdır").max(128, "Şifre çok uzun"),
+  full_name: z.string().trim().min(2, "Ad soyad en az 2 karakter olmalıdır").max(100, "Ad soyad çok uzun"),
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -40,12 +52,29 @@ const Auth = () => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input
+    const validation = loginSchema.safeParse({
+      email: loginEmail,
+      password: loginPassword,
+    });
+
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
+      toast({
+        title: "Geçersiz Giriş",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
-        password: loginPassword,
+        email: validation.data.email,
+        password: validation.data.password,
       });
 
       if (error) {
@@ -58,7 +87,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Hata",
-            description: error.message,
+            description: "Giriş yapılamadı. Lütfen tekrar deneyin.",
             variant: "destructive",
           });
         }
@@ -81,16 +110,34 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate input
+    const validation = signupSchema.safeParse({
+      email: signupEmail,
+      password: signupPassword,
+      full_name: signupFullName,
+    });
+
+    if (!validation.success) {
+      const firstError = validation.error.errors[0];
+      toast({
+        title: "Geçersiz Bilgiler",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { error } = await supabase.auth.signUp({
-        email: signupEmail,
-        password: signupPassword,
+        email: validation.data.email,
+        password: validation.data.password,
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
-            full_name: signupFullName,
+            full_name: validation.data.full_name,
           },
         },
       });
@@ -105,7 +152,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Hata",
-            description: error.message,
+            description: "Kayıt yapılamadı. Lütfen tekrar deneyin.",
             variant: "destructive",
           });
         }
@@ -175,8 +222,10 @@ const Auth = () => {
                     onChange={(e) => setLoginPassword(e.target.value)}
                     required
                     disabled={loading}
-                    minLength={6}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    En az 6 karakter olmalıdır
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
@@ -220,10 +269,9 @@ const Auth = () => {
                     onChange={(e) => setSignupPassword(e.target.value)}
                     required
                     disabled={loading}
-                    minLength={6}
                   />
                   <p className="text-xs text-muted-foreground">
-                    En az 6 karakter olmalıdır
+                    En az 8 karakter olmalıdır
                   </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
