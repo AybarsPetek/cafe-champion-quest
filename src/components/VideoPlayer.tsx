@@ -1,9 +1,10 @@
 interface VideoPlayerProps {
   videoUrl: string | null;
   title: string;
+  onVideoEnd?: () => void;
 }
 
-const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
   const getEmbedUrl = (url: string): string | null => {
     if (!url) return null;
 
@@ -64,6 +65,7 @@ const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
           controlsList="nodownload nofullscreen noremoteplayback"
           disablePictureInPicture
           onContextMenu={(e) => e.preventDefault()}
+          onEnded={onVideoEnd}
         >
           <source src={embedUrl} type={`video/${embedUrl.split('.').pop()}`} />
           Tarayıcınız video oynatmayı desteklemiyor.

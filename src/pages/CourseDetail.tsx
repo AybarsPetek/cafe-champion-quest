@@ -48,6 +48,14 @@ const CourseDetail = () => {
 
   const handleMarkComplete = () => {
     if (user && currentVideoId) {
+      console.log('Manually marking video complete:', { userId: user.id, videoId: currentVideoId });
+      markVideoComplete.mutate({ userId: user.id, videoId: currentVideoId });
+    }
+  };
+
+  const handleVideoEnd = () => {
+    if (user && currentVideoId) {
+      console.log('Video ended, auto-marking complete:', { userId: user.id, videoId: currentVideoId });
       markVideoComplete.mutate({ userId: user.id, videoId: currentVideoId });
     }
   };
@@ -91,6 +99,7 @@ const CourseDetail = () => {
                     ? course.videos.find((v) => v.id === currentVideoId)?.title || course.title
                     : course.title
                 }
+                onVideoEnd={handleVideoEnd}
               />
               {user && currentVideoId && (
                 <CardContent className="pt-4">
