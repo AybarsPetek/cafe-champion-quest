@@ -18,7 +18,7 @@ const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
       if (match) {
         const videoId = match[1];
         console.log('YouTube video detected, ID:', videoId);
-        return `https://www.youtube.com/embed/${videoId}`;
+        return `https://www.youtube.com/embed/${videoId}?disablekb=1&fs=0&modestbranding=1&rel=0`;
       }
     }
 
@@ -61,7 +61,9 @@ const VideoPlayer = ({ videoUrl, title }: VideoPlayerProps) => {
         <video
           className="w-full h-full"
           controls
-          controlsList="nodownload"
+          controlsList="nodownload nofullscreen noremoteplayback"
+          disablePictureInPicture
+          onContextMenu={(e) => e.preventDefault()}
         >
           <source src={embedUrl} type={`video/${embedUrl.split('.').pop()}`} />
           Tarayıcınız video oynatmayı desteklemiyor.

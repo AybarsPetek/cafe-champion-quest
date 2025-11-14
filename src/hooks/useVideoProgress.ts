@@ -14,6 +14,8 @@ export const useVideoProgress = () => {
       userId: string;
       videoId: string;
     }) => {
+      console.log('Marking video complete:', { userId, videoId });
+      
       const { data, error } = await supabase
         .from("user_video_progress")
         .upsert(
@@ -28,14 +30,23 @@ export const useVideoProgress = () => {
           }
         )
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error marking video complete:', error);
+        throw error;
+      }
+      
+      console.log('Video marked complete successfully:', data);
       return data;
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (data, variables) => {
+      console.log('Success callback triggered');
+      
+      // Invalidate all related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ["course"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", variables.userId] });
+      
       toast({
         title: "Video Tamamlandı! 🎉",
         description: "İlerlemeniz kaydedildi.",
