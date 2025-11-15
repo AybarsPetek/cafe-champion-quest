@@ -6,22 +6,32 @@ export const useAdminUsers = () => {
   return useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          user_roles (
-            role
-          )
-        `)
-        .order('created_at', { ascending: false });
+      // Fetch profiles and roles in parallel to avoid requiring a DB relationship between tables
+      const [
+        { data: profiles, error: profilesError },
+        { data: roles, error: rolesError }
+      ] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('user_roles')
+          .select('user_id, role')
+      ]);
 
-      if (error) throw error;
-      
-      // Transform data to flatten user_roles
+      if (profilesError) throw profilesError;
+      if (rolesError) throw rolesError;
+
+      const roleByUser: Record<string, string> = {};
+      roles?.forEach((r: any) => {
+        // If multiple roles ever exist, prefer the first one returned
+        if (!roleByUser[r.user_id]) roleByUser[r.user_id] = r.role;
+      });
+
       return profiles?.map((profile: any) => ({
         ...profile,
-        role: profile.user_roles?.[0]?.role || 'user'
+        role: roleByUser[profile.id] || 'user',
       }));
     },
   });
