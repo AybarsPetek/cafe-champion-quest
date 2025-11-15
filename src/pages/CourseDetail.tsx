@@ -42,8 +42,24 @@ const CourseDetail = () => {
     }
   }, [course]);
 
-  const handleVideoClick = (videoId: string) => {
+  const handleVideoClick = async (videoId: string) => {
     setCurrentVideoId(videoId);
+    
+    // Update last watched video in database
+    if (user && id) {
+      await supabase
+        .from("user_course_progress")
+        .upsert(
+          {
+            user_id: user.id,
+            course_id: id,
+            last_watched_video_id: videoId,
+          },
+          {
+            onConflict: "user_id,course_id",
+          }
+        );
+    }
   };
 
   const handleMarkComplete = () => {
