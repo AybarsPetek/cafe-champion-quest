@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import CourseDetail from "./pages/CourseDetail";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -25,7 +26,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/courses" element={<Courses />} />
-          <Route 
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route
             path="/dashboard" 
             element={
               <ProtectedRoute>
