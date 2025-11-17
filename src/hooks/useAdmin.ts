@@ -302,3 +302,86 @@ export const useUpdateUserRole = () => {
     },
   });
 };
+
+export const useAdminCertificates = () => {
+  return useQuery({
+    queryKey: ['admin-certificates'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_course_progress')
+        .select(`
+          *,
+          profiles!inner(id, full_name),
+          courses!inner(id, title),
+          certificates(certificate_number, issued_at)
+        `)
+        .eq('completed', true)
+        .order('completed_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useIssueCertificate = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      courseId,
+    }: {
+      userId: string;
+      courseId: string;
+    }) => {
+      // Check if certificate already exists
+      const { data: existingCert } = await supabase
+        .from("certificates")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("course_id", courseId)
+        .maybeSingle();
+
+      if (existingCert) {
+        throw new Error("Bu kullanıcı için bu kursa ait sertifika zaten mevcut.");
+      }
+
+      // Generate unique certificate number
+      const { data: funcData, error: funcError } = await supabase.rpc(
+        "generate_certificate_number"
+      );
+
+      if (funcError) throw funcError;
+      const certificateNumber = funcData;
+
+      // Insert certificate record
+      const { data, error } = await supabase
+        .from("certificates")
+        .insert({
+          user_id: userId,
+          course_id: courseId,
+          certificate_number: certificateNumber,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-certificates'] });
+      toast({
+        title: "Başarılı",
+        description: "Sertifika başarıyla oluşturuldu.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Hata",
+        description: error.message || "Sertifika oluşturulurken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+};

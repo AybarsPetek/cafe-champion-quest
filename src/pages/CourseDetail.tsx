@@ -9,7 +9,6 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Clock, Star, CheckCircle, PlayCircle } from "lucide-react";
 import { useCourseDetail } from "@/hooks/useCourseDetail";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
-import { useCertificate } from "@/hooks/useCertificate";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -34,7 +33,6 @@ const CourseDetail = () => {
 
   const { data: course, isLoading } = useCourseDetail(id || "", user?.id);
   const { markVideoComplete } = useVideoProgress();
-  const { generateCertificate } = useCertificate();
 
   useEffect(() => {
     if (course?.lastWatchedVideoId) {
@@ -78,24 +76,6 @@ const CourseDetail = () => {
     }
   };
 
-  const handleGenerateCertificate = async () => {
-    if (!user || !course) return;
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .single();
-
-    const userName = profile?.full_name || user.email || "Kullanıcı";
-
-    generateCertificate.mutate({
-      userId: user.id,
-      courseId: course.id,
-      userName,
-      courseName: course.title,
-    });
-  };
 
   if (isLoading || !course) {
     return (
@@ -144,35 +124,6 @@ const CourseDetail = () => {
                     <CheckCircle className="mr-2 h-4 w-4" />
                     Videoyu Tamamla
                   </Button>
-                  {course.progress === 100 && (
-                    <Button
-                      onClick={handleGenerateCertificate}
-                      variant="outline"
-                      className="w-full"
-                      disabled={generateCertificate.isPending}
-                    >
-                      {generateCertificate.isPending ? (
-                        <>Oluşturuluyor...</>
-                      ) : (
-                        <>
-                          <svg
-                            className="mr-2 h-4 w-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          Sertifika İndir
-                        </>
-                      )}
-                    </Button>
-                  )}
                 </CardContent>
               )}
             </Card>
