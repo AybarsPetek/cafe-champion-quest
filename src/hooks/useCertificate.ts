@@ -64,74 +64,103 @@ export const useCertificate = () => {
         format: "a4",
       });
 
-      // Set background color
+      // Set background with a subtle gradient effect using rectangles
       doc.setFillColor(249, 250, 251);
       doc.rect(0, 0, 297, 210, "F");
 
-      // Border
+      // Outer border
       doc.setDrawColor(99, 102, 241);
-      doc.setLineWidth(3);
-      doc.rect(10, 10, 277, 190);
+      doc.setLineWidth(2);
+      doc.rect(15, 15, 267, 180);
 
       // Inner decorative border
       doc.setDrawColor(165, 180, 252);
       doc.setLineWidth(0.5);
-      doc.rect(15, 15, 267, 180);
+      doc.rect(20, 20, 257, 170);
 
-      // Title
-      doc.setFontSize(36);
+      // Decorative corner elements
+      doc.setFillColor(99, 102, 241);
+      [
+        [20, 20], [267, 20], [20, 180], [267, 180]
+      ].forEach(([x, y]) => {
+        doc.circle(x, y, 3, "F");
+      });
+
+      // Title with decorative underline
+      doc.setFontSize(42);
       doc.setTextColor(30, 41, 59);
       doc.setFont("helvetica", "bold");
-      doc.text("Sertifika", 148.5, 45, { align: "center" });
+      doc.text("CERTIFICATE", 148.5, 50, { align: "center" });
+      
+      doc.setDrawColor(99, 102, 241);
+      doc.setLineWidth(1);
+      doc.line(100, 55, 197, 55);
 
       // Subtitle
-      doc.setFontSize(14);
+      doc.setFontSize(12);
       doc.setTextColor(100, 116, 139);
       doc.setFont("helvetica", "normal");
-      doc.text("Bu Sertifika Şunu Onaylar:", 148.5, 60, { align: "center" });
+      doc.text("This certifies that", 148.5, 70, { align: "center" });
 
-      // User name
-      doc.setFontSize(28);
+      // User name with decorative box
+      doc.setFillColor(240, 242, 255);
+      doc.roundedRect(50, 77, 197, 18, 2, 2, "F");
+      
+      doc.setFontSize(24);
       doc.setTextColor(99, 102, 241);
       doc.setFont("helvetica", "bold");
-      doc.text(userName, 148.5, 85, { align: "center" });
+      doc.text(userName, 148.5, 89, { align: "center" });
 
       // Course completion text
-      doc.setFontSize(14);
+      doc.setFontSize(12);
       doc.setTextColor(71, 85, 105);
       doc.setFont("helvetica", "normal");
-      doc.text("aşağıdaki eğitimi başarıyla tamamlamıştır:", 148.5, 100, {
+      doc.text("has successfully completed the course", 148.5, 107, {
         align: "center",
       });
 
-      // Course name
-      doc.setFontSize(20);
+      // Course name with emphasis
+      doc.setFontSize(18);
       doc.setTextColor(30, 41, 59);
       doc.setFont("helvetica", "bold");
-      doc.text(courseName, 148.5, 115, { align: "center" });
+      
+      // Handle long course names by splitting into multiple lines if needed
+      const maxWidth = 220;
+      const lines = doc.splitTextToSize(courseName, maxWidth);
+      const startY = 120;
+      lines.forEach((line: string, index: number) => {
+        doc.text(line, 148.5, startY + (index * 8), { align: "center" });
+      });
 
-      // Date and certificate number
-      doc.setFontSize(11);
+      // Date and certificate number in a box
+      const infoY = startY + (lines.length * 8) + 15;
+      doc.setFillColor(249, 250, 251);
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(70, infoY, 157, 25, 2, 2, "FD");
+      
+      doc.setFontSize(10);
       doc.setTextColor(100, 116, 139);
       doc.setFont("helvetica", "normal");
       
-      const issueDate = new Date(issuedAt).toLocaleDateString("tr-TR", {
+      const issueDate = new Date(issuedAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
       
-      doc.text(`Tarih: ${issueDate}`, 148.5, 145, { align: "center" });
-      doc.text(`Sertifika No: ${certificateNumber}`, 148.5, 155, {
+      doc.text(`Issue Date: ${issueDate}`, 148.5, infoY + 10, { align: "center" });
+      doc.text(`Certificate No: ${certificateNumber}`, 148.5, infoY + 18, {
         align: "center",
       });
 
       // Signature line
-      doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.5);
-      doc.line(110, 175, 187, 175);
-      doc.setFontSize(10);
-      doc.text("Eğitmen İmzası", 148.5, 182, { align: "center" });
+      doc.setDrawColor(99, 102, 241);
+      doc.setLineWidth(0.8);
+      doc.line(115, 170, 182, 170);
+      doc.setFontSize(9);
+      doc.setTextColor(71, 85, 105);
+      doc.text("Authorized Signature", 148.5, 176, { align: "center" });
 
       // Save PDF
       doc.save(`sertifika-${certificateNumber}.pdf`);

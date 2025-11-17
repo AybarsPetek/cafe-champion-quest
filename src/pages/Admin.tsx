@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download } from "lucide-react";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -21,12 +21,16 @@ import {
   useUpdateVideo,
   useDeleteVideo,
   useUpdateUserRole,
+  useAdminCertificates,
+  useIssueCertificate,
 } from "@/hooks/useAdmin";
+import { useCertificate } from "@/hooks/useCertificate";
 
 const Admin = () => {
   const { data: users } = useAdminUsers();
   const { data: courses } = useAdminCourses();
   const { data: videos } = useAdminVideos();
+  const { data: certificates } = useAdminCertificates();
   
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
@@ -35,6 +39,8 @@ const Admin = () => {
   const updateVideo = useUpdateVideo();
   const deleteVideo = useDeleteVideo();
   const updateUserRole = useUpdateUserRole();
+  const issueCertificate = useIssueCertificate();
+  const { generateCertificate } = useCertificate();
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -138,7 +144,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
             <TabsTrigger value="courses">
               <BookOpen className="w-4 h-4 mr-2" />
               Kurslar
@@ -146,6 +152,10 @@ const Admin = () => {
             <TabsTrigger value="videos">
               <Video className="w-4 h-4 mr-2" />
               Videolar
+            </TabsTrigger>
+            <TabsTrigger value="certificates">
+              <Award className="w-4 h-4 mr-2" />
+              Sertifikalar
             </TabsTrigger>
             <TabsTrigger value="users">
               <Users className="w-4 h-4 mr-2" />
@@ -435,6 +445,102 @@ const Admin = () => {
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground">
                           Henüz video eklenmemiş
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="certificates">
+            <Card>
+              <CardHeader>
+                <CardTitle>Sertifika Yönetimi</CardTitle>
+                <CardDescription>Tamamlanan kurslar için sertifika oluşturun ve yönetin</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Kullanıcı</TableHead>
+                      <TableHead>Kurs</TableHead>
+                      <TableHead>Tamamlanma Tarihi</TableHead>
+                      <TableHead>Sertifika Durumu</TableHead>
+                      <TableHead>İşlemler</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {certificates && certificates.length > 0 ? (
+                      certificates.map((cert: any) => {
+                        const hasCertificate = cert.certificates && cert.certificates.length > 0;
+                        return (
+                          <TableRow key={`${cert.user_id}-${cert.course_id}`}>
+                            <TableCell className="font-medium">
+                              {cert.profiles?.full_name || "İsimsiz"}
+                            </TableCell>
+                            <TableCell>{cert.courses?.title || "Bilinmiyor"}</TableCell>
+                            <TableCell>
+                              {cert.completed_at ? new Date(cert.completed_at).toLocaleDateString("tr-TR") : "-"}
+                            </TableCell>
+                            <TableCell>
+                              {hasCertificate ? (
+                                <span className="flex items-center gap-2 text-primary">
+                                  <Award className="w-4 h-4" />
+                                  Verildi
+                                  <span className="text-xs text-muted-foreground">
+                                    ({cert.certificates[0].certificate_number})
+                                  </span>
+                                </span>
+                              ) : (
+                                <span className="text-muted-foreground">Verilmedi</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-2">
+                                {!hasCertificate && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => {
+                                      issueCertificate.mutate({
+                                        userId: cert.user_id,
+                                        courseId: cert.course_id,
+                                      });
+                                    }}
+                                    disabled={issueCertificate.isPending}
+                                  >
+                                    <Award className="w-4 h-4 mr-1" />
+                                    Sertifika Ver
+                                  </Button>
+                                )}
+                                {hasCertificate && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      generateCertificate.mutate({
+                                        userId: cert.user_id,
+                                        courseId: cert.course_id,
+                                        userName: cert.profiles?.full_name || "Kullanıcı",
+                                        courseName: cert.courses?.title || "Kurs",
+                                      });
+                                    }}
+                                    disabled={generateCertificate.isPending}
+                                  >
+                                    <Download className="w-4 h-4 mr-1" />
+                                    PDF İndir
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          Henüz tamamlanmış kurs bulunmuyor
                         </TableCell>
                       </TableRow>
                     )}
