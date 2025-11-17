@@ -157,9 +157,24 @@ const Auth = () => {
           });
         }
       } else {
+        // Send welcome email
+        try {
+          await supabase.functions.invoke('send-notification', {
+            body: {
+              type: 'new_signup',
+              email: validation.data.email,
+              data: {
+                userName: validation.data.full_name,
+              },
+            },
+          });
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+        }
+
         toast({
           title: "Kayıt Başarılı!",
-          description: "Hesabınız oluşturuldu. Giriş yapabilirsiniz.",
+          description: "Hesabınız oluşturuldu. Onay bekleniyor.",
         });
         // Clear signup form
         setSignupEmail("");
