@@ -9,19 +9,38 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isApproved, setIsApproved] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check current session
+    const checkUserStatus = async (userId: string) => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('is_approved')
+        .eq('id', userId)
+        .single();
+      
+      setIsApproved(profile?.is_approved ?? false);
+      setLoading(false);
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      setLoading(false);
+      if (session?.user) {
+        checkUserStatus(session.user.id);
+      } else {
+        setLoading(false);
+      }
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      setLoading(false);
+      if (session?.user) {
+        checkUserStatus(session.user.id);
+      } else {
+        setIsApproved(null);
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -37,6 +56,10 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  if (!isApproved) {
+    return <Navigate to="/pending-approval" replace />;
   }
 
   return <>{children}</>;

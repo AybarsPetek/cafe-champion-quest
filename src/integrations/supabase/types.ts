@@ -168,6 +168,7 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string
+          is_approved: boolean
           level: string | null
           total_points: number | null
           updated_at: string | null
@@ -177,6 +178,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id: string
+          is_approved?: boolean
           level?: string | null
           total_points?: number | null
           updated_at?: string | null
@@ -186,6 +188,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          is_approved?: boolean
           level?: string | null
           total_points?: number | null
           updated_at?: string | null
@@ -351,6 +354,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_user_approved: { Args: { user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"

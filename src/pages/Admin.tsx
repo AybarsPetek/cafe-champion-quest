@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck } from "lucide-react";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -23,6 +23,9 @@ import {
   useUpdateUserRole,
   useAdminCertificates,
   useIssueCertificate,
+  usePendingUsers,
+  useApproveUser,
+  useRejectUser,
 } from "@/hooks/useAdmin";
 import { useCertificate } from "@/hooks/useCertificate";
 
@@ -31,6 +34,7 @@ const Admin = () => {
   const { data: courses } = useAdminCourses();
   const { data: videos } = useAdminVideos();
   const { data: certificates } = useAdminCertificates();
+  const { data: pendingUsers } = usePendingUsers();
   
   const createCourse = useCreateCourse();
   const updateCourse = useUpdateCourse();
@@ -40,6 +44,8 @@ const Admin = () => {
   const deleteVideo = useDeleteVideo();
   const updateUserRole = useUpdateUserRole();
   const issueCertificate = useIssueCertificate();
+  const approveUser = useApproveUser();
+  const rejectUser = useRejectUser();
   const { generateCertificate } = useCertificate();
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
@@ -143,8 +149,17 @@ const Admin = () => {
           <p className="text-muted-foreground">Sistemi yönetin ve içerikleri düzenleyin</p>
         </div>
 
-        <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[500px]">
+        <Tabs defaultValue="pending" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:w-[650px]">
+            <TabsTrigger value="pending">
+              <UserCheck className="w-4 h-4 mr-2" />
+              Onay Bekleyen
+              {pendingUsers && pendingUsers.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 bg-yellow-500 text-white rounded-full text-xs">
+                  {pendingUsers.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="courses">
               <BookOpen className="w-4 h-4 mr-2" />
               Kurslar
@@ -162,6 +177,67 @@ const Admin = () => {
               Kullanıcılar
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="pending">
+            <Card>
+              <CardHeader>
+                <CardTitle>Onay Bekleyen Kullanıcılar</CardTitle>
+                <CardDescription>Yeni kayıt olan kullanıcıları onaylayın veya reddedin</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Ad Soyad</TableHead>
+                      <TableHead>Kayıt Tarihi</TableHead>
+                      <TableHead>İşlemler</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingUsers && pendingUsers.length > 0 ? (
+                      pendingUsers.map((user: any) => (
+                        <TableRow key={user.id}>
+                          <TableCell className="font-medium">
+                            {user.full_name || "İsimsiz"}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(user.created_at).toLocaleDateString("tr-TR")}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => approveUser.mutate(user.id)}
+                                disabled={approveUser.isPending}
+                              >
+                                <UserCheck className="w-4 h-4 mr-1" />
+                                Onayla
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => rejectUser.mutate(user.id)}
+                                disabled={rejectUser.isPending}
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Reddet
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center text-muted-foreground">
+                          Onay bekleyen kullanıcı bulunmuyor
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="courses">
             <Card>

@@ -10,6 +10,7 @@ import CourseDetail from "./pages/CourseDetail";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Leaderboard from "./pages/Leaderboard";
+import PendingApproval from "./pages/PendingApproval";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -25,6 +26,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/pending-approval" element={<PendingApproval />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route
