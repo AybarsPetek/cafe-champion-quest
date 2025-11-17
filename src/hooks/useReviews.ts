@@ -29,7 +29,7 @@ export const useCourseReviews = (courseId: string) => {
         .from('course_reviews')
         .select(`
           *,
-          profiles!inner(full_name)
+          profiles(full_name)
         `)
         .eq('course_id', courseId)
         .order('created_at', { ascending: false });
