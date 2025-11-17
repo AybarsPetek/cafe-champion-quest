@@ -40,8 +40,44 @@ export const useVideoProgress = () => {
       console.log('Video marked complete successfully:', data);
       return data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       console.log('Success callback triggered');
+      
+      // Check if course is completed
+      const { data: courseProgress } = await supabase
+        .from("user_course_progress")
+        .select("*, courses(title)")
+        .eq("user_id", variables.userId)
+        .eq("completed", true)
+        .single();
+
+      // If course just completed, send email
+      if (courseProgress && courseProgress.progress_percentage === 100) {
+        try {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", variables.userId)
+            .single();
+
+          const { data: { user } } = await supabase.auth.getUser();
+
+          if (user?.email) {
+            await supabase.functions.invoke('send-notification', {
+              body: {
+                type: 'course_completed',
+                email: user.email,
+                data: {
+                  userName: profile?.full_name || 'Değerli Öğrenci',
+                  courseName: courseProgress.courses?.title || 'Kurs',
+                },
+              },
+            });
+          }
+        } catch (emailError) {
+          console.error('Failed to send course completion email:', emailError);
+        }
+      }
       
       // Invalidate all related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ["course"] });

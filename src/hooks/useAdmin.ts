@@ -407,25 +407,25 @@ export const useApproveUser = () => {
   
   return useMutation({
     mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_approved: true })
-        .eq('id', userId);
+      const { data, error } = await supabase.functions.invoke('approve-user', {
+        body: { userId },
+      });
 
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-users'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       toast({
         title: "Başarılı",
-        description: "Kullanıcı başarıyla onaylandı.",
+        description: "Kullanıcı onaylandı ve email gönderildi.",
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Hata",
-        description: "Kullanıcı onaylanırken bir hata oluştu.",
+        description: error.message || "Kullanıcı onaylanırken bir hata oluştu.",
         variant: "destructive",
       });
     },
