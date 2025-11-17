@@ -385,3 +385,78 @@ export const useIssueCertificate = () => {
     },
   });
 };
+
+export const usePendingUsers = () => {
+  return useQuery({
+    queryKey: ['pending-users'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('is_approved', false)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+};
+
+export const useApproveUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_approved: true })
+        .eq('id', userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({
+        title: "Başarılı",
+        description: "Kullanıcı başarıyla onaylandı.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı onaylanırken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+export const useRejectUser = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (userId: string) => {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-users'] });
+      toast({
+        title: "Başarılı",
+        description: "Kullanıcı başarıyla reddedildi.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı reddedilirken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+};
