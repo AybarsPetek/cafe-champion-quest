@@ -57,110 +57,125 @@ export const useCertificate = () => {
         issuedAt = data.issued_at;
       }
 
-      // Generate PDF
+      // Generate PDF - TheCompany Coffee Academy branded certificate
       const doc = new jsPDF({
         orientation: "landscape",
         unit: "mm",
         format: "a4",
       });
 
-      // Set background with a subtle gradient effect using rectangles
-      doc.setFillColor(249, 250, 251);
+      // Warm cream background
+      doc.setFillColor(254, 252, 248);
       doc.rect(0, 0, 297, 210, "F");
 
-      // Outer border
-      doc.setDrawColor(99, 102, 241);
-      doc.setLineWidth(2);
+      // Coffee brown outer border
+      doc.setDrawColor(139, 90, 43);
+      doc.setLineWidth(3);
+      doc.rect(10, 10, 277, 190);
+
+      // Golden inner border
+      doc.setDrawColor(196, 155, 80);
+      doc.setLineWidth(1.5);
       doc.rect(15, 15, 267, 180);
 
-      // Inner decorative border
-      doc.setDrawColor(165, 180, 252);
-      doc.setLineWidth(0.5);
-      doc.rect(20, 20, 257, 170);
-
-      // Decorative corner elements
-      doc.setFillColor(99, 102, 241);
-      [
-        [20, 20], [267, 20], [20, 180], [267, 180]
-      ].forEach(([x, y]) => {
-        doc.circle(x, y, 3, "F");
+      // Decorative corner coffee beans (circles)
+      doc.setFillColor(139, 90, 43);
+      [[20, 20], [272, 20], [20, 190], [272, 190]].forEach(([x, y]) => {
+        doc.circle(x, y, 4, "F");
+        doc.setFillColor(196, 155, 80);
+        doc.circle(x, y, 2, "F");
+        doc.setFillColor(139, 90, 43);
       });
 
-      // Title with decorative underline
-      doc.setFontSize(42);
-      doc.setTextColor(30, 41, 59);
+      // Header - Company Name
+      doc.setFontSize(16);
+      doc.setTextColor(139, 90, 43);
       doc.setFont("helvetica", "bold");
-      doc.text("CERTIFICATE", 148.5, 50, { align: "center" });
-      
-      doc.setDrawColor(99, 102, 241);
+      doc.text("THECOMPANY COFFEE ACADEMY", 148.5, 35, { align: "center" });
+
+      // Coffee cup icon (decorative line)
+      doc.setDrawColor(196, 155, 80);
       doc.setLineWidth(1);
-      doc.line(100, 55, 197, 55);
+      doc.line(100, 40, 197, 40);
+
+      // Main Title
+      doc.setFontSize(38);
+      doc.setTextColor(62, 39, 22);
+      doc.setFont("helvetica", "bold");
+      doc.text("BASARI SERTIFIKASI", 148.5, 58, { align: "center" });
 
       // Subtitle
       doc.setFontSize(12);
-      doc.setTextColor(100, 116, 139);
+      doc.setTextColor(139, 90, 43);
       doc.setFont("helvetica", "normal");
-      doc.text("This certifies that", 148.5, 70, { align: "center" });
+      doc.text("Bu belge, asagida belirtilen kisinin", 148.5, 72, { align: "center" });
 
       // User name with decorative box
-      doc.setFillColor(240, 242, 255);
-      doc.roundedRect(50, 77, 197, 18, 2, 2, "F");
+      doc.setFillColor(254, 247, 235);
+      doc.setDrawColor(196, 155, 80);
+      doc.setLineWidth(0.8);
+      doc.roundedRect(45, 78, 207, 20, 3, 3, "FD");
       
-      doc.setFontSize(24);
-      doc.setTextColor(99, 102, 241);
+      doc.setFontSize(26);
+      doc.setTextColor(139, 90, 43);
       doc.setFont("helvetica", "bold");
-      doc.text(userName, 148.5, 89, { align: "center" });
+      doc.text(userName, 148.5, 92, { align: "center" });
 
       // Course completion text
       doc.setFontSize(12);
-      doc.setTextColor(71, 85, 105);
+      doc.setTextColor(100, 80, 60);
       doc.setFont("helvetica", "normal");
-      doc.text("has successfully completed the course", 148.5, 107, {
+      doc.text("asagidaki egitimi basariyla tamamladigini belgeler:", 148.5, 108, {
         align: "center",
       });
 
       // Course name with emphasis
-      doc.setFontSize(18);
-      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(20);
+      doc.setTextColor(62, 39, 22);
       doc.setFont("helvetica", "bold");
       
-      // Handle long course names by splitting into multiple lines if needed
+      // Handle long course names
       const maxWidth = 220;
       const lines = doc.splitTextToSize(courseName, maxWidth);
-      const startY = 120;
+      const startY = 122;
       lines.forEach((line: string, index: number) => {
-        doc.text(line, 148.5, startY + (index * 8), { align: "center" });
+        doc.text(line, 148.5, startY + (index * 9), { align: "center" });
       });
 
-      // Date and certificate number in a box
-      const infoY = startY + (lines.length * 8) + 15;
-      doc.setFillColor(249, 250, 251);
-      doc.setDrawColor(203, 213, 225);
+      // Date and certificate number box
+      const infoY = startY + (lines.length * 9) + 12;
+      doc.setFillColor(254, 252, 248);
+      doc.setDrawColor(196, 155, 80);
       doc.setLineWidth(0.5);
-      doc.roundedRect(70, infoY, 157, 25, 2, 2, "FD");
+      doc.roundedRect(75, infoY, 147, 22, 2, 2, "FD");
       
       doc.setFontSize(10);
-      doc.setTextColor(100, 116, 139);
+      doc.setTextColor(100, 80, 60);
       doc.setFont("helvetica", "normal");
       
-      const issueDate = new Date(issuedAt).toLocaleDateString("en-US", {
+      const issueDate = new Date(issuedAt).toLocaleDateString("tr-TR", {
         year: "numeric",
         month: "long",
         day: "numeric",
       });
       
-      doc.text(`Issue Date: ${issueDate}`, 148.5, infoY + 10, { align: "center" });
-      doc.text(`Certificate No: ${certificateNumber}`, 148.5, infoY + 18, {
+      doc.text(`Verilme Tarihi: ${issueDate}`, 148.5, infoY + 8, { align: "center" });
+      doc.text(`Sertifika No: ${certificateNumber}`, 148.5, infoY + 16, {
         align: "center",
       });
 
       // Signature line
-      doc.setDrawColor(99, 102, 241);
+      doc.setDrawColor(139, 90, 43);
       doc.setLineWidth(0.8);
-      doc.line(115, 170, 182, 170);
-      doc.setFontSize(9);
-      doc.setTextColor(71, 85, 105);
-      doc.text("Authorized Signature", 148.5, 176, { align: "center" });
+      doc.line(105, 175, 192, 175);
+      doc.setFontSize(10);
+      doc.setTextColor(100, 80, 60);
+      doc.text("Akademi Muduru", 148.5, 182, { align: "center" });
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setTextColor(150, 130, 110);
+      doc.text("TheCompany Coffee Academy - Profesyonel Barista Egitim Programi", 148.5, 195, { align: "center" });
 
       // Save PDF
       doc.save(`sertifika-${certificateNumber}.pdf`);
