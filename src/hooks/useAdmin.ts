@@ -307,19 +307,42 @@ export const useAdminCertificates = () => {
   return useQuery({
     queryKey: ['admin-certificates'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch completed courses
+      const { data: progressData, error: progressError } = await supabase
         .from('user_course_progress')
         .select(`
           *,
           profiles!inner(id, full_name),
-          courses!inner(id, title),
-          certificates(certificate_number, issued_at)
+          courses!inner(id, title)
         `)
         .eq('completed', true)
         .order('completed_at', { ascending: false });
 
-      if (error) throw error;
-      return data;
+      if (progressError) throw progressError;
+
+      // Fetch all certificates
+      const { data: certificatesData, error: certError } = await supabase
+        .from('certificates')
+        .select('*');
+
+      if (certError) throw certError;
+
+      // Create a map for quick lookup
+      const certMap = new Map<string, any>();
+      certificatesData?.forEach((cert: any) => {
+        const key = `${cert.user_id}-${cert.course_id}`;
+        certMap.set(key, cert);
+      });
+
+      // Merge data
+      return progressData?.map((progress: any) => {
+        const key = `${progress.user_id}-${progress.course_id}`;
+        const cert = certMap.get(key);
+        return {
+          ...progress,
+          certificates: cert ? [cert] : [],
+        };
+      });
     },
   });
 };
