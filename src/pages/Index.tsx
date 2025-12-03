@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, BookOpen, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import NewMembersSection from "@/components/NewMembersSection";
 import heroImage from "@/assets/hero-barista.jpg";
 
 const Index = () => {
@@ -93,6 +94,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* New Members Section */}
+      <NewMembersSection />
 
       {/* CTA Section */}
       <section className="py-16 md:py-24 gradient-hero">

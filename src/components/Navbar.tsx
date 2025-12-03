@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookOpen, User, LogOut, Shield, Trophy } from "lucide-react";
+import { Home, BookOpen, User, LogOut, Shield, Trophy, MessageCircle, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -59,6 +59,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/", label: "Ana Sayfa", icon: Home },
     { path: "/courses", label: "Eğitimler", icon: BookOpen },
+    { path: "/forum", label: "Forum", icon: MessageCircle },
     { path: "/leaderboard", label: "Sıralama", icon: Trophy },
     { path: "/dashboard", label: "Panelim", icon: User },
   ];
@@ -100,10 +101,17 @@ const Navbar = () => {
             )}
             
             {user ? (
-              <Button variant="ghost" onClick={handleLogout} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Çıkış</span>
-              </Button>
+              <>
+                <Button variant="ghost" size="icon" asChild>
+                  <Link to="/profile">
+                    <Settings className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button variant="ghost" onClick={handleLogout} className="gap-2">
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Çıkış</span>
+                </Button>
+              </>
             ) : (
               <Button asChild>
                 <Link to="/auth">Giriş Yap</Link>
