@@ -11,6 +11,11 @@ import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Leaderboard from "./pages/Leaderboard";
 import PendingApproval from "./pages/PendingApproval";
+import Profile from "./pages/Profile";
+import Forum from "./pages/Forum";
+import ForumCategory from "./pages/ForumCategory";
+import ForumTopic from "./pages/ForumTopic";
+import ForumNewTopic from "./pages/ForumNewTopic";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -29,6 +34,17 @@ const App = () => (
           <Route path="/pending-approval" element={<PendingApproval />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/forum" element={<Forum />} />
+          <Route path="/forum/category/:categoryId" element={<ForumCategory />} />
+          <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
+          <Route
+            path="/forum/new"
+            element={
+              <ProtectedRoute>
+                <ForumNewTopic />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard" 
             element={
@@ -36,6 +52,14 @@ const App = () => (
                 <Dashboard />
               </ProtectedRoute>
             } 
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
           />
           <Route 
             path="/course/:id" 
