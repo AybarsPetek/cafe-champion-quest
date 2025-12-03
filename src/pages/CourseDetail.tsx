@@ -7,10 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Clock, Star, CheckCircle, PlayCircle, Award, Download } from "lucide-react";
+import { ArrowLeft, Clock, Star, CheckCircle, PlayCircle, Award } from "lucide-react";
 import { useCourseDetail } from "@/hooks/useCourseDetail";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
-import { useCertificate } from "@/hooks/useCertificate";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
@@ -35,22 +34,6 @@ const CourseDetail = () => {
 
   const { data: course, isLoading } = useCourseDetail(id || "", user?.id);
   const { markVideoComplete } = useVideoProgress();
-  const { generateCertificate } = useCertificate();
-  const [userProfile, setUserProfile] = useState<{ full_name: string } | null>(null);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .single();
-        setUserProfile(data);
-      }
-    };
-    fetchProfile();
-  }, [user]);
 
   useEffect(() => {
     if (course?.lastWatchedVideoId) {
@@ -179,34 +162,17 @@ const CourseDetail = () => {
                   <Progress value={course.progress} className="h-2" />
                 </div>
 
-                {/* Certificate Download Button - Shows when course is 100% complete */}
-                {course.progress === 100 && user && (
+                {/* Course Completion Message */}
+                {course.progress === 100 && (
                   <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Award className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-primary">Tebrikler! 🎉</p>
-                          <p className="text-sm text-muted-foreground">Eğitimi başarıyla tamamladınız</p>
-                        </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Award className="h-5 w-5 text-primary" />
                       </div>
-                      <Button 
-                        onClick={() => {
-                          generateCertificate.mutate({
-                            userId: user.id,
-                            courseId: id || "",
-                            userName: userProfile?.full_name || "Kullanıcı",
-                            courseName: course.title,
-                          });
-                        }}
-                        disabled={generateCertificate.isPending}
-                        className="gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        {generateCertificate.isPending ? "İndiriliyor..." : "Sertifika İndir"}
-                      </Button>
+                      <div>
+                        <p className="font-semibold text-primary">Tebrikler! 🎉</p>
+                        <p className="text-sm text-muted-foreground">Eğitimi başarıyla tamamladınız. Sertifikanız admin tarafından hazırlandıktan sonra tarafınıza iletilecektir.</p>
+                      </div>
                     </div>
                   </div>
                 )}
