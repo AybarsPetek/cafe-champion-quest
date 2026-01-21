@@ -114,16 +114,25 @@ export const useUploadAvatar = () => {
   });
 };
 
+interface ProfilePublic {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  level: string | null;
+  total_points: number | null;
+  created_at: string | null;
+}
+
 export const useNewMembers = () => {
   return useQuery({
     queryKey: ["new-members"],
     queryFn: async () => {
+      // Use the public view to avoid exposing sensitive data
       const { data, error } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url, store_name, created_at")
-        .eq("is_approved", true)
+        .from("profiles_public" as any)
+        .select("id, full_name, avatar_url, created_at")
         .order("created_at", { ascending: false })
-        .limit(8);
+        .limit(8) as { data: ProfilePublic[] | null; error: any };
 
       if (error) throw error;
       return data;

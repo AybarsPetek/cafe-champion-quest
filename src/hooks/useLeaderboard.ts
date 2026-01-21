@@ -11,15 +11,24 @@ export interface LeaderboardUser {
   badges_earned: number;
 }
 
+interface ProfilePublic {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  level: string | null;
+  total_points: number | null;
+  created_at: string | null;
+}
+
 export const useLeaderboard = () => {
   return useQuery({
     queryKey: ['leaderboard'],
     queryFn: async () => {
-      // Get all profiles with their stats
+      // Get all profiles with their stats using the public view (excludes sensitive data)
       const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
+        .from('profiles_public' as any)
         .select('id, full_name, avatar_url, level, total_points')
-        .order('total_points', { ascending: false });
+        .order('total_points', { ascending: false }) as { data: ProfilePublic[] | null; error: any };
 
       if (profilesError) throw profilesError;
 
