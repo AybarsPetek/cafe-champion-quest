@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, MapPin } from "lucide-react";
+import { User } from "lucide-react";
 import { useNewMembers } from "@/hooks/useProfile";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -49,15 +48,9 @@ const NewMembersSection = () => {
                     <User className="w-8 h-8 text-primary" />
                   </AvatarFallback>
                 </Avatar>
-                <h3 className="font-bold text-sm md:text-base mb-1 truncate">
+                <h3 className="font-bold text-sm md:text-base mb-2 truncate">
                   {member.full_name || "Yeni Üye"}
                 </h3>
-                {member.store_name && (
-                  <p className="text-xs text-muted-foreground flex items-center justify-center gap-1 mb-2">
-                    <MapPin className="w-3 h-3" />
-                    <span className="truncate">{member.store_name}</span>
-                  </p>
-                )}
                 <p className="text-xs text-primary">
                   {formatDistanceToNow(new Date(member.created_at || new Date()), {
                     addSuffix: true,
