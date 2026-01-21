@@ -573,6 +573,20 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges_public: {
+        Row: {
+          badges_count: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      user_course_progress_public: {
+        Row: {
+          completed_courses: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       calculate_course_progress: {
