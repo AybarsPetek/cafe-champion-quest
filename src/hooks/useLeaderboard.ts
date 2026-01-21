@@ -20,6 +20,16 @@ interface ProfilePublic {
   created_at: string | null;
 }
 
+interface CourseProgressPublic {
+  user_id: string;
+  completed_courses: number;
+}
+
+interface BadgesPublic {
+  user_id: string;
+  badges_count: number;
+}
+
 export const useLeaderboard = () => {
   return useQuery({
     queryKey: ['leaderboard'],
@@ -32,29 +42,27 @@ export const useLeaderboard = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get completed courses count for each user
+      // Get completed courses count using aggregated view
       const { data: coursesData, error: coursesError } = await supabase
-        .from('user_course_progress')
-        .select('user_id, completed');
+        .from('user_course_progress_public' as any)
+        .select('user_id, completed_courses') as { data: CourseProgressPublic[] | null; error: any };
 
       if (coursesError) throw coursesError;
 
-      // Get badges count for each user
+      // Get badges count using aggregated view
       const { data: badgesData, error: badgesError } = await supabase
-        .from('user_badges')
-        .select('user_id');
+        .from('user_badges_public' as any)
+        .select('user_id, badges_count') as { data: BadgesPublic[] | null; error: any };
 
       if (badgesError) throw badgesError;
 
       // Combine data
       const leaderboard: LeaderboardUser[] = profiles?.map((profile) => {
-        const completedCourses = coursesData?.filter(
-          (c) => c.user_id === profile.id && c.completed
-        ).length || 0;
+        const courseProgress = coursesData?.find(c => c.user_id === profile.id);
+        const completedCourses = courseProgress?.completed_courses || 0;
 
-        const badgesEarned = badgesData?.filter(
-          (b) => b.user_id === profile.id
-        ).length || 0;
+        const badgeProgress = badgesData?.find(b => b.user_id === profile.id);
+        const badgesEarned = badgeProgress?.badges_count || 0;
 
         return {
           id: profile.id,
