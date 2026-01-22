@@ -16,6 +16,7 @@ import Forum from "./pages/Forum";
 import ForumCategory from "./pages/ForumCategory";
 import ForumTopic from "./pages/ForumTopic";
 import ForumNewTopic from "./pages/ForumNewTopic";
+import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
@@ -66,6 +67,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <CourseDetail />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/quiz/:courseId" 
+            element={
+              <ProtectedRoute>
+                <Quiz />
               </ProtectedRoute>
             } 
           />

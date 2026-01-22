@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, Clock, Star, CheckCircle, PlayCircle, Award } from "lucide-react";
+import { ArrowLeft, Clock, Star, CheckCircle, PlayCircle, Award, FileQuestion } from "lucide-react";
+import { useCourseQuiz, useUserQuizAttempts } from "@/hooks/useQuiz";
 import { useCourseDetail } from "@/hooks/useCourseDetail";
 import { useVideoProgress } from "@/hooks/useVideoProgress";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,9 @@ const CourseDetail = () => {
 
   const { data: course, isLoading } = useCourseDetail(id || "", user?.id);
   const { markVideoComplete } = useVideoProgress();
+  const { data: quiz } = useCourseQuiz(id || '');
+  const { data: quizAttempts } = useUserQuizAttempts(user?.id || '', quiz?.id || '');
+  const hasPassedQuiz = quizAttempts?.some(a => a.passed) || false;
 
   useEffect(() => {
     if (course?.lastWatchedVideoId) {
@@ -162,8 +166,36 @@ const CourseDetail = () => {
                   <Progress value={course.progress} className="h-2" />
                 </div>
 
+                {/* Quiz Section */}
+                {quiz && course.progress === 100 && (
+                  <div className="mt-6 p-4 bg-accent/10 rounded-lg border border-accent/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                          <FileQuestion className="h-5 w-5 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-semibold">Kurs Sonu Sınavı</p>
+                          <p className="text-sm text-muted-foreground">
+                            {hasPassedQuiz 
+                              ? "Sınavı geçtiniz! ✓" 
+                              : quiz.is_required_for_certificate 
+                                ? "Sertifika almak için sınavı geçmeniz gerekiyor." 
+                                : "Bilgilerinizi test edin."}
+                          </p>
+                        </div>
+                      </div>
+                      <Button asChild variant={hasPassedQuiz ? "outline" : "default"}>
+                        <Link to={`/quiz/${id}`}>
+                          {hasPassedQuiz ? "Tekrar Dene" : "Sınava Git"}
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
                 {/* Course Completion Message */}
-                {course.progress === 100 && (
+                {course.progress === 100 && (!quiz || hasPassedQuiz) && (
                   <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
