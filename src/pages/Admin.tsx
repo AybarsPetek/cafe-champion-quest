@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle } from "lucide-react";
+import QuizManagement from "@/components/admin/QuizManagement";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -150,12 +151,12 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-[650px]">
+          <TabsList className="grid w-full grid-cols-6 lg:w-[780px]">
             <TabsTrigger value="pending">
               <UserCheck className="w-4 h-4 mr-2" />
               Onay Bekleyen
               {pendingUsers && pendingUsers.length > 0 && (
-                <span className="ml-2 px-2 py-0.5 bg-yellow-500 text-white rounded-full text-xs">
+                <span className="ml-2 px-2 py-0.5 bg-accent text-accent-foreground rounded-full text-xs">
                   {pendingUsers.length}
                 </span>
               )}
@@ -167,6 +168,10 @@ const Admin = () => {
             <TabsTrigger value="videos">
               <Video className="w-4 h-4 mr-2" />
               Videolar
+            </TabsTrigger>
+            <TabsTrigger value="quizzes">
+              <HelpCircle className="w-4 h-4 mr-2" />
+              Quizler
             </TabsTrigger>
             <TabsTrigger value="certificates">
               <Award className="w-4 h-4 mr-2" />
@@ -528,6 +533,10 @@ const Admin = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="quizzes">
+            <QuizManagement />
           </TabsContent>
 
           <TabsContent value="certificates">
