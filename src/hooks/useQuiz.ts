@@ -42,7 +42,7 @@ export interface QuizAttempt {
   completed_at: string | null;
   score: number | null;
   total_points: number | null;
-  passed: boolean;
+  passed: boolean | null;
   time_spent_seconds: number | null;
 }
 
