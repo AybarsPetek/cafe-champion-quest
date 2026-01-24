@@ -53,7 +53,7 @@ const Quiz = () => {
   const submitQuiz = useSubmitQuiz();
 
   // Check if user already passed
-  const hasPassed = attempts?.some(a => a.passed) || false;
+  const hasPassed = attempts?.some(a => a.passed === true) || false;
 
   useEffect(() => {
     if (!quizLoading && !questionsLoading && user) {
@@ -84,7 +84,7 @@ const Quiz = () => {
       setResult({
         score: result.score || 0,
         total: result.total_points || 0,
-        passed: result.passed || false,
+        passed: result.passed === true,
         percentage: result.scorePercentage,
       });
       setQuizState('result');

@@ -37,7 +37,7 @@ const CourseDetail = () => {
   const { markVideoComplete } = useVideoProgress();
   const { data: quiz } = useCourseQuiz(id || '');
   const { data: quizAttempts } = useUserQuizAttempts(user?.id || '', quiz?.id || '');
-  const hasPassedQuiz = quizAttempts?.some(a => a.passed) || false;
+  const hasPassedQuiz = quizAttempts?.some(a => a.passed === true) || false;
 
   useEffect(() => {
     if (course?.lastWatchedVideoId) {
