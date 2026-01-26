@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link } from "lucide-react";
 import QuizManagement from "@/components/admin/QuizManagement";
 import {
   useAdminUsers,
@@ -27,6 +28,7 @@ import {
   usePendingUsers,
   useApproveUser,
   useRejectUser,
+  useUploadVideo,
 } from "@/hooks/useAdmin";
 import { useCertificate } from "@/hooks/useCertificate";
 
@@ -47,7 +49,13 @@ const Admin = () => {
   const issueCertificate = useIssueCertificate();
   const approveUser = useApproveUser();
   const rejectUser = useRejectUser();
+  const uploadVideo = useUploadVideo();
   const { generateCertificate } = useCertificate();
+
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -112,6 +120,38 @@ const Admin = () => {
       duration_minutes: 0,
       order_index: 0,
     });
+    setUploadMode('url');
+    setUploadProgress(0);
+    setIsUploading(false);
+  };
+
+  const handleVideoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !videoFormData.course_id) return;
+
+    setIsUploading(true);
+    setUploadProgress(10);
+
+    try {
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 500);
+
+      const url = await uploadVideo.mutateAsync({ file, courseId: videoFormData.course_id });
+      
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+      setVideoFormData(prev => ({ ...prev, video_url: url }));
+      
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }, 500);
+    } catch {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
   };
 
   const openEditCourse = (course: any) => {
@@ -137,6 +177,12 @@ const Admin = () => {
       duration_minutes: video.duration_minutes,
       order_index: video.order_index,
     });
+    // Detect if URL is from storage
+    if (video.video_url?.includes('supabase.co/storage')) {
+      setUploadMode('file');
+    } else {
+      setUploadMode('url');
+    }
     setVideoDialogOpen(true);
   };
 
@@ -403,11 +449,11 @@ const Admin = () => {
                         Yeni Video
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent className="max-w-lg">
                       <DialogHeader>
                         <DialogTitle>{selectedVideo ? "Video Düzenle" : "Yeni Video Ekle"}</DialogTitle>
                         <DialogDescription>
-                          Video bilgilerini doldurun
+                          Video bilgilerini doldurun veya dosya yükleyin
                         </DialogDescription>
                       </DialogHeader>
                       <div className="grid gap-4 py-4">
@@ -437,14 +483,83 @@ const Admin = () => {
                             onChange={(e) => setVideoFormData({ ...videoFormData, title: e.target.value })}
                           />
                         </div>
+                        
+                        {/* Upload Mode Toggle */}
                         <div className="grid gap-2">
-                          <Label htmlFor="video_url">Video URL</Label>
-                          <Input
-                            id="video_url"
-                            value={videoFormData.video_url}
-                            onChange={(e) => setVideoFormData({ ...videoFormData, video_url: e.target.value })}
-                          />
+                          <Label>Video Kaynağı</Label>
+                          <div className="flex gap-2">
+                            <Button
+                              type="button"
+                              variant={uploadMode === 'url' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setUploadMode('url')}
+                              className="flex-1"
+                            >
+                              <Link className="w-4 h-4 mr-2" />
+                              URL
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={uploadMode === 'file' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => setUploadMode('file')}
+                              className="flex-1"
+                              disabled={!videoFormData.course_id}
+                            >
+                              <Upload className="w-4 h-4 mr-2" />
+                              Dosya Yükle
+                            </Button>
+                          </div>
                         </div>
+
+                        {uploadMode === 'url' ? (
+                          <div className="grid gap-2">
+                            <Label htmlFor="video_url">Video URL (YouTube, Vimeo, vb.)</Label>
+                            <Input
+                              id="video_url"
+                              value={videoFormData.video_url}
+                              onChange={(e) => setVideoFormData({ ...videoFormData, video_url: e.target.value })}
+                              placeholder="https://www.youtube.com/watch?v=..."
+                            />
+                          </div>
+                        ) : (
+                          <div className="grid gap-2">
+                            <Label>Video Dosyası (MP4, max 1GB)</Label>
+                            <input
+                              ref={videoFileInputRef}
+                              type="file"
+                              accept="video/mp4,video/webm,video/ogg"
+                              className="hidden"
+                              onChange={handleVideoFileUpload}
+                            />
+                            <div className="space-y-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => videoFileInputRef.current?.click()}
+                                disabled={isUploading || !videoFormData.course_id}
+                                className="w-full"
+                              >
+                                <Upload className="w-4 h-4 mr-2" />
+                                {isUploading ? "Yükleniyor..." : "Video Dosyası Seç"}
+                              </Button>
+                              {isUploading && (
+                                <div className="space-y-1">
+                                  <Progress value={uploadProgress} className="h-2" />
+                                  <p className="text-xs text-muted-foreground text-center">
+                                    %{uploadProgress} yüklendi
+                                  </p>
+                                </div>
+                              )}
+                              {videoFormData.video_url && videoFormData.video_url.includes('supabase.co') && (
+                                <p className="text-xs text-primary flex items-center gap-1">
+                                  ✓ Video yüklendi
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4">
                           <div className="grid gap-2">
                             <Label htmlFor="video_duration">Süre (dakika)</Label>
@@ -452,7 +567,7 @@ const Admin = () => {
                               id="video_duration"
                               type="number"
                               value={videoFormData.duration_minutes}
-                              onChange={(e) => setVideoFormData({ ...videoFormData, duration_minutes: parseInt(e.target.value) })}
+                              onChange={(e) => setVideoFormData({ ...videoFormData, duration_minutes: parseInt(e.target.value) || 0 })}
                             />
                           </div>
                           <div className="grid gap-2">
@@ -461,14 +576,16 @@ const Admin = () => {
                               id="order_index"
                               type="number"
                               value={videoFormData.order_index}
-                              onChange={(e) => setVideoFormData({ ...videoFormData, order_index: parseInt(e.target.value) })}
+                              onChange={(e) => setVideoFormData({ ...videoFormData, order_index: parseInt(e.target.value) || 0 })}
                             />
                           </div>
                         </div>
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setVideoDialogOpen(false)}>İptal</Button>
-                        <Button onClick={handleVideoSubmit}>Kaydet</Button>
+                        <Button onClick={handleVideoSubmit} disabled={isUploading}>
+                          {isUploading ? "Yükleniyor..." : "Kaydet"}
+                        </Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>

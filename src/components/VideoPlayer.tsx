@@ -5,8 +5,23 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
+  const isDirectVideoUrl = (url: string): boolean => {
+    // Check for direct video file extensions or Supabase storage URLs
+    return (
+      url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) !== null ||
+      url.includes('supabase.co/storage') ||
+      url.includes('/storage/v1/object/')
+    );
+  };
+
   const getEmbedUrl = (url: string): string | null => {
     if (!url) return null;
+
+    // Check if it's a direct video file first (including Supabase storage)
+    if (isDirectVideoUrl(url)) {
+      console.log('Direct/Storage video URL detected:', url);
+      return url;
+    }
 
     // YouTube URL patterns
     const youtubePatterns = [
@@ -31,9 +46,9 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
       return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
     }
 
-    // If it's already an embed URL or direct video file
-    if (url.includes('embed') || url.match(/\.(mp4|webm|ogg)$/)) {
-      console.log('Direct video URL detected:', url);
+    // If it's already an embed URL
+    if (url.includes('embed')) {
+      console.log('Embed URL detected:', url);
       return url;
     }
 
@@ -55,8 +70,8 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
     );
   }
 
-  // Check if it's a direct video file
-  if (embedUrl.match(/\.(mp4|webm|ogg)$/)) {
+  // Check if it's a direct video file (including storage URLs)
+  if (isDirectVideoUrl(embedUrl)) {
     return (
       <div className="relative aspect-video bg-black">
         <video
@@ -67,7 +82,7 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
           onContextMenu={(e) => e.preventDefault()}
           onEnded={onVideoEnd}
         >
-          <source src={embedUrl} type={`video/${embedUrl.split('.').pop()}`} />
+          <source src={embedUrl} type="video/mp4" />
           Tarayıcınız video oynatmayı desteklemiyor.
         </video>
       </div>

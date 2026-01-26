@@ -170,6 +170,37 @@ export const useDeleteCourse = () => {
   });
 };
 
+export const useUploadVideo = () => {
+  return useMutation({
+    mutationFn: async ({ file, courseId }: { file: File; courseId: string }) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${courseId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('course-videos')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+
+      if (error) throw error;
+
+      const { data: urlData } = supabase.storage
+        .from('course-videos')
+        .getPublicUrl(data.path);
+
+      return urlData.publicUrl;
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Video yüklenirken bir hata oluştu. Dosya boyutunu kontrol edin (max 1GB).",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useCreateVideo = () => {
   const queryClient = useQueryClient();
   
