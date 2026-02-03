@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Landing from "./pages/Landing";
 import Courses from "./pages/Courses";
+import Payment from "./pages/Payment";
 import Dashboard from "./pages/Dashboard";
 import CourseDetail from "./pages/CourseDetail";
 import Auth from "./pages/Auth";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/pending-approval" element={<PendingApproval />} />
           <Route path="/courses" element={<Courses />} />
+          <Route path="/payment" element={<Payment />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/category/:categoryId" element={<ForumCategory />} />
