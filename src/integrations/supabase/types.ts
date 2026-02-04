@@ -44,6 +44,39 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_settings: {
+        Row: {
+          account_holder: string
+          additional_info: string | null
+          bank_name: string
+          created_at: string
+          iban: string
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          account_holder: string
+          additional_info?: string | null
+          bank_name: string
+          created_at?: string
+          iban: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          account_holder?: string
+          additional_info?: string | null
+          bank_name?: string
+          created_at?: string
+          iban?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           certificate_number: string
@@ -356,6 +389,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pricing_plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_months: number
+          features: Json | null
+          id: string
+          is_active: boolean
+          is_popular: boolean
+          name: string
+          order_index: number
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_months?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          name: string
+          order_index?: number
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_months?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean
+          name?: string
+          order_index?: number
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
