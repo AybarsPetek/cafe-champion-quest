@@ -10,8 +10,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard } from "lucide-react";
 import QuizManagement from "@/components/admin/QuizManagement";
+import PaymentManagement from "@/components/admin/PaymentManagement";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -197,7 +198,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-[780px]">
+          <TabsList className="grid w-full grid-cols-7 lg:w-[910px]">
             <TabsTrigger value="pending">
               <UserCheck className="w-4 h-4 mr-2" />
               Onay Bekleyen
@@ -222,6 +223,10 @@ const Admin = () => {
             <TabsTrigger value="certificates">
               <Award className="w-4 h-4 mr-2" />
               Sertifikalar
+            </TabsTrigger>
+            <TabsTrigger value="payments">
+              <CreditCard className="w-4 h-4 mr-2" />
+              Ödemeler
             </TabsTrigger>
             <TabsTrigger value="users">
               <Users className="w-4 h-4 mr-2" />
@@ -654,6 +659,10 @@ const Admin = () => {
 
           <TabsContent value="quizzes">
             <QuizManagement />
+          </TabsContent>
+
+          <TabsContent value="payments">
+            <PaymentManagement />
           </TabsContent>
 
           <TabsContent value="certificates">
