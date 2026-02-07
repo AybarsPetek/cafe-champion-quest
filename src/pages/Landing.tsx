@@ -5,19 +5,19 @@ import {
   ArrowRight, 
   Play, 
   Award, 
-  Users, 
   BookOpen, 
   TrendingUp, 
   Shield, 
   BarChart3,
   CheckCircle2,
   MessageCircle,
-  FileText,
   Sparkles
 } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { usePricingPlans } from "@/hooks/usePaymentSettings";
 
 const Landing = () => {
+  const { data: pricingPlans, isLoading: isPricingLoading } = usePricingPlans();
   const features = [
     {
       icon: BookOpen,
@@ -261,116 +261,63 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Starter Plan */}
-            <Card className="border-border/50">
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold mb-2">Başlangıç</h3>
-                <p className="text-muted-foreground mb-4">Küçük işletmeler için</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">₺2.999</span>
-                  <span className="text-muted-foreground">/ay</span>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>25 kullanıcıya kadar</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>10 GB video depolama</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Temel raporlama</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>E-posta desteği</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/">Demoyu İncele</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Professional Plan */}
-            <Card className="border-primary relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                Popüler
-              </div>
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold mb-2">Profesyonel</h3>
-                <p className="text-muted-foreground mb-4">Büyüyen işletmeler için</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">₺5.999</span>
-                  <span className="text-muted-foreground">/ay</span>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>100 kullanıcıya kadar</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>50 GB video depolama</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Gelişmiş analitik</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Öncelikli destek</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Özel marka görünümü</span>
-                  </li>
-                </ul>
-                <Button className="w-full" asChild>
-                  <Link to="/">Demoyu İncele</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Enterprise Plan */}
-            <Card className="border-border/50">
-              <CardContent className="p-8">
-                <h3 className="text-xl font-semibold mb-2">Kurumsal</h3>
-                <p className="text-muted-foreground mb-4">Büyük organizasyonlar için</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold">Özel</span>
-                </div>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Sınırsız kullanıcı</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Sınırsız depolama</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>API erişimi</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Özel entegrasyonlar</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Dedicated hesap yöneticisi</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full" asChild>
-                  <Link to="/">İletişime Geç</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          {isPricingLoading ? (
+            <div className="text-center text-muted-foreground">Yükleniyor...</div>
+          ) : pricingPlans && pricingPlans.length > 0 ? (
+            <div className={`grid gap-8 max-w-5xl mx-auto ${
+              pricingPlans.length === 1 ? 'md:grid-cols-1 max-w-md' :
+              pricingPlans.length === 2 ? 'md:grid-cols-2 max-w-3xl' :
+              'md:grid-cols-3'
+            }`}>
+              {pricingPlans.map((plan) => {
+                const features = Array.isArray(plan.features) 
+                  ? plan.features as string[]
+                  : [];
+                
+                return (
+                  <Card 
+                    key={plan.id} 
+                    className={plan.is_popular ? "border-primary relative" : "border-border/50"}
+                  >
+                    {plan.is_popular && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                        Popüler
+                      </div>
+                    )}
+                    <CardContent className="p-8">
+                      <h3 className="text-xl font-semibold mb-2">{plan.name}</h3>
+                      <p className="text-muted-foreground mb-4">{plan.description}</p>
+                      <div className="mb-6">
+                        <span className="text-4xl font-bold">₺{plan.price.toLocaleString('tr-TR')}</span>
+                        <span className="text-muted-foreground">
+                          /{plan.duration_months === 1 ? 'ay' : `${plan.duration_months} ay`}
+                        </span>
+                      </div>
+                      <ul className="space-y-3 mb-8">
+                        {features.map((feature, featureIndex) => (
+                          <li key={featureIndex} className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      <Button 
+                        variant={plan.is_popular ? "default" : "outline"} 
+                        className="w-full" 
+                        asChild
+                      >
+                        <Link to={`/payment?plan=${plan.id}`}>Demoyu İncele</Link>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center text-muted-foreground">
+              Henüz fiyatlandırma planı eklenmemiş.
+            </div>
+          )}
         </div>
       </section>
 
