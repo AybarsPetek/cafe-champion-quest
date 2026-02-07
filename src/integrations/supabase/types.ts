@@ -112,6 +112,60 @@ export type Database = {
           },
         ]
       }
+      contact_settings: {
+        Row: {
+          additional_info: string | null
+          address: string | null
+          company_name: string
+          created_at: string
+          email: string | null
+          facebook_url: string | null
+          google_maps_url: string | null
+          id: string
+          instagram_url: string | null
+          is_active: boolean
+          linkedin_url: string | null
+          phone: string | null
+          twitter_url: string | null
+          updated_at: string
+          working_hours: string | null
+        }
+        Insert: {
+          additional_info?: string | null
+          address?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          facebook_url?: string | null
+          google_maps_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          linkedin_url?: string | null
+          phone?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          working_hours?: string | null
+        }
+        Update: {
+          additional_info?: string | null
+          address?: string | null
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          facebook_url?: string | null
+          google_maps_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          is_active?: boolean
+          linkedin_url?: string | null
+          phone?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          working_hours?: string | null
+        }
+        Relationships: []
+      }
       course_reviews: {
         Row: {
           comment: string | null
