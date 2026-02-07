@@ -10,9 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard, Building } from "lucide-react";
 import QuizManagement from "@/components/admin/QuizManagement";
 import PaymentManagement from "@/components/admin/PaymentManagement";
+import ContactManagement from "@/components/admin/ContactManagement";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -198,7 +199,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-[910px]">
+          <TabsList className="grid w-full grid-cols-8 lg:w-[1040px]">
             <TabsTrigger value="pending">
               <UserCheck className="w-4 h-4 mr-2" />
               Onay Bekleyen
@@ -227,6 +228,10 @@ const Admin = () => {
             <TabsTrigger value="payments">
               <CreditCard className="w-4 h-4 mr-2" />
               Ödemeler
+            </TabsTrigger>
+            <TabsTrigger value="contact">
+              <Building className="w-4 h-4 mr-2" />
+              İletişim
             </TabsTrigger>
             <TabsTrigger value="users">
               <Users className="w-4 h-4 mr-2" />
@@ -759,6 +764,10 @@ const Admin = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="contact">
+            <ContactManagement />
           </TabsContent>
 
           <TabsContent value="users">

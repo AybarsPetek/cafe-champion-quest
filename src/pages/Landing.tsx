@@ -98,6 +98,9 @@ const Landing = () => {
               <Button variant="ghost" asChild>
                 <a href="#pricing">Fiyatlandırma</a>
               </Button>
+              <Button variant="ghost" asChild>
+                <Link to="/iletisim">İletişim</Link>
+              </Button>
               <Button asChild>
                 <Link to="/" className="gap-2">
                   <Play className="h-4 w-4" />
@@ -301,13 +304,22 @@ const Landing = () => {
                           </li>
                         ))}
                       </ul>
-                      <Button 
-                        variant={plan.is_popular ? "default" : "outline"} 
-                        className="w-full" 
-                        asChild
-                      >
-                        <Link to={`/payment?plan=${plan.id}`}>Demoyu İncele</Link>
-                      </Button>
+                      <div className="space-y-2">
+                        <Button 
+                          variant={plan.is_popular ? "default" : "outline"} 
+                          className="w-full" 
+                          asChild
+                        >
+                          <Link to={`/payment?plan=${plan.id}`}>Satın Al</Link>
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          className="w-full" 
+                          asChild
+                        >
+                          <Link to="/">Demoyu İncele</Link>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 );
@@ -352,6 +364,9 @@ const Landing = () => {
               © 2025 Coffee Academy. Tüm hakları saklıdır.
             </p>
             <div className="flex items-center gap-6">
+              <Link to="/iletisim" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                İletişim
+              </Link>
               <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Gizlilik Politikası
               </a>
