@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@4.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.75.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -9,8 +10,9 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "new_signup" | "account_approved" | "course_completed";
-  email: string;
+  type: "new_signup" | "account_approved" | "course_completed" | "training_reminder";
+  email?: string;
+  userId?: string;
   data: {
     userName?: string;
     courseName?: string;
@@ -23,8 +25,27 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, email, data }: NotificationRequest = await req.json();
-    console.log("Sending notification:", { type, email, data });
+    const { type, email, userId, data }: NotificationRequest = await req.json();
+    console.log("Sending notification:", { type, email, userId, data });
+
+    let targetEmail = email;
+
+    // For training_reminder, we need to look up the user's email
+    if (type === "training_reminder" && userId && !targetEmail) {
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+      targetEmail = userData?.user?.email;
+      if (!targetEmail) {
+        throw new Error("User email not found");
+      }
+    }
+
+    if (!targetEmail) {
+      throw new Error("No email provided");
+    }
 
     let subject = "";
     let html = "";
@@ -76,12 +97,6 @@ const handler = async (req: Request): Promise<Response> => {
                   Şimdi giriş yaparak kahve eğitimlerine başlayabilirsiniz!
                 </p>
               </div>
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${Deno.env.get("VITE_SUPABASE_URL")?.replace('https://', 'https://').split('.')[0]}.lovable.app" 
-                   style="background: #667eea; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
-                  Giriş Yap ve Öğrenmeye Başla
-                </a>
-              </div>
               <p style="color: #6b7280; font-size: 14px; margin-top: 32px;">
                 İyi öğrenmeler!<br/>
                 <strong>TheCompany Coffee Academy Ekibi</strong>
@@ -110,18 +125,36 @@ const handler = async (req: Request): Promise<Response> => {
                   Admin panelinizden sertifikanızı indirebilir ve sosyal medyada paylaşabilirsiniz.
                 </p>
               </div>
-              <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
-                Bu başarınızla bir adım daha ilerlemeye devam ediyorsunuz. Diğer kurslarımıza göz atarak 
-                kahve bilginizi geliştirmeye devam edebilirsiniz!
-              </p>
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${Deno.env.get("VITE_SUPABASE_URL")?.replace('https://', 'https://').split('.')[0]}.lovable.app/dashboard" 
-                   style="background: #f59e0b; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
-                  Panelime Git
-                </a>
-              </div>
               <p style="color: #6b7280; font-size: 14px; margin-top: 32px;">
                 Başarılarınızın devamını dileriz!<br/>
+                <strong>TheCompany Coffee Academy Ekibi</strong>
+              </p>
+            </div>
+          </div>
+        `;
+        break;
+
+      case "training_reminder":
+        subject = `⏰ Eğitim Hatırlatması: "${data.courseName}"`;
+        html = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); padding: 40px; text-align: center;">
+              <h1 style="color: white; margin: 0; font-size: 36px;">⏰</h1>
+              <h2 style="color: white; margin: 10px 0 0 0;">Eğitim Hatırlatması</h2>
+            </div>
+            <div style="padding: 40px; background: #f9fafb;">
+              <h2 style="color: #1f2937;">Merhaba ${data.userName || "Değerli Personel"},</h2>
+              <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+                "<strong>${data.courseName}</strong>" eğitimini henüz tamamlamadınız.
+              </p>
+              <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 24px 0;">
+                <p style="color: #92400e; margin: 0; font-size: 14px;">
+                  <strong>📚 Eğitiminizi Tamamlayın</strong><br/>
+                  Lütfen en kısa sürede giriş yaparak eğitiminize devam edin.
+                </p>
+              </div>
+              <p style="color: #6b7280; font-size: 14px; margin-top: 32px;">
+                İyi çalışmalar,<br/>
                 <strong>TheCompany Coffee Academy Ekibi</strong>
               </p>
             </div>
@@ -135,7 +168,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const emailResponse = await resend.emails.send({
       from: "TheCompany Coffee Academy <onboarding@resend.dev>",
-      to: [email],
+      to: [targetEmail],
       subject,
       html,
     });
@@ -144,19 +177,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(JSON.stringify({ success: true, id: emailResponse.data?.id }), {
       status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        ...corsHeaders,
-      },
+      headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
     console.error("Error sending notification:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };
