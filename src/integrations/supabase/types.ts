@@ -166,6 +166,56 @@ export type Database = {
         }
         Relationships: []
       }
+      course_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string | null
+          completed: boolean
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          deadline: string | null
+          id: string
+          reminder_sent_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          reminder_sent_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          reminder_sent_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_assignments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       course_reviews: {
         Row: {
           comment: string | null
@@ -265,6 +315,7 @@ export type Database = {
           id: string
           image_url: string | null
           instructor: string | null
+          is_mandatory: boolean
           level: string
           points: number
           rating: number | null
@@ -279,6 +330,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           instructor?: string | null
+          is_mandatory?: boolean
           level: string
           points?: number
           rating?: number | null
@@ -293,6 +345,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           instructor?: string | null
+          is_mandatory?: boolean
           level?: string
           points?: number
           rating?: number | null
@@ -928,6 +981,10 @@ export type Database = {
       }
     }
     Functions: {
+      auto_assign_mandatory_courses: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
       calculate_course_progress: {
         Args: { p_course_id: string; p_user_id: string }
         Returns: number
