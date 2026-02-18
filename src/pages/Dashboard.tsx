@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookOpen, Star, Trophy } from "lucide-react";
+import { Award, BookOpen, Star, Trophy, CalendarClock, CheckCircle2, AlertTriangle } from "lucide-react";
 import CourseCard from "@/components/CourseCard";
+import { format, isPast, parseISO } from "date-fns";
+import { tr } from "date-fns/locale";
 import { useUserDashboard } from "@/hooks/useUserDashboard";
 import { supabase } from "@/integrations/supabase/client";
 import { User } from "@supabase/supabase-js";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -116,6 +120,52 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Assigned Courses */}
+        {dashboardData?.assignedCourses && dashboardData.assignedCourses.length > 0 && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Atanan Eğitimler</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {dashboardData.assignedCourses.map((assignment) => {
+                const isOverdue = assignment.deadline && !assignment.completed && isPast(parseISO(assignment.deadline));
+                return (
+                  <Card
+                    key={assignment.id}
+                    className={`shadow-soft cursor-pointer hover:shadow-md transition-shadow ${isOverdue ? 'border-destructive/50' : ''}`}
+                    onClick={() => navigate(`/course/${assignment.course_id}`)}
+                  >
+                    <CardContent className="pt-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-semibold text-lg">{assignment.course_title}</h3>
+                        {assignment.completed ? (
+                          <Badge variant="secondary" className="flex items-center gap-1 shrink-0">
+                            <CheckCircle2 className="h-3 w-3" /> Tamamlandı
+                          </Badge>
+                        ) : isOverdue ? (
+                          <Badge variant="destructive" className="flex items-center gap-1 shrink-0">
+                            <AlertTriangle className="h-3 w-3" /> Gecikmiş
+                          </Badge>
+                        ) : (
+                          <Badge className="shrink-0">Devam Ediyor</Badge>
+                        )}
+                      </div>
+                      <Progress value={assignment.progress} className="h-2 mb-2" />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>%{assignment.progress} tamamlandı</span>
+                        {assignment.deadline && (
+                          <span className="flex items-center gap-1">
+                            <CalendarClock className="h-3 w-3" />
+                            {format(parseISO(assignment.deadline), "d MMM yyyy", { locale: tr })}
+                          </span>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* In Progress Courses */}
         {dashboardData?.inProgressCourses && dashboardData.inProgressCourses.length > 0 && (
