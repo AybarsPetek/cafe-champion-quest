@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, Mail, AlertTriangle, CheckCircle, Clock, Award, BookOpen } from "lucide-react";
+import { Plus, Trash2, Mail, AlertTriangle, CheckCircle, Clock, Award, BookOpen, FileBarChart } from "lucide-react";
 import {
   useTrainingAssignments,
   useMandatoryCourses,
@@ -20,6 +20,7 @@ import {
   useSendReminder,
 } from "@/hooks/useTrainingManagement";
 import { useAdminUsers } from "@/hooks/useAdmin";
+import TrainingReport from "./TrainingReport";
 
 const TrainingManagement = () => {
   const { data: assignments, isLoading } = useTrainingAssignments();
@@ -105,6 +106,9 @@ const TrainingManagement = () => {
         <TabsList>
           <TabsTrigger value="assignments">Eğitim Atamaları</TabsTrigger>
           <TabsTrigger value="mandatory">Zorunlu Eğitimler</TabsTrigger>
+          <TabsTrigger value="report">
+            <FileBarChart className="w-4 h-4 mr-1" /> Rapor
+          </TabsTrigger>
         </TabsList>
 
         {/* Assignments Tab */}
@@ -296,6 +300,10 @@ const TrainingManagement = () => {
               </Table>
             </CardContent>
           </Card>
+        </TabsContent>
+        {/* Report Tab */}
+        <TabsContent value="report">
+          <TrainingReport />
         </TabsContent>
       </Tabs>
     </div>
