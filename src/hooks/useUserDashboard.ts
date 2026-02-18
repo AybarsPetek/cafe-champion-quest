@@ -29,6 +29,16 @@ export interface InProgressCourse {
   progress: number;
 }
 
+export interface AssignedCourse {
+  id: string;
+  course_id: string;
+  course_title: string;
+  deadline: string | null;
+  completed: boolean;
+  completed_at: string | null;
+  progress: number;
+}
+
 export const useUserDashboard = (userId: string) => {
   return useQuery({
     queryKey: ["dashboard", userId],
@@ -114,6 +124,48 @@ export const useUserDashboard = (userId: string) => {
           }))
           .filter((course: InProgressCourse) => course.id) || [];
 
+      // Fetch assigned courses
+      const { data: assignments, error: assignError } = await supabase
+        .from("course_assignments")
+        .select("id, course_id, deadline, completed, completed_at")
+        .eq("user_id", userId)
+        .order("deadline", { ascending: true, nullsFirst: false });
+
+      if (assignError) throw assignError;
+
+      const assignedCourseIds = assignments?.map((a) => a.course_id) || [];
+      let assignedCoursesMap = new Map<string, any>();
+      if (assignedCourseIds.length > 0) {
+        const { data: assignedCoursesData } = await supabase
+          .from("courses")
+          .select("id, title")
+          .in("id", assignedCourseIds);
+        assignedCoursesData?.forEach((c) => assignedCoursesMap.set(c.id, c));
+      }
+
+      // Get progress for assigned courses
+      let assignedProgressMap = new Map<string, number>();
+      if (assignedCourseIds.length > 0) {
+        const { data: assignedProgress } = await supabase
+          .from("user_course_progress")
+          .select("course_id, progress_percentage")
+          .eq("user_id", userId)
+          .in("course_id", assignedCourseIds);
+        assignedProgress?.forEach((p) =>
+          assignedProgressMap.set(p.course_id, p.progress_percentage || 0)
+        );
+      }
+
+      const assignedCourses: AssignedCourse[] = (assignments || []).map((a) => ({
+        id: a.id,
+        course_id: a.course_id,
+        course_title: assignedCoursesMap.get(a.course_id)?.title || "Bilinmeyen Eğitim",
+        deadline: a.deadline,
+        completed: a.completed,
+        completed_at: a.completed_at,
+        progress: assignedProgressMap.get(a.course_id) || 0,
+      }));
+
       // Calculate progress to next level
       const totalPoints = profile.total_points || 0;
       let nextLevelPoints = 200;
@@ -142,6 +194,7 @@ export const useUserDashboard = (userId: string) => {
         stats,
         badges,
         inProgressCourses,
+        assignedCourses,
       };
     },
     enabled: !!userId,
