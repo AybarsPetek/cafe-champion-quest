@@ -15,6 +15,7 @@ import QuizManagement from "@/components/admin/QuizManagement";
 import PaymentManagement from "@/components/admin/PaymentManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import TrainingManagement from "@/components/admin/TrainingManagement";
+import UserManagement from "@/components/admin/UserManagement";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -780,57 +781,7 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <CardTitle>Kullanıcı Yönetimi</CardTitle>
-                <CardDescription>Kullanıcıları görüntüleyin ve rollerini düzenleyin</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ad Soyad</TableHead>
-                      <TableHead>Seviye</TableHead>
-                      <TableHead>Toplam Puan</TableHead>
-                      <TableHead>Rol</TableHead>
-                      <TableHead>İşlemler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users?.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.full_name || "İsimsiz"}</TableCell>
-                        <TableCell>{user.level}</TableCell>
-                        <TableCell>{user.total_points} puan</TableCell>
-                        <TableCell>
-                          {user.role === 'admin' ? (
-                            <span className="px-2 py-1 bg-primary/20 text-primary rounded-md text-sm">Admin</span>
-                          ) : (
-                            <span className="px-2 py-1 bg-muted text-muted-foreground rounded-md text-sm">Kullanıcı</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={user.role}
-                            onValueChange={(role: 'admin' | 'user') => 
-                              updateUserRole.mutate({ userId: user.id, role })
-                            }
-                          >
-                            <SelectTrigger className="w-[120px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="user">Kullanıcı</SelectItem>
-                              <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+            <UserManagement />
           </TabsContent>
         </Tabs>
       </main>

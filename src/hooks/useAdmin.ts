@@ -514,3 +514,32 @@ export const useRejectUser = () => {
     },
   });
 };
+
+export const useUpdateUserProfileAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ userId, data }: { userId: string; data: Record<string, any> }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update(data)
+        .eq('id', userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      toast({
+        title: "Başarılı",
+        description: "Kullanıcı bilgileri güncellendi.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Hata",
+        description: "Kullanıcı bilgileri güncellenirken bir hata oluştu.",
+        variant: "destructive",
+      });
+    },
+  });
+};
