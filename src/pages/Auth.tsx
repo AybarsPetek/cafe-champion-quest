@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Coffee } from "lucide-react";
+import { Coffee, MailCheck } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { z } from "zod";
 
@@ -31,16 +31,16 @@ const Auth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupFullName, setSignupFullName] = useState("");
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [confirmationEmail, setConfirmationEmail] = useState("");
 
   useEffect(() => {
-    // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         navigate("/dashboard");
       }
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         navigate("/dashboard");
@@ -53,17 +53,15 @@ const Auth = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate input
     const validation = loginSchema.safeParse({
       email: loginEmail,
       password: loginPassword,
     });
 
     if (!validation.success) {
-      const firstError = validation.error.errors[0];
       toast({
         title: "Geçersiz Giriş",
-        description: firstError.message,
+        description: validation.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -78,7 +76,13 @@ const Auth = () => {
       });
 
       if (error) {
-        if (error.message.includes("Invalid login credentials")) {
+        if (error.message.includes("Email not confirmed")) {
+          toast({
+            title: "E-posta Doğrulanmamış",
+            description: "Lütfen e-posta adresinize gönderilen doğrulama bağlantısına tıklayın.",
+            variant: "destructive",
+          });
+        } else if (error.message.includes("Invalid login credentials")) {
           toast({
             title: "Giriş Başarısız",
             description: "E-posta veya şifre hatalı.",
@@ -111,7 +115,6 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate input
     const validation = signupSchema.safeParse({
       email: signupEmail,
       password: signupPassword,
@@ -119,10 +122,9 @@ const Auth = () => {
     });
 
     if (!validation.success) {
-      const firstError = validation.error.errors[0];
       toast({
         title: "Geçersiz Bilgiler",
-        description: firstError.message,
+        description: validation.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -131,7 +133,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: validation.data.email,
         password: validation.data.password,
         options: {
@@ -172,11 +174,9 @@ const Auth = () => {
           console.error('Failed to send welcome email:', emailError);
         }
 
-        toast({
-          title: "Kayıt Başarılı!",
-          description: "Hesabınız oluşturuldu. Onay bekleniyor.",
-        });
-        // Clear signup form
+        // Show email confirmation screen
+        setConfirmationEmail(validation.data.email);
+        setShowEmailConfirmation(true);
         setSignupEmail("");
         setSignupPassword("");
         setSignupFullName("");
@@ -191,6 +191,82 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  const handleResendConfirmation = async () => {
+    if (!confirmationEmail) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: confirmationEmail,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
+      });
+      if (error) throw error;
+      toast({
+        title: "Gönderildi",
+        description: "Doğrulama e-postası tekrar gönderildi.",
+      });
+    } catch {
+      toast({
+        title: "Hata",
+        description: "E-posta gönderilemedi. Lütfen tekrar deneyin.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Email confirmation success screen
+  if (showEmailConfirmation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+        <Card className="w-full max-w-md shadow-hover">
+          <CardHeader className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <MailCheck className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <div>
+              <CardTitle className="text-2xl">E-posta Doğrulama</CardTitle>
+              <CardDescription className="mt-2">
+                Hesabınız oluşturuldu! Giriş yapabilmek için e-posta adresinizi doğrulamanız gerekmektedir.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-muted/50 rounded-lg p-4 text-center space-y-2">
+              <p className="text-sm text-muted-foreground">Doğrulama bağlantısı şu adrese gönderildi:</p>
+              <p className="font-semibold text-foreground">{confirmationEmail}</p>
+            </div>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>📧 E-posta kutunuzu kontrol edin ve doğrulama bağlantısına tıklayın.</p>
+              <p>📁 E-postayı bulamıyorsanız spam/gereksiz klasörünüzü kontrol edin.</p>
+              <p>⏳ E-posta doğrulandıktan sonra admin onayı beklemeniz gerekecektir.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="outline"
+                onClick={handleResendConfirmation}
+                disabled={loading}
+              >
+                {loading ? "Gönderiliyor..." : "Doğrulama E-postasını Tekrar Gönder"}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowEmailConfirmation(false)}
+              >
+                Giriş Sayfasına Dön
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
@@ -292,6 +368,9 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Kayıt yapılıyor..." : "Kayıt Ol"}
                 </Button>
+                <p className="text-xs text-center text-muted-foreground">
+                  Kayıt sonrası e-posta doğrulaması ve admin onayı gerekmektedir.
+                </p>
               </form>
             </TabsContent>
           </Tabs>
