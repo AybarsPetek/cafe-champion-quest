@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,12 +9,13 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, User, Search, Eye } from "lucide-react";
-import { useAdminUsers, useUpdateUserRole } from "@/hooks/useAdmin";
-import { useUpdateUserProfileAdmin } from "@/hooks/useAdmin";
+import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle } from "lucide-react";
+import { useAdminUsers, useUpdateUserRole, useUpdateUserProfileAdmin } from "@/hooks/useAdmin";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 const UserManagement = () => {
-  const { data: users, isLoading } = useAdminUsers();
+  const { data: users, isLoading, refetch } = useAdminUsers();
   const updateUserRole = useUpdateUserRole();
   const updateProfile = useUpdateUserProfileAdmin();
 
@@ -22,6 +23,8 @@ const UserManagement = () => {
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [emailMap, setEmailMap] = useState<Record<string, { email: string; email_confirmed_at: string | null }>>({});
+  const [emailLoading, setEmailLoading] = useState(false);
   const [editFormData, setEditFormData] = useState({
     full_name: "",
     phone: "",
@@ -30,14 +33,36 @@ const UserManagement = () => {
     bio: "",
     level: "",
     total_points: 0,
+    email: "",
   });
+
+  // Fetch email data from edge function
+  useEffect(() => {
+    const fetchEmails = async () => {
+      setEmailLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke("manage-user-emails", {
+          body: { action: "list" },
+        });
+        if (error) throw error;
+        if (data?.emailMap) setEmailMap(data.emailMap);
+      } catch (err) {
+        console.error("Failed to fetch emails:", err);
+      } finally {
+        setEmailLoading(false);
+      }
+    };
+    fetchEmails();
+  }, [users]);
 
   const filteredUsers = users?.filter((user: any) => {
     const query = searchQuery.toLowerCase();
+    const userEmail = emailMap[user.id]?.email || "";
     return (
       (user.full_name || "").toLowerCase().includes(query) ||
       (user.store_name || "").toLowerCase().includes(query) ||
-      (user.phone || "").toLowerCase().includes(query)
+      (user.phone || "").toLowerCase().includes(query) ||
+      userEmail.toLowerCase().includes(query)
     );
   });
 
@@ -56,15 +81,64 @@ const UserManagement = () => {
       bio: user.bio || "",
       level: user.level || "Başlangıç",
       total_points: user.total_points || 0,
+      email: emailMap[user.id]?.email || "",
     });
     setEditDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedUser) return;
+
+    const { email, ...profileData } = editFormData;
+    const currentEmail = emailMap[selectedUser.id]?.email || "";
+
+    // Update profile
     updateProfile.mutate(
-      { userId: selectedUser.id, data: editFormData },
-      { onSuccess: () => setEditDialogOpen(false) }
+      { userId: selectedUser.id, data: profileData },
+      {
+        onSuccess: async () => {
+          // Update email if changed
+          if (email && email !== currentEmail) {
+            try {
+              const { data, error } = await supabase.functions.invoke("manage-user-emails", {
+                body: { action: "update", userId: selectedUser.id, newEmail: email },
+              });
+              if (error) throw error;
+              setEmailMap((prev) => ({
+                ...prev,
+                [selectedUser.id]: { email, email_confirmed_at: new Date().toISOString() },
+              }));
+              toast({ title: "Başarılı", description: "E-posta adresi güncellendi." });
+            } catch (err: any) {
+              toast({
+                title: "Hata",
+                description: err.message || "E-posta güncellenirken bir hata oluştu.",
+                variant: "destructive",
+              });
+            }
+          }
+          setEditDialogOpen(false);
+        },
+      }
+    );
+  };
+
+  const getEmailVerificationBadge = (userId: string) => {
+    const info = emailMap[userId];
+    if (!info) return null;
+    if (info.email_confirmed_at) {
+      return (
+        <Badge className="bg-green-500/10 text-green-600 border-green-500/30 gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Doğrulanmış
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="text-amber-600 border-amber-500/30 gap-1">
+        <XCircle className="w-3 h-3" />
+        Doğrulanmamış
+      </Badge>
     );
   };
 
@@ -79,7 +153,7 @@ const UserManagement = () => {
           <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="İsim, mağaza veya telefon ara..."
+              placeholder="İsim, mağaza, telefon veya e-posta ara..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
@@ -88,7 +162,7 @@ const UserManagement = () => {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isLoading || emailLoading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
           </div>
@@ -97,10 +171,10 @@ const UserManagement = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Kullanıcı</TableHead>
+                <TableHead>E-posta</TableHead>
+                <TableHead>Mail Onayı</TableHead>
                 <TableHead>Mağaza</TableHead>
-                <TableHead>Telefon</TableHead>
                 <TableHead>Seviye</TableHead>
-                <TableHead>Puan</TableHead>
                 <TableHead>Durum</TableHead>
                 <TableHead>Rol</TableHead>
                 <TableHead>İşlemler</TableHead>
@@ -121,12 +195,17 @@ const UserManagement = () => {
                         <span className="font-medium">{user.full_name || "İsimsiz"}</span>
                       </div>
                     </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm">
+                        <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="truncate max-w-[180px]">{emailMap[user.id]?.email || "-"}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getEmailVerificationBadge(user.id)}</TableCell>
                     <TableCell>{user.store_name || "-"}</TableCell>
-                    <TableCell>{user.phone || "-"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{user.level || "Başlangıç"}</Badge>
                     </TableCell>
-                    <TableCell>{user.total_points || 0}</TableCell>
                     <TableCell>
                       {user.is_approved ? (
                         <Badge className="bg-primary/20 text-primary border-primary/30">Onaylı</Badge>
@@ -137,7 +216,7 @@ const UserManagement = () => {
                     <TableCell>
                       <Select
                         value={user.role}
-                        onValueChange={(role: 'admin' | 'user') =>
+                        onValueChange={(role: "admin" | "user") =>
                           updateUserRole.mutate({ userId: user.id, role })
                         }
                       >
@@ -195,6 +274,14 @@ const UserManagement = () => {
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
+                  <span className="text-muted-foreground">E-posta:</span>
+                  <p className="font-medium">{emailMap[selectedUser.id]?.email || "-"}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Mail Onayı:</span>
+                  <div className="mt-1">{getEmailVerificationBadge(selectedUser.id)}</div>
+                </div>
+                <div>
                   <span className="text-muted-foreground">Telefon:</span>
                   <p className="font-medium">{selectedUser.phone || "-"}</p>
                 </div>
@@ -250,6 +337,19 @@ const UserManagement = () => {
             <DialogDescription>{selectedUser?.full_name || "Kullanıcı"} bilgilerini güncelleyin</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>E-posta Adresi</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  placeholder="kullanici@ornek.com"
+                />
+                {selectedUser && getEmailVerificationBadge(selectedUser.id)}
+              </div>
+              <p className="text-xs text-muted-foreground">E-posta değiştirildiğinde otomatik olarak doğrulanmış kabul edilir.</p>
+            </div>
             <div className="grid gap-2">
               <Label>Ad Soyad</Label>
               <Input
