@@ -12,7 +12,6 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Verify calling user is admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
 
@@ -22,14 +21,14 @@ const handler = async (req: Request): Promise<Response> => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    // Verify caller is admin
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const { data: { user: caller } } = await supabaseClient.auth.getUser();
-    if (!caller) throw new Error("Unauthorized");
+    // Extract JWT token and verify with admin client
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user: caller }, error: userError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (userError || !caller) {
+      console.error("Auth error:", userError?.message);
+      throw new Error("Unauthorized");
+    }
 
     const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
       _user_id: caller.id,
@@ -40,7 +39,6 @@ const handler = async (req: Request): Promise<Response> => {
     const { action, userId, newEmail } = await req.json();
 
     if (action === "list") {
-      // Get all auth users with email info
       const { data: { users }, error } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
       if (error) throw error;
 
