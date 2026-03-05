@@ -21,6 +21,7 @@ import ForumTopic from "./pages/ForumTopic";
 import ForumNewTopic from "./pages/ForumNewTopic";
 import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
+import ResetPassword from "./pages/ResetPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/tanitim" element={<Landing />} />
           <Route path="/iletisim" element={<Contact />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/pending-approval" element={<PendingApproval />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/payment" element={<Payment />} />

@@ -31,6 +31,9 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotEmailSent, setForgotEmailSent] = useState(false);
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupFullName, setSignupFullName] = useState("");
@@ -234,7 +237,111 @@ const Auth = () => {
     }
   };
 
-  // Email confirmation success screen
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      setForgotEmailSent(true);
+      toast({
+        title: "E-posta Gönderildi",
+        description: "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.",
+      });
+    } catch {
+      toast({
+        title: "Hata",
+        description: "E-posta gönderilemedi. Lütfen tekrar deneyin.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Forgot password screen
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+        <Card className="w-full max-w-md shadow-hover">
+          <CardHeader className="text-center space-y-4">
+            <div className="flex justify-center">
+              <img src={logo} alt="TheCompany Coffee Academy" className="h-16" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl">Şifremi Unuttum</CardTitle>
+              <CardDescription>
+                {forgotEmailSent
+                  ? "Şifre sıfırlama bağlantısı gönderildi"
+                  : "E-posta adresinizi girin, şifre sıfırlama bağlantısı gönderelim"}
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {forgotEmailSent ? (
+              <>
+                <div className="bg-muted/50 rounded-lg p-4 text-center space-y-2">
+                  <div className="flex justify-center mb-2">
+                    <MailCheck className="w-10 h-10 text-primary" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">Şifre sıfırlama bağlantısı şu adrese gönderildi:</p>
+                  <p className="font-semibold text-foreground">{forgotEmail}</p>
+                </div>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>📧 E-posta kutunuzu kontrol edin ve bağlantıya tıklayın.</p>
+                  <p>📁 E-postayı bulamıyorsanız spam/gereksiz klasörünüzü kontrol edin.</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotEmailSent(false);
+                    setForgotEmail("");
+                  }}
+                >
+                  Giriş Sayfasına Dön
+                </Button>
+              </>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="forgot-email">E-posta Adresi</Label>
+                  <Input
+                    id="forgot-email"
+                    type="email"
+                    placeholder="ornek@email.com"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Gönderiliyor..." : "Şifre Sıfırlama Bağlantısı Gönder"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotEmail("");
+                  }}
+                >
+                  Giriş Sayfasına Dön
+                </Button>
+              </form>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (showEmailConfirmation) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
@@ -332,6 +439,19 @@ const Auth = () => {
                   <p className="text-xs text-muted-foreground">
                     En az 6 karakter olmalıdır
                   </p>
+                </div>
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="px-0 text-sm h-auto"
+                    onClick={() => {
+                      setShowForgotPassword(true);
+                      setForgotEmail(loginEmail);
+                    }}
+                  >
+                    Şifremi Unuttum
+                  </Button>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
