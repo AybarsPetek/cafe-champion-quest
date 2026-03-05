@@ -20,6 +20,9 @@ const signupSchema = z.object({
   email: z.string().email("Geçerli bir e-posta adresi giriniz").max(255, "E-posta çok uzun"),
   password: z.string().min(8, "Şifre en az 8 karakter olmalıdır").max(128, "Şifre çok uzun"),
   full_name: z.string().trim().min(2, "Ad soyad en az 2 karakter olmalıdır").max(100, "Ad soyad çok uzun"),
+  phone: z.string().trim().max(20, "Telefon numarası çok uzun").optional().or(z.literal("")),
+  store_name: z.string().trim().max(100, "Mağaza adı çok uzun").optional().or(z.literal("")),
+  employment_date: z.string().optional().or(z.literal("")),
 });
 
 const Auth = () => {
@@ -31,6 +34,9 @@ const Auth = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupFullName, setSignupFullName] = useState("");
+  const [signupPhone, setSignupPhone] = useState("");
+  const [signupStoreName, setSignupStoreName] = useState("");
+  const [signupEmploymentDate, setSignupEmploymentDate] = useState("");
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [confirmationEmail, setConfirmationEmail] = useState("");
 
@@ -119,6 +125,9 @@ const Auth = () => {
       email: signupEmail,
       password: signupPassword,
       full_name: signupFullName,
+      phone: signupPhone,
+      store_name: signupStoreName,
+      employment_date: signupEmploymentDate,
     });
 
     if (!validation.success) {
@@ -140,6 +149,9 @@ const Auth = () => {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: validation.data.full_name,
+            phone: validation.data.phone || "",
+            store_name: validation.data.store_name || "",
+            employment_date: validation.data.employment_date || "",
           },
         },
       });
@@ -180,6 +192,9 @@ const Auth = () => {
         setSignupEmail("");
         setSignupPassword("");
         setSignupFullName("");
+        setSignupPhone("");
+        setSignupStoreName("");
+        setSignupEmploymentDate("");
       }
     } catch (error: any) {
       toast({
@@ -325,9 +340,9 @@ const Auth = () => {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-name">Ad Soyad</Label>
+              <form onSubmit={handleSignup} className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-name">Ad Soyad *</Label>
                   <Input
                     id="signup-name"
                     type="text"
@@ -338,8 +353,8 @@ const Auth = () => {
                     disabled={loading}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">E-posta</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-email">E-posta *</Label>
                   <Input
                     id="signup-email"
                     type="email"
@@ -350,8 +365,40 @@ const Auth = () => {
                     disabled={loading}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Şifre</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-phone">Telefon</Label>
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    placeholder="05XX XXX XX XX"
+                    value={signupPhone}
+                    onChange={(e) => setSignupPhone(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-store">Mağaza Adı</Label>
+                  <Input
+                    id="signup-store"
+                    type="text"
+                    placeholder="Çalıştığınız mağaza"
+                    value={signupStoreName}
+                    onChange={(e) => setSignupStoreName(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-employment-date">İşe Başlama Tarihi</Label>
+                  <Input
+                    id="signup-employment-date"
+                    type="date"
+                    value={signupEmploymentDate}
+                    onChange={(e) => setSignupEmploymentDate(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="signup-password">Şifre *</Label>
                   <Input
                     id="signup-password"
                     type="password"
