@@ -74,16 +74,16 @@ const Dashboard = () => {
     <div className="min-h-screen">
       <Navbar />
       
-      <div className="container mx-auto px-4 py-12">
-        <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-2">Hoş Geldin, Barista! ☕</h1>
+      <div className="container mx-auto px-4 py-6 md:py-12">
+        <div className="mb-8 md:mb-12">
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">Hoş Geldin, Barista! ☕</h1>
           <p className="text-lg text-muted-foreground">
             İlerlemeni takip et ve yeni rozetler kazan
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8 md:mb-12">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
@@ -93,7 +93,7 @@ const Dashboard = () => {
                     <div className={`w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3 ${stat.color}`}>
                       <Icon className="h-6 w-6" />
                     </div>
-                    <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-2xl md:text-3xl font-bold mb-1">{stat.value}</div>
                     <div className="text-sm text-muted-foreground">{stat.label}</div>
                   </div>
                 </CardContent>
