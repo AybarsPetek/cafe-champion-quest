@@ -16,6 +16,7 @@ import PaymentManagement from "@/components/admin/PaymentManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import TrainingManagement from "@/components/admin/TrainingManagement";
 import UserManagement from "@/components/admin/UserManagement";
+import PersonnelImport from "@/components/admin/PersonnelImport";
 import {
   useAdminUsers,
   useAdminCourses,
