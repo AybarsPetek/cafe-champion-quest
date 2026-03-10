@@ -244,6 +244,10 @@ const Admin = () => {
               <Users className="w-4 h-4 mr-2" />
               Kullanıcılar
             </TabsTrigger>
+            <TabsTrigger value="import">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              İçe Aktar
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending">
