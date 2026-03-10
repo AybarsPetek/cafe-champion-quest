@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
             if (person.full_name) updateData.full_name = person.full_name;
             if (person.phone) updateData.phone = person.phone;
             if (person.store_name) updateData.store_name = person.store_name;
+            if (person.position) updateData.position = person.position;
 
             const { error } = await adminClient
               .from("profiles")
