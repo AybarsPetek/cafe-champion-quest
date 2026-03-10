@@ -788,6 +788,10 @@ const Admin = () => {
           <TabsContent value="users">
             <UserManagement />
           </TabsContent>
+
+          <TabsContent value="import">
+            <PersonnelImport />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
