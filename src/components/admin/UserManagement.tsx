@@ -375,10 +375,28 @@ const UserManagement = () => {
                 />
               </div>
               <div className="grid gap-2">
+                <Label>Görev</Label>
+                <Input
+                  value={editFormData.position}
+                  onChange={(e) => setEditFormData({ ...editFormData, position: e.target.value })}
+                  placeholder="BARİSTA, İŞLETME MÜDÜRÜ vb."
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
                 <Label>Mağaza</Label>
                 <Input
                   value={editFormData.store_name}
                   onChange={(e) => setEditFormData({ ...editFormData, store_name: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>İşe Giriş Tarihi</Label>
+                <Input
+                  type="date"
+                  value={editFormData.employment_date}
+                  onChange={(e) => setEditFormData({ ...editFormData, employment_date: e.target.value })}
                 />
               </div>
             </div>
