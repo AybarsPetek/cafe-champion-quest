@@ -141,10 +141,10 @@ Deno.serve(async (req) => {
                 message: createError.message,
               });
             } else {
-              // Approve user
+              // Update profile with position and approve
               await adminClient
                 .from("profiles")
-                .update({ is_approved: true })
+                .update({ is_approved: true, position: person.position || null })
                 .eq("id", newUser.user.id);
 
               results.push({

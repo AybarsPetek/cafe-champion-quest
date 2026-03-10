@@ -83,6 +83,7 @@ const UserManagement = () => {
       level: user.level || "Başlangıç",
       total_points: user.total_points || 0,
       email: emailMap[user.id]?.email || "",
+      position: user.position || "",
     });
     setEditDialogOpen(true);
   };
