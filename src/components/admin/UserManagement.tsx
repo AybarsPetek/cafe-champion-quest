@@ -205,6 +205,7 @@ const UserManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getEmailVerificationBadge(user.id)}</TableCell>
+                    <TableCell>{user.position || "-"}</TableCell>
                     <TableCell>{user.store_name || "-"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{user.level || "Başlangıç"}</Badge>
