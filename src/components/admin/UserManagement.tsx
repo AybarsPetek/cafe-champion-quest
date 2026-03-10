@@ -247,7 +247,7 @@ const UserManagement = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground">
                     {searchQuery ? "Aramanızla eşleşen kullanıcı bulunamadı" : "Henüz kullanıcı bulunmuyor"}
                   </TableCell>
                 </TableRow>
