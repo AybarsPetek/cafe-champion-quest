@@ -290,6 +290,10 @@ const UserManagement = () => {
                   <p className="font-medium">{selectedUser.phone || "-"}</p>
                 </div>
                 <div>
+                  <span className="text-muted-foreground">Görev:</span>
+                  <p className="font-medium">{selectedUser.position || "-"}</p>
+                </div>
+                <div>
                   <span className="text-muted-foreground">Mağaza:</span>
                   <p className="font-medium">{selectedUser.store_name || "-"}</p>
                 </div>
