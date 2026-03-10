@@ -202,7 +202,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 lg:w-[1170px]">
+          <TabsList className="grid w-full grid-cols-10 lg:w-[1300px]">
             <TabsTrigger value="pending">
               <UserCheck className="w-4 h-4 mr-2" />
               Onay Bekleyen
