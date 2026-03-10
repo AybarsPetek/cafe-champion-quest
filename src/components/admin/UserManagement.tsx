@@ -34,6 +34,7 @@ const UserManagement = () => {
     level: "",
     total_points: 0,
     email: "",
+    position: "",
   });
 
   // Fetch email data from edge function
@@ -82,6 +83,7 @@ const UserManagement = () => {
       level: user.level || "Başlangıç",
       total_points: user.total_points || 0,
       email: emailMap[user.id]?.email || "",
+      position: user.position || "",
     });
     setEditDialogOpen(true);
   };
@@ -173,6 +175,7 @@ const UserManagement = () => {
                 <TableHead>Kullanıcı</TableHead>
                 <TableHead>E-posta</TableHead>
                 <TableHead>Mail Onayı</TableHead>
+                <TableHead>Görev</TableHead>
                 <TableHead>Mağaza</TableHead>
                 <TableHead>Seviye</TableHead>
                 <TableHead>Durum</TableHead>
@@ -202,6 +205,7 @@ const UserManagement = () => {
                       </div>
                     </TableCell>
                     <TableCell>{getEmailVerificationBadge(user.id)}</TableCell>
+                    <TableCell>{user.position || "-"}</TableCell>
                     <TableCell>{user.store_name || "-"}</TableCell>
                     <TableCell>
                       <Badge variant="secondary">{user.level || "Başlangıç"}</Badge>
@@ -243,7 +247,7 @@ const UserManagement = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
+                  <TableCell colSpan={9} className="text-center text-muted-foreground">
                     {searchQuery ? "Aramanızla eşleşen kullanıcı bulunamadı" : "Henüz kullanıcı bulunmuyor"}
                   </TableCell>
                 </TableRow>
@@ -284,6 +288,10 @@ const UserManagement = () => {
                 <div>
                   <span className="text-muted-foreground">Telefon:</span>
                   <p className="font-medium">{selectedUser.phone || "-"}</p>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Görev:</span>
+                  <p className="font-medium">{selectedUser.position || "-"}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Mağaza:</span>
@@ -367,10 +375,28 @@ const UserManagement = () => {
                 />
               </div>
               <div className="grid gap-2">
+                <Label>Görev</Label>
+                <Input
+                  value={editFormData.position}
+                  onChange={(e) => setEditFormData({ ...editFormData, position: e.target.value })}
+                  placeholder="BARİSTA, İŞLETME MÜDÜRÜ vb."
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
                 <Label>Mağaza</Label>
                 <Input
                   value={editFormData.store_name}
                   onChange={(e) => setEditFormData({ ...editFormData, store_name: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>İşe Giriş Tarihi</Label>
+                <Input
+                  type="date"
+                  value={editFormData.employment_date}
+                  onChange={(e) => setEditFormData({ ...editFormData, employment_date: e.target.value })}
                 />
               </div>
             </div>

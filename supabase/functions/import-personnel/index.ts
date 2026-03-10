@@ -104,6 +104,7 @@ Deno.serve(async (req) => {
             if (person.full_name) updateData.full_name = person.full_name;
             if (person.phone) updateData.phone = person.phone;
             if (person.store_name) updateData.store_name = person.store_name;
+            if (person.position) updateData.position = person.position;
 
             const { error } = await adminClient
               .from("profiles")
@@ -140,10 +141,10 @@ Deno.serve(async (req) => {
                 message: createError.message,
               });
             } else {
-              // Approve user
+              // Update profile with position and approve
               await adminClient
                 .from("profiles")
-                .update({ is_approved: true })
+                .update({ is_approved: true, position: person.position || null })
                 .eq("id", newUser.user.id);
 
               results.push({
