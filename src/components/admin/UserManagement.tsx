@@ -34,6 +34,7 @@ const UserManagement = () => {
     level: "",
     total_points: 0,
     email: "",
+    position: "",
   });
 
   // Fetch email data from edge function
