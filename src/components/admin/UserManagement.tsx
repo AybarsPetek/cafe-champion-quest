@@ -175,6 +175,7 @@ const UserManagement = () => {
                 <TableHead>Kullanıcı</TableHead>
                 <TableHead>E-posta</TableHead>
                 <TableHead>Mail Onayı</TableHead>
+                <TableHead>Görev</TableHead>
                 <TableHead>Mağaza</TableHead>
                 <TableHead>Seviye</TableHead>
                 <TableHead>Durum</TableHead>
