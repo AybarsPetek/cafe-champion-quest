@@ -10,12 +10,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard, Building, ClipboardList } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard, Building, ClipboardList, FileSpreadsheet } from "lucide-react";
 import QuizManagement from "@/components/admin/QuizManagement";
 import PaymentManagement from "@/components/admin/PaymentManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
 import TrainingManagement from "@/components/admin/TrainingManagement";
 import UserManagement from "@/components/admin/UserManagement";
+import PersonnelImport from "@/components/admin/PersonnelImport";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -201,7 +202,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9 lg:w-[1170px]">
+          <TabsList className="grid w-full grid-cols-10 lg:w-[1300px]">
             <TabsTrigger value="pending">
               <UserCheck className="w-4 h-4 mr-2" />
               Onay Bekleyen
@@ -242,6 +243,10 @@ const Admin = () => {
             <TabsTrigger value="users">
               <Users className="w-4 h-4 mr-2" />
               Kullanıcılar
+            </TabsTrigger>
+            <TabsTrigger value="import">
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              İçe Aktar
             </TabsTrigger>
           </TabsList>
 
@@ -782,6 +787,10 @@ const Admin = () => {
 
           <TabsContent value="users">
             <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="import">
+            <PersonnelImport />
           </TabsContent>
         </Tabs>
       </main>
