@@ -550,6 +550,7 @@ export type Database = {
           is_approved: boolean
           level: string | null
           phone: string | null
+          position: string | null
           store_name: string | null
           total_points: number | null
           updated_at: string | null
@@ -564,6 +565,7 @@ export type Database = {
           is_approved?: boolean
           level?: string | null
           phone?: string | null
+          position?: string | null
           store_name?: string | null
           total_points?: number | null
           updated_at?: string | null
@@ -578,6 +580,7 @@ export type Database = {
           is_approved?: boolean
           level?: string | null
           phone?: string | null
+          position?: string | null
           store_name?: string | null
           total_points?: number | null
           updated_at?: string | null
