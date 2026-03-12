@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
               // Update profile with position and approve
               await adminClient
                 .from("profiles")
-                .update({ is_approved: true, position: person.position || null })
+                .update({ is_approved: true, position: person.position || null, must_change_password: true })
                 .eq("id", newUser.user.id);
 
               // Save temp password for admin reference
