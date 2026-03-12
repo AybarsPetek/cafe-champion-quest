@@ -336,10 +336,16 @@ const PersonnelImport = () => {
                   )}
                 </div>
               </div>
-              <Button onClick={reset}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Yeni İçe Aktarma
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={exportResults}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Excel İndir
+                </Button>
+                <Button onClick={reset}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Yeni İçe Aktarma
+                </Button>
+              </div>
             </div>
 
             <div className="max-h-[400px] overflow-auto rounded-md border">
