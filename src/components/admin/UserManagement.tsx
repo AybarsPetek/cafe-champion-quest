@@ -49,14 +49,23 @@ const UserManagement = () => {
           supabase.functions.invoke("manage-user-emails", { body: { action: "list" } }),
           supabase.from("user_temp_passwords").select("user_id, temp_password"),
         ]);
-        if (!emailRes.error && emailRes.data?.emailMap) setEmailMap(emailRes.data.emailMap);
+        if (emailRes.error) {
+          console.error("Email fetch error:", emailRes.error);
+          toast({ title: "Uyarı", description: "E-posta bilgileri yüklenemedi. Sayfayı yenileyin.", variant: "destructive" });
+        } else if (emailRes.data?.emailMap) {
+          setEmailMap(emailRes.data.emailMap);
+        } else if (emailRes.data?.error) {
+          console.error("Email function error:", emailRes.data.error);
+          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${emailRes.data.error}`, variant: "destructive" });
+        }
         if (!pwRes.error && pwRes.data) {
           const pwMap: Record<string, string> = {};
           pwRes.data.forEach((r: any) => { pwMap[r.user_id] = r.temp_password; });
           setTempPasswordMap(pwMap);
         }
-      } catch (err) {
-        if (import.meta.env.DEV) console.error("Failed to fetch data:", err);
+      } catch (err: any) {
+        console.error("Failed to fetch data:", err);
+        toast({ title: "Hata", description: "Veriler yüklenirken bir hata oluştu.", variant: "destructive" });
       } finally {
         setEmailLoading(false);
       }
