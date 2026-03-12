@@ -58,6 +58,7 @@ const settingsItems = [
 
 const AdminSidebar = ({ activeTab, onTabChange, pendingCount }: AdminSidebarProps) => {
   const { state } = useSidebar();
+  const navigate = useNavigate();
   const collapsed = state === "collapsed";
 
   const renderItem = (item: typeof mainItems[0]) => (
