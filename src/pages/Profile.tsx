@@ -6,14 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Save, User } from "lucide-react";
+import { Camera, Save, User, Lock, Eye, EyeOff } from "lucide-react";
 import { useProfile, useUpdateProfile, useUploadAvatar } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     full_name: "",
     store_name: "",
@@ -21,6 +23,11 @@ const Profile = () => {
     bio: "",
     phone: "",
   });
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -68,6 +75,33 @@ const Profile = () => {
     const file = e.target.files?.[0];
     if (file && user) {
       uploadAvatar.mutate({ userId: user.id, file });
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast({ title: "Hata", description: "Lütfen tüm alanları doldurun.", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast({ title: "Hata", description: "Yeni şifre en az 8 karakter olmalıdır.", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Hata", description: "Şifreler eşleşmiyor.", variant: "destructive" });
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast({ title: "Başarılı", description: "Şifreniz başarıyla değiştirildi." });
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast({ title: "Hata", description: error.message || "Şifre değiştirilemedi.", variant: "destructive" });
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -205,6 +239,74 @@ const Profile = () => {
                 >
                   <Save className="w-4 h-4" />
                   {updateProfile.isPending ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Password Change */}
+          <Card className="lg:col-span-3 shadow-soft">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="w-5 h-5" />
+                Şifre Değiştir
+              </CardTitle>
+              <CardDescription>Hesap şifrenizi güncelleyin</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4 max-w-2xl">
+                <div className="space-y-2">
+                  <Label htmlFor="new_password">Yeni Şifre</Label>
+                  <div className="relative">
+                    <Input
+                      id="new_password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="En az 8 karakter"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm_password">Yeni Şifre (Tekrar)</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm_password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Şifrenizi tekrar girin"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={changingPassword}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Lock className="w-4 h-4" />
+                  {changingPassword ? "Değiştiriliyor..." : "Şifreyi Değiştir"}
                 </Button>
               </div>
             </CardContent>
