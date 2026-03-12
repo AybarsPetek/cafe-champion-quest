@@ -39,23 +39,28 @@ const UserManagement = () => {
     position: "",
   });
 
-  // Fetch email data from edge function
+  // Fetch email data and temp passwords
   useEffect(() => {
-    const fetchEmails = async () => {
+    const fetchData = async () => {
       setEmailLoading(true);
       try {
-        const { data, error } = await supabase.functions.invoke("manage-user-emails", {
-          body: { action: "list" },
-        });
-        if (error) throw error;
-        if (data?.emailMap) setEmailMap(data.emailMap);
+        const [emailRes, pwRes] = await Promise.all([
+          supabase.functions.invoke("manage-user-emails", { body: { action: "list" } }),
+          supabase.from("user_temp_passwords").select("user_id, temp_password"),
+        ]);
+        if (!emailRes.error && emailRes.data?.emailMap) setEmailMap(emailRes.data.emailMap);
+        if (!pwRes.error && pwRes.data) {
+          const pwMap: Record<string, string> = {};
+          pwRes.data.forEach((r: any) => { pwMap[r.user_id] = r.temp_password; });
+          setTempPasswordMap(pwMap);
+        }
       } catch (err) {
-        console.error("Failed to fetch emails:", err);
+        if (import.meta.env.DEV) console.error("Failed to fetch data:", err);
       } finally {
         setEmailLoading(false);
       }
     };
-    fetchEmails();
+    fetchData();
   }, [users]);
 
   const filteredUsers = users?.filter((user: any) => {
