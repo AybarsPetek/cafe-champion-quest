@@ -40,23 +40,43 @@ const UserManagement = () => {
     position: "",
   });
 
+  const invokeAdminFunction = async (functionName: string, body: Record<string, any>) => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    return supabase.functions.invoke(functionName, {
+      body,
+      headers: session?.access_token
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : undefined,
+    });
+  };
+
   // Fetch email data and temp passwords
   useEffect(() => {
     const fetchData = async () => {
       setEmailLoading(true);
       try {
+        const emailRequest = invokeAdminFunction("manage-user-emails", { action: "list" });
         const [emailRes, pwRes] = await Promise.all([
-          supabase.functions.invoke("manage-user-emails", { body: { action: "list" } }),
+          emailRequest,
           supabase.from("user_temp_passwords").select("user_id, temp_password"),
         ]);
-        if (emailRes.error) {
-          console.error("Email fetch error:", emailRes.error);
+
+        let finalEmailRes = emailRes;
+        if (emailRes.error?.message?.toLowerCase().includes("unauthorized")) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          finalEmailRes = await invokeAdminFunction("manage-user-emails", { action: "list" });
+        }
+        if (finalEmailRes.error) {
+          console.error("Email fetch error:", finalEmailRes.error);
           toast({ title: "Uyarı", description: "E-posta bilgileri yüklenemedi. Sayfayı yenileyin.", variant: "destructive" });
-        } else if (emailRes.data?.emailMap) {
-          setEmailMap(emailRes.data.emailMap);
-        } else if (emailRes.data?.error) {
-          console.error("Email function error:", emailRes.data.error);
-          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${emailRes.data.error}`, variant: "destructive" });
+        } else if (finalEmailRes.data?.emailMap) {
+          setEmailMap(finalEmailRes.data.emailMap);
+        } else if (finalEmailRes.data?.error) {
+          console.error("Email function error:", finalEmailRes.data.error);
+          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${finalEmailRes.data.error}`, variant: "destructive" });
         }
         if (!pwRes.error && pwRes.data) {
           const pwMap: Record<string, string> = {};
@@ -108,9 +128,7 @@ const UserManagement = () => {
   const handleResetPasswords = async () => {
     setResetLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("reset-user-passwords", {
-        body: { userIds: [] },
-      });
+      const { data, error } = await invokeAdminFunction("reset-user-passwords", { userIds: [] });
       if (error) throw error;
       toast({
         title: "Başarılı",
@@ -165,8 +183,10 @@ const UserManagement = () => {
           // Update email if changed
           if (email && email !== currentEmail) {
             try {
-              const { data, error } = await supabase.functions.invoke("manage-user-emails", {
-                body: { action: "update", userId: selectedUser.id, newEmail: email },
+              const { data, error } = await invokeAdminFunction("manage-user-emails", {
+                action: "update",
+                userId: selectedUser.id,
+                newEmail: email,
               });
               if (error) throw error;
               setEmailMap((prev) => ({
