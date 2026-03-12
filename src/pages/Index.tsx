@@ -99,6 +99,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Instagram Section */}
+      <InstagramSection />
+
       {/* New Members Section */}
       <NewMembersSection />
 
