@@ -96,6 +96,31 @@ const UserManagement = () => {
     XLSX.writeFile(wb, `kullanicilar-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
+  const handleResetPasswords = async () => {
+    setResetLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("reset-user-passwords", {
+        body: { userIds: [] },
+      });
+      if (error) throw error;
+      toast({
+        title: "Başarılı",
+        description: `${data.successCount} kullanıcıya geçici şifre atandı.`,
+      });
+      // Refresh temp password map
+      const { data: pwData } = await supabase.from("user_temp_passwords").select("user_id, temp_password");
+      if (pwData) {
+        const pwMap: Record<string, string> = {};
+        pwData.forEach((r: any) => { pwMap[r.user_id] = r.temp_password; });
+        setTempPasswordMap(pwMap);
+      }
+    } catch (err: any) {
+      toast({ title: "Hata", description: err.message || "Şifre atama başarısız.", variant: "destructive" });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   const handleView = (user: any) => {
     setSelectedUser(user);
     setViewDialogOpen(true);
