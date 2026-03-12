@@ -101,7 +101,9 @@ const Index = () => {
       </section>
 
       {/* Instagram Section */}
-      <InstagramSection />
+      <Suspense fallback={null}>
+        <InstagramSection />
+      </Suspense>
 
       {/* New Members Section */}
       <NewMembersSection />
