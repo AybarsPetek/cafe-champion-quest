@@ -74,7 +74,7 @@ export const useCreateContactSettings = () => {
     },
     onError: (error) => {
       toast.error("İletişim bilgileri eklenirken hata oluştu");
-      console.error(error);
+      if (import.meta.env.DEV) console.error(error);
     },
   });
 };
@@ -101,7 +101,7 @@ export const useUpdateContactSettings = () => {
     },
     onError: (error) => {
       toast.error("İletişim bilgileri güncellenirken hata oluştu");
-      console.error(error);
+      if (import.meta.env.DEV) console.error(error);
     },
   });
 };
@@ -125,7 +125,7 @@ export const useDeleteContactSettings = () => {
     },
     onError: (error) => {
       toast.error("İletişim bilgileri silinirken hata oluştu");
-      console.error(error);
+      if (import.meta.env.DEV) console.error(error);
     },
   });
 };
