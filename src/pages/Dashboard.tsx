@@ -10,6 +10,7 @@ import { format, isPast, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useUserDashboard } from "@/hooks/useUserDashboard";
 import { supabase } from "@/integrations/supabase/client";
+import PwaInstallGuide from "@/components/PwaInstallGuide";
 import { User } from "@supabase/supabase-js";
 
 const Dashboard = () => {
@@ -73,7 +74,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+      <PwaInstallGuide />
       <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="mb-8 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Hoş Geldin, Barista! ☕</h1>
