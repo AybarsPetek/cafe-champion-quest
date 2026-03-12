@@ -195,6 +195,15 @@ const UserManagement = () => {
               <Download className="w-4 h-4 mr-2" />
               Excel
             </Button>
+            <Button
+              variant="outline"
+              onClick={handleResetPasswords}
+              disabled={resetLoading}
+              title="Geçici şifresi olmayan kullanıcılara yeni şifre ata"
+            >
+              <KeyRound className="w-4 h-4 mr-2" />
+              {resetLoading ? "İşleniyor..." : "Şifre Ata"}
+            </Button>
           </div>
         </div>
       </CardHeader>
