@@ -10,6 +10,7 @@ import { format, isPast, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useUserDashboard } from "@/hooks/useUserDashboard";
 import { supabase } from "@/integrations/supabase/client";
+import PwaInstallGuide from "@/components/PwaInstallGuide";
 import { User } from "@supabase/supabase-js";
 
 const Dashboard = () => {
