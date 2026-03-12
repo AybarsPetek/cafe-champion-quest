@@ -48,6 +48,8 @@ export default defineConfig(({ mode }) => ({
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,jpg,svg,woff2}"],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        skipWaiting: true,
+        clientsClaim: true,
       },
     }),
   ].filter(Boolean),
