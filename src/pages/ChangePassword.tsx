@@ -44,7 +44,12 @@ const ChangePassword = () => {
       toast({ title: "Başarılı", description: "Şifreniz güncellendi." });
       navigate("/dashboard", { replace: true });
     } catch (err: any) {
-      toast({ title: "Hata", description: err.message || "Şifre güncellenemedi.", variant: "destructive" });
+      const message = err.message || "";
+      if (message.includes("same password") || err.code === "same_password") {
+        toast({ title: "Hata", description: "Yeni şifreniz eski şifrenizle aynı olamaz. Lütfen farklı bir şifre belirleyin.", variant: "destructive" });
+      } else {
+        toast({ title: "Hata", description: message || "Şifre güncellenemedi.", variant: "destructive" });
+      }
     } finally {
       setLoading(false);
     }
