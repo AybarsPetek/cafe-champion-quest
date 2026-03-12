@@ -121,9 +121,7 @@ const UserManagement = () => {
   const handleResetPasswords = async () => {
     setResetLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke("reset-user-passwords", {
-        body: { userIds: [] },
-      });
+      const { data, error } = await invokeAdminFunction("reset-user-passwords", { userIds: [] });
       if (error) throw error;
       toast({
         title: "Başarılı",
