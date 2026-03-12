@@ -210,6 +210,7 @@ const Admin = () => {
       training: { title: "Eğitim Takip", desc: "Personellere atanan eğitimleri takip edin" },
       users: { title: "Kullanıcı Yönetimi", desc: "Kullanıcı bilgilerini görüntüleyin ve düzenleyin" },
       import: { title: "Personel İçe Aktarma", desc: "Excel dosyasından toplu personel içe aktarın" },
+      library: { title: "E-Kütüphane Yönetimi", desc: "Dökümanları, tebliğleri ve evrakları yönetin" },
     };
     return titles[activeTab] || { title: "", desc: "" };
   };
