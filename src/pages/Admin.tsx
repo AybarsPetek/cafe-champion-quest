@@ -73,6 +73,8 @@ const Admin = () => {
     duration_minutes: 0,
     points: 0,
     instructor: "",
+    instructor_title: "",
+    instructor_bio: "",
     image_url: "",
   });
   const [videoFormData, setVideoFormData] = useState({
