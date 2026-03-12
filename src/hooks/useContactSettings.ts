@@ -74,7 +74,7 @@ export const useCreateContactSettings = () => {
     },
     onError: (error) => {
       toast.error("İletişim bilgileri eklenirken hata oluştu");
-      console.error(error);
+      if (import.meta.env.DEV) console.error(error);
     },
   });
 };
