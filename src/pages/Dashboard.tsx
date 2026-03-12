@@ -74,7 +74,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
-      
+      <PwaInstallGuide />
       <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="mb-8 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Hoş Geldin, Barista! ☕</h1>
