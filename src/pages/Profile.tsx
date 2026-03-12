@@ -11,7 +11,6 @@ import { useProfile, useUpdateProfile, useUploadAvatar } from "@/hooks/useProfil
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
-import { User as SupabaseUser } from "@supabase/supabase-js";
 
 const Profile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
