@@ -121,7 +121,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-3 shrink-0">
-            <img src={logo} alt="TheCompany Coffee Academy" className="h-10" />
+            <img src={logo} alt="TheCompany Coffee Academy" className="h-10" width={203} height={40} />
           </Link>
 
           {/* Desktop Navigation */}
