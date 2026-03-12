@@ -25,6 +25,7 @@ const UserManagement = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [emailMap, setEmailMap] = useState<Record<string, { email: string; email_confirmed_at: string | null }>>({});
+  const [tempPasswordMap, setTempPasswordMap] = useState<Record<string, string>>({});
   const [emailLoading, setEmailLoading] = useState(false);
   const [editFormData, setEditFormData] = useState({
     full_name: "",

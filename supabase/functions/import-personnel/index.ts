@@ -147,6 +147,11 @@ Deno.serve(async (req) => {
                 .update({ is_approved: true, position: person.position || null })
                 .eq("id", newUser.user.id);
 
+              // Save temp password for admin reference
+              await adminClient
+                .from("user_temp_passwords")
+                .upsert({ user_id: newUser.user.id, temp_password: tempPassword }, { onConflict: "user_id" });
+
               results.push({
                 name: person.full_name,
                 phone: person.phone,
