@@ -13,6 +13,7 @@ import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle, Download } from 
 import { useAdminUsers, useUpdateUserRole, useUpdateUserProfileAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import * as XLSX from "xlsx";
 
 const UserManagement = () => {
   const { data: users, isLoading, refetch } = useAdminUsers();
