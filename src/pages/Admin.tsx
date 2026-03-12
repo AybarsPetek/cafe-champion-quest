@@ -18,6 +18,7 @@ import ContactManagement from "@/components/admin/ContactManagement";
 import TrainingManagement from "@/components/admin/TrainingManagement";
 import UserManagement from "@/components/admin/UserManagement";
 import PersonnelImport from "@/components/admin/PersonnelImport";
+import LibraryManagement from "@/components/admin/LibraryManagement";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -209,6 +210,7 @@ const Admin = () => {
       training: { title: "Eğitim Takip", desc: "Personellere atanan eğitimleri takip edin" },
       users: { title: "Kullanıcı Yönetimi", desc: "Kullanıcı bilgilerini görüntüleyin ve düzenleyin" },
       import: { title: "Personel İçe Aktarma", desc: "Excel dosyasından toplu personel içe aktarın" },
+      library: { title: "E-Kütüphane Yönetimi", desc: "Dökümanları, tebliğleri ve evrakları yönetin" },
     };
     return titles[activeTab] || { title: "", desc: "" };
   };
@@ -592,6 +594,9 @@ const Admin = () => {
 
       case "import":
         return <PersonnelImport />;
+
+      case "library":
+        return <LibraryManagement />;
 
       default:
         return null;

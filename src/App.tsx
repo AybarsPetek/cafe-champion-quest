@@ -20,6 +20,7 @@ import ForumCategory from "./pages/ForumCategory";
 import ForumTopic from "./pages/ForumTopic";
 import ForumNewTopic from "./pages/ForumNewTopic";
 import Quiz from "./pages/Quiz";
+import Library from "./pages/Library";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import ChangePassword from "./pages/ChangePassword";
@@ -52,6 +53,11 @@ const App = () => (
           <Route path="/courses" element={<Courses />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/library" element={
+            <ProtectedRoute>
+              <Library />
+            </ProtectedRoute>
+          } />
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/category/:categoryId" element={<ForumCategory />} />
           <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
