@@ -421,7 +421,6 @@ const Admin = () => {
                             onChange={(e) => setCourseFormData({ ...courseFormData, instructor_bio: e.target.value })}
                             placeholder="Örn: 10+ yıllık deneyime sahip profesyonel barista"
                           />
-                          </div>
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="image_url">Görsel URL</Label>
