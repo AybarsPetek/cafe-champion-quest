@@ -38,7 +38,6 @@ const Index = () => {
             className="w-full h-full object-cover"
             width={1920}
             height={852}
-            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 to-background/60" />
         </div>
