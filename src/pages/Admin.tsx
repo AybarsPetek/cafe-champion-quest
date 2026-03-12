@@ -19,6 +19,7 @@ import TrainingManagement from "@/components/admin/TrainingManagement";
 import UserManagement from "@/components/admin/UserManagement";
 import PersonnelImport from "@/components/admin/PersonnelImport";
 import LibraryManagement from "@/components/admin/LibraryManagement";
+import InstagramManagement from "@/components/admin/InstagramManagement";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -207,6 +208,7 @@ const Admin = () => {
       certificates: { title: "Sertifika Yönetimi", desc: "Tamamlanan kurslar için sertifika oluşturun" },
       payments: { title: "Ödeme Ayarları", desc: "Ödeme planlarını ve banka bilgilerini yönetin" },
       contact: { title: "İletişim Ayarları", desc: "Şirket iletişim bilgilerini düzenleyin" },
+      instagram: { title: "Instagram Yönetimi", desc: "Ana sayfada gösterilecek Instagram postlarını yönetin" },
       training: { title: "Eğitim Takip", desc: "Personellere atanan eğitimleri takip edin" },
       users: { title: "Kullanıcı Yönetimi", desc: "Kullanıcı bilgilerini görüntüleyin ve düzenleyin" },
       import: { title: "Personel İçe Aktarma", desc: "Excel dosyasından toplu personel içe aktarın" },
@@ -597,6 +599,9 @@ const Admin = () => {
 
       case "library":
         return <LibraryManagement />;
+
+      case "instagram":
+        return <InstagramManagement />;
 
       default:
         return null;

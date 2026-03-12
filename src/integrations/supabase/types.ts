@@ -503,6 +503,36 @@ export type Database = {
           },
         ]
       }
+      instagram_posts: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          order_index: number
+          post_url: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          post_url: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          post_url?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       library_categories: {
         Row: {
           created_at: string

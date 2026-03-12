@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, BookOpen, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import NewMembersSection from "@/components/NewMembersSection";
+import InstagramSection from "@/components/InstagramSection";
 import heroImage from "@/assets/hero-barista.jpg";
 
 const Index = () => {
@@ -97,6 +98,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Instagram Section */}
+      <InstagramSection />
 
       {/* New Members Section */}
       <NewMembersSection />
