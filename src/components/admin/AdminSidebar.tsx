@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Coffee,
   Library,
+  Instagram,
 } from "lucide-react";
 import {
   Sidebar,
