@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 const Profile = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     full_name: "",
     store_name: "",
@@ -22,6 +23,11 @@ const Profile = () => {
     bio: "",
     phone: "",
   });
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
