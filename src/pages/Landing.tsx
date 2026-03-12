@@ -12,80 +12,100 @@ import {
   CheckCircle2,
   MessageCircle,
   Sparkles,
-  Menu
+  Menu,
+  GraduationCap,
+  Users,
+  Trophy,
+  FileText,
+  Library,
+  ClipboardList,
+  Monitor,
+  Smartphone,
+  HelpCircle,
+  FolderOpen
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import logo from "@/assets/logo.png";
-import { usePricingPlans } from "@/hooks/usePaymentSettings";
 
 const Landing = () => {
-  const { data: pricingPlans, isLoading: isPricingLoading } = usePricingPlans();
-  const features = [
+  const portalFeatures = [
     {
       icon: BookOpen,
       title: "Video Tabanlı Eğitimler",
-      description: "Profesyonel eğitmenler tarafından hazırlanmış yüksek kaliteli video içerikler"
+      description: "Profesyonel eğitmenlerimiz tarafından hazırlanmış, başlangıçtan uzmanlığa uzanan kapsamlı video eğitim içerikleri. Her kurs sıralı videolardan oluşur ve ilerlemeniz otomatik olarak kaydedilir."
+    },
+    {
+      icon: HelpCircle,
+      title: "Quiz & Sınav Sistemi",
+      description: "Her eğitimin sonunda bilginizi ölçen quiz ve sınavlar. Geçme notu, süre sınırı ve detaylı sonuç analizi ile öğrenmenizi pekiştirin."
     },
     {
       icon: Award,
       title: "Sertifikasyon Sistemi",
-      description: "Eğitim tamamlandığında resmi PDF sertifikası ve benzersiz sertifika numarası"
+      description: "Eğitimlerinizi ve sınavlarınızı başarıyla tamamladığınızda benzersiz sertifika numarası ile PDF sertifikanızı indirip yazdırabilirsiniz."
     },
     {
-      icon: TrendingUp,
-      title: "Oyunlaştırılmış Öğrenme",
-      description: "Puan sistemi, rozetler ve liderlik tablosu ile motivasyonu artırın"
-    },
-    {
-      icon: Shield,
-      title: "Admin Onay Sistemi",
-      description: "Yeni kayıtlar için manuel onay süreci ile güvenli kullanıcı yönetimi"
-    },
-    {
-      icon: BarChart3,
-      title: "İlerleme Takibi",
-      description: "Her çalışanın eğitim ilerlemesini detaylı raporlarla takip edin"
+      icon: Trophy,
+      title: "Puan & Rozet Sistemi",
+      description: "Tamamladığınız her eğitim için puan kazanın, özel rozetler toplayın ve liderlik tablosunda yerinizi alın. Seviye sistemi ile ilerlemenizi takip edin."
     },
     {
       icon: MessageCircle,
-      title: "Forum & Tartışma",
-      description: "Çalışanların bilgi paylaşımı yapabileceği entegre forum sistemi"
-    }
+      title: "Forum & Bilgi Paylaşımı",
+      description: "Kategorilere ayrılmış forum alanında sorularınızı sorun, deneyimlerinizi paylaşın ve diğer ekip arkadaşlarınızla etkileşimde bulunun."
+    },
+    {
+      icon: Library,
+      title: "E-Kütüphane",
+      description: "Eğitim dokümanları, tarifler, standart prosedürler ve referans materyallerine tek bir yerden erişin. PDF, Excel ve diğer formatlardaki dosyaları indirin."
+    },
   ];
 
-  const benefits = [
-    "Sınırsız video eğitimi yükleme",
-    "Çoklu mağaza/şube desteği",
-    "Mobil uyumlu tasarım",
-    "Gerçek zamanlı ilerleme takibi",
-    "Özelleştirilebilir rozet sistemi",
-    "Quiz ve sınav modülü",
-    "Detaylı analitik raporlar",
-    "7/24 teknik destek"
+  const adminFeatures = [
+    {
+      icon: Users,
+      title: "Kullanıcı Yönetimi",
+      description: "Şube çalışanlarınızın kayıt ve onay süreçlerini yönetin. Toplu personel içe aktarma ile hızlıca kullanıcı oluşturun."
+    },
+    {
+      icon: ClipboardList,
+      title: "Eğitim Takip & Atama",
+      description: "Çalışanlarınıza zorunlu eğitimler atayın, son tarih belirleyin ve tamamlama durumlarını detaylı raporlarla takip edin."
+    },
+    {
+      icon: BarChart3,
+      title: "Detaylı Raporlama",
+      description: "Kurs tamamlama oranları, sınav başarı yüzdeleri, çalışan bazlı ilerleme raporları ve genel performans analizleri."
+    },
   ];
 
-  const useCases = [
+  const userFlow = [
     {
-      title: "Kahve Zincirleri",
-      description: "Barista eğitimlerini standartlaştırın ve kaliteyi her şubede aynı tutun"
+      step: "1",
+      title: "Portala Giriş",
+      description: "Size verilen e-posta ve şifre ile portala giriş yapın. İlk girişte şifrenizi değiştirmeniz istenecektir."
     },
     {
-      title: "Restoranlar",
-      description: "Servis standartları, hijyen kuralları ve menü bilgisi eğitimleri"
+      step: "2",
+      title: "Eğitimlere Başlayın",
+      description: "Size atanan zorunlu eğitimleri veya tüm eğitim kataloğunu görüntüleyin. Videoları sırayla izleyerek ilerleyin."
     },
     {
-      title: "Perakende",
-      description: "Satış teknikleri, ürün bilgisi ve müşteri hizmetleri eğitimleri"
+      step: "3",
+      title: "Sınavları Tamamlayın",
+      description: "Her eğitimin sonundaki sınavı geçerek bilginizi kanıtlayın. Başarılı olduğunuzda puan ve rozet kazanın."
     },
     {
-      title: "Kurumsal",
-      description: "Oryantasyon programları, uyum eğitimleri ve sürekli gelişim"
-    }
+      step: "4",
+      title: "Sertifikanızı Alın",
+      description: "Tüm eğitim ve sınavları tamamladığınızda resmi sertifikanızı PDF olarak indirin."
+    },
   ];
 
   const navLinks = [
-    { href: "#features", label: "Özellikler" },
-    { href: "#pricing", label: "Fiyatlandırma" },
+    { href: "#ozellikler", label: "Portal Özellikleri" },
+    { href: "#nasil-calisir", label: "Nasıl Çalışır" },
+    { href: "#yonetim", label: "Yönetim Paneli" },
   ];
 
   return (
@@ -95,8 +115,7 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="Coffee Academy" className="h-10" />
-              <span className="font-bold text-lg hidden sm:inline">Coffee Academy</span>
+              <img src={logo} alt="TheCompany Coffee Academy" className="h-10" />
             </div>
             
             {/* Desktop nav */}
@@ -111,8 +130,8 @@ const Landing = () => {
               </Button>
               <Button asChild>
                 <Link to="/" className="gap-2">
-                  <Play className="h-4 w-4" />
-                  Demoyu İncele
+                  Portala Git
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -138,8 +157,8 @@ const Landing = () => {
                       </Button>
                       <Button asChild className="w-full">
                         <Link to="/" className="gap-2">
-                          <Play className="h-4 w-4" />
-                          Demoyu İncele
+                          Portala Git
+                          <ArrowRight className="h-4 w-4" />
                         </Link>
                       </Button>
                     </div>
@@ -152,77 +171,57 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-16 md:py-32">
+      <section className="relative overflow-hidden py-16 md:py-28">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="container mx-auto px-4 relative">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6">
-              <Sparkles className="h-4 w-4" />
-              Çalışan Eğitim Platformu
+              <GraduationCap className="h-4 w-4" />
+              Franchise Eğitim Portalı
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent leading-tight">
-              Ekibinizi Profesyonelce Eğitin
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent leading-tight">
+              TheCompany Coffee Academy
             </h1>
-            <p className="text-lg md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Video eğitimleri, sertifikasyon sistemi ve oyunlaştırılmış öğrenme ile çalışanlarınızın gelişimini hızlandırın
+            <p className="text-lg md:text-xl text-muted-foreground mb-4 max-w-3xl mx-auto">
+              Franchise şubelerimize özel olarak sunulan online eğitim portalına hoş geldiniz.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="gap-2 text-base md:text-lg px-6 md:px-8">
-                <Link to="/">
-                  <Play className="h-5 w-5" />
-                  Canlı Demoyu Görüntüle
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="gap-2 text-base md:text-lg px-6 md:px-8">
-                <a href="#pricing">
-                  Fiyatları İncele
-                  <ArrowRight className="h-5 w-5" />
-                </a>
-              </Button>
-            </div>
-            
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 md:gap-8 mt-12 md:mt-16 max-w-2xl mx-auto">
-              <div className="text-center">
-                <div className="text-2xl md:text-4xl font-bold text-primary">500+</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Aktif Kullanıcı</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-4xl font-bold text-primary">50+</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Eğitim Videosu</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl md:text-4xl font-bold text-primary">%98</div>
-                <div className="text-xs md:text-sm text-muted-foreground">Memnuniyet</div>
-              </div>
-            </div>
+            <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
+              Bu portal, tüm ekibinizin profesyonel gelişimini desteklemek, eğitim süreçlerini standartlaştırmak 
+              ve performansı takip etmek için tasarlanmıştır. Aşağıda portalın sunduğu tüm hizmetleri detaylı olarak inceleyebilirsiniz.
+            </p>
+            <Button size="lg" asChild className="gap-2 text-base md:text-lg px-6 md:px-8">
+              <Link to="/">
+                Portala Giriş Yap
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-16 md:py-20 bg-muted/30">
+      {/* Portal Özellikleri */}
+      <section id="ozellikler" className="py-16 md:py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              Her Şey Dahil Eğitim Platformu
+              Portal Özellikleri
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Çalışan eğitimi için ihtiyacınız olan tüm araçlar tek bir platformda
+              Portalımız ile ekibinizin eğitim sürecini uçtan uca yönetin
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {features.map((feature, index) => {
+            {portalFeatures.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Card key={index} className="border-border/50 hover:border-primary/50 transition-colors">
+                <Card key={index} className="border-border/50 hover:border-primary/30 transition-colors">
                   <CardContent className="p-5 md:p-6">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
                       <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                     </div>
                     <h3 className="text-lg md:text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-sm md:text-base text-muted-foreground">{feature.description}</p>
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -231,24 +230,149 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Use Cases */}
-      <section className="py-16 md:py-20">
+      {/* Nasıl Çalışır */}
+      <section id="nasil-calisir" className="py-16 md:py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 md:mb-16">
             <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              Her Sektöre Uygun
+              Nasıl Çalışır?
             </h2>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Farklı sektörlerdeki işletmeler için özelleştirilebilir çözümler
+              Portaldaki eğitim süreciniz 4 basit adımdan oluşur
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {useCases.map((useCase, index) => (
-              <Card key={index} className="text-center border-border/50">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+            {userFlow.map((item, index) => (
+              <div key={index} className="text-center">
+                <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold mx-auto mb-4">
+                  {item.step}
+                </div>
+                <h3 className="text-base md:text-lg font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                {index < userFlow.length - 1 && (
+                  <ArrowRight className="h-5 w-5 text-muted-foreground/40 mx-auto mt-4 hidden lg:block rotate-0" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Kullanıcı Paneli */}
+      <section className="py-16 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div>
+              <h2 className="text-2xl md:text-4xl font-bold mb-6">
+                Kişisel Paneliniz
+              </h2>
+              <p className="text-base md:text-lg text-muted-foreground mb-8">
+                Portala giriş yaptığınızda kişisel panelinizde tüm eğitim sürecinizi tek bir bakışta görebilirsiniz.
+              </p>
+              <div className="space-y-4">
+                {[
+                  "Devam eden ve tamamlanan eğitimleriniz",
+                  "Toplam puanınız ve mevcut seviyeniz",
+                  "Kazandığınız rozetler ve sertifikalar",
+                  "Size atanan zorunlu eğitimler ve son tarihler",
+                  "Liderlik tablosundaki sıralamanız",
+                  "Kurs değerlendirme ve yorum yapma",
+                ].map((item, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                    <span className="text-sm md:text-base">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="border-border/50">
+                <CardContent className="p-4 text-center">
+                  <Monitor className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-medium">Masaüstü Uyumlu</p>
+                </CardContent>
+              </Card>
+              <Card className="border-border/50">
+                <CardContent className="p-4 text-center">
+                  <Smartphone className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-medium">Mobil Uyumlu</p>
+                </CardContent>
+              </Card>
+              <Card className="border-border/50">
+                <CardContent className="p-4 text-center">
+                  <Trophy className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-medium">Liderlik Tablosu</p>
+                </CardContent>
+              </Card>
+              <Card className="border-border/50">
+                <CardContent className="p-4 text-center">
+                  <FileText className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <p className="text-sm font-medium">PDF Sertifika</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Yönetim Paneli */}
+      <section id="yonetim" className="py-16 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              Şube Yönetim Paneli
+            </h2>
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Şube yöneticileri, admin paneli üzerinden tüm eğitim süreçlerini yönetebilir ve raporlayabilir
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {adminFeatures.map((feature, index) => {
+              const Icon = feature.icon;
+              return (
+                <Card key={index} className="border-border/50">
+                  <CardContent className="p-5 md:p-6">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                      <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Seviye Sistemi Detayı */}
+      <section className="py-16 md:py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-2xl md:text-4xl font-bold mb-4">
+              Seviye & Puan Sistemi
+            </h2>
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Eğitimlerinizi tamamladıkça puan kazanır ve seviye atlarsınız
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            {[
+              { level: "Başlangıç", range: "0 - 199 puan", color: "bg-muted" },
+              { level: "Orta", range: "200 - 499 puan", color: "bg-primary/20" },
+              { level: "İleri", range: "500 - 999 puan", color: "bg-primary/40" },
+              { level: "Uzman", range: "1000+ puan", color: "bg-primary" },
+            ].map((item, index) => (
+              <Card key={index} className="border-border/50 text-center">
                 <CardContent className="p-4 md:p-6">
-                  <h3 className="text-base md:text-lg font-semibold mb-2">{useCase.title}</h3>
-                  <p className="text-xs md:text-sm text-muted-foreground">{useCase.description}</p>
+                  <div className={`w-12 h-12 rounded-full ${item.color} flex items-center justify-center mx-auto mb-3 ${index === 3 ? 'text-primary-foreground' : ''}`}>
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold mb-1">{item.level}</h3>
+                  <p className="text-xs text-muted-foreground">{item.range}</p>
                 </CardContent>
               </Card>
             ))}
@@ -256,138 +380,29 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Benefits List */}
-      <section className="py-16 md:py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div>
-              <h2 className="text-2xl md:text-4xl font-bold mb-6">
-                Neden Coffee Academy?
-              </h2>
-              <p className="text-base md:text-lg text-muted-foreground mb-8">
-                Yılların tecrübesi ve müşteri geri bildirimleriyle geliştirilen, 
-                kullanımı kolay ve güçlü eğitim platformu.
-              </p>
-              <div className="grid sm:grid-cols-2 gap-3 md:gap-4">
-                {benefits.map((benefit, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-primary flex-shrink-0" />
-                    <span className="text-sm md:text-base">{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="relative">
-              <div className="aspect-video rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center border border-border">
-                <Button size="lg" asChild className="gap-2">
-                  <Link to="/">
-                    <Play className="h-6 w-6" />
-                    Demoyu Başlat
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 md:py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-2xl md:text-4xl font-bold mb-4">
-              Şeffaf Fiyatlandırma
-            </h2>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-              İşletmenizin büyüklüğüne uygun esnek planlar
-            </p>
-          </div>
-
-          {isPricingLoading ? (
-            <div className="text-center text-muted-foreground">Yükleniyor...</div>
-          ) : pricingPlans && pricingPlans.length > 0 ? (
-            <div className={`grid gap-6 md:gap-8 max-w-5xl mx-auto ${
-              pricingPlans.length === 1 ? 'md:grid-cols-1 max-w-md' :
-              pricingPlans.length === 2 ? 'md:grid-cols-2 max-w-3xl' :
-              'md:grid-cols-3'
-            }`}>
-              {pricingPlans.map((plan) => {
-                const features = Array.isArray(plan.features) 
-                  ? plan.features as string[]
-                  : [];
-                
-                return (
-                  <Card 
-                    key={plan.id} 
-                    className={plan.is_popular ? "border-primary relative" : "border-border/50"}
-                  >
-                    {plan.is_popular && (
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                        Popüler
-                      </div>
-                    )}
-                    <CardContent className="p-6 md:p-8">
-                      <h3 className="text-lg md:text-xl font-semibold mb-2">{plan.name}</h3>
-                      <p className="text-sm md:text-base text-muted-foreground mb-4">{plan.description}</p>
-                      <div className="mb-6">
-                        <span className="text-3xl md:text-4xl font-bold">₺{plan.price.toLocaleString('tr-TR')}</span>
-                        <span className="text-muted-foreground">
-                          /{plan.duration_months === 1 ? 'ay' : `${plan.duration_months} ay`}
-                        </span>
-                      </div>
-                      <ul className="space-y-3 mb-8">
-                        {features.map((feature, featureIndex) => (
-                          <li key={featureIndex} className="flex items-center gap-2 text-sm md:text-base">
-                            <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
-                            <span>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="space-y-2">
-                        <Button 
-                          variant={plan.is_popular ? "default" : "outline"} 
-                          className="w-full" 
-                          asChild
-                        >
-                          <Link to={`/payment?plan=${plan.id}`}>Satın Al</Link>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full" 
-                          asChild
-                        >
-                          <Link to="/">Demoyu İncele</Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground">
-              Henüz fiyatlandırma planı eklenmemiş.
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 md:py-20 bg-primary">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 text-primary-foreground">
-            Ekibinizi Bugün Güçlendirin
+            Portala Hemen Erişin
           </h2>
           <p className="text-base md:text-lg text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-            Hemen demo hesabı ile platformu keşfedin ve işletmeniz için nasıl fark yaratabileceğini görün
+            Franchise şubeniz için sağlanan giriş bilgileriniz ile portala giriş yaparak eğitimlere hemen başlayabilirsiniz. 
+            Herhangi bir sorunuz olduğunda iletişim sayfamızdan bize ulaşabilirsiniz.
           </p>
-          <Button size="lg" variant="secondary" asChild className="gap-2 text-base md:text-lg px-6 md:px-8">
-            <Link to="/">
-              <Play className="h-5 w-5" />
-              Ücretsiz Demo Başlat
-              <ArrowRight className="h-5 w-5" />
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" variant="secondary" asChild className="gap-2 text-base md:text-lg px-6 md:px-8">
+              <Link to="/">
+                Portala Giriş Yap
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="gap-2 text-base md:text-lg px-6 md:px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Link to="/iletisim">
+                Bize Ulaşın
+              </Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -396,23 +411,14 @@ const Landing = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
             <div className="flex items-center gap-3">
-              <img src={logo} alt="Coffee Academy" className="h-8" />
-              <span className="font-semibold">Coffee Academy</span>
+              <img src={logo} alt="TheCompany Coffee Academy" className="h-8" />
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 Coffee Academy. Tüm hakları saklıdır.
+              © {new Date().getFullYear()} TheCompany Coffee Academy. Tüm hakları saklıdır.
             </p>
-            <div className="flex items-center gap-4 md:gap-6 flex-wrap justify-center">
-              <Link to="/iletisim" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                İletişim
-              </Link>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Gizlilik Politikası
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Kullanım Koşulları
-              </a>
-            </div>
+            <Link to="/iletisim" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              İletişim
+            </Link>
           </div>
         </div>
       </footer>
