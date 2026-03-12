@@ -349,7 +349,7 @@ export const useSubmitQuiz = () => {
         p_attempt_id: attemptId,
         p_user_id: userId,
         p_quiz_id: quizId,
-        p_answers: JSON.stringify(answers),
+        p_answers: answers,
         p_time_spent: timeSpent,
       });
 
