@@ -22,6 +22,7 @@ import ForumNewTopic from "./pages/ForumNewTopic";
 import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
+import ChangePassword from "./pages/ChangePassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
@@ -40,6 +41,14 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/pending-approval" element={<PendingApproval />} />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute allowPasswordChange>
+                <ChangePassword />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/courses" element={<Courses />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
