@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileSpreadsheet, CheckCircle, XCircle, RefreshCw, AlertTriangle, UserPlus, UserCheck } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, RefreshCw, AlertTriangle, UserPlus, UserCheck, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
