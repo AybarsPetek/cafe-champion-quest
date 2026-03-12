@@ -20,6 +20,7 @@ import ForumCategory from "./pages/ForumCategory";
 import ForumTopic from "./pages/ForumTopic";
 import ForumNewTopic from "./pages/ForumNewTopic";
 import Quiz from "./pages/Quiz";
+import Library from "./pages/Library";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import ChangePassword from "./pages/ChangePassword";
