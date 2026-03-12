@@ -69,14 +69,14 @@ const UserManagement = () => {
           await new Promise((resolve) => setTimeout(resolve, 500));
           finalEmailRes = await invokeAdminFunction("manage-user-emails", { action: "list" });
         }
-        if (emailRes.error) {
-          console.error("Email fetch error:", emailRes.error);
+        if (finalEmailRes.error) {
+          console.error("Email fetch error:", finalEmailRes.error);
           toast({ title: "Uyarı", description: "E-posta bilgileri yüklenemedi. Sayfayı yenileyin.", variant: "destructive" });
-        } else if (emailRes.data?.emailMap) {
-          setEmailMap(emailRes.data.emailMap);
-        } else if (emailRes.data?.error) {
-          console.error("Email function error:", emailRes.data.error);
-          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${emailRes.data.error}`, variant: "destructive" });
+        } else if (finalEmailRes.data?.emailMap) {
+          setEmailMap(finalEmailRes.data.emailMap);
+        } else if (finalEmailRes.data?.error) {
+          console.error("Email function error:", finalEmailRes.data.error);
+          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${finalEmailRes.data.error}`, variant: "destructive" });
         }
         if (!pwRes.error && pwRes.data) {
           const pwMap: Record<string, string> = {};
