@@ -143,8 +143,8 @@ export const useUploadLibraryFile = () => {
       toast({ title: "Başarılı", description: "Dosya yüklendi." });
     },
     onError: (error: Error) => {
-      console.error('Upload error:', error);
-      toast({ title: "Hata", description: "Dosya yüklenemedi.", variant: "destructive" });
+      console.error('Library upload error:', error);
+      toast({ title: "Hata", description: `Dosya yüklenemedi: ${error.message}`, variant: "destructive" });
     },
   });
 };
