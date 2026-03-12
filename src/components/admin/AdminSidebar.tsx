@@ -12,6 +12,7 @@ import {
   FileSpreadsheet,
   LayoutDashboard,
   Coffee,
+  Library,
 } from "lucide-react";
 import {
   Sidebar,
