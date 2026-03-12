@@ -1,10 +1,12 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, BookOpen, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import NewMembersSection from "@/components/NewMembersSection";
-import InstagramSection from "@/components/InstagramSection";
 import heroImage from "@/assets/hero-barista.jpg";
+
+const InstagramSection = lazy(() => import("@/components/InstagramSection"));
 
 const Index = () => {
   const features = [
@@ -38,7 +40,6 @@ const Index = () => {
             className="w-full h-full object-cover"
             width={1920}
             height={852}
-            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 to-background/60" />
         </div>
@@ -100,7 +101,9 @@ const Index = () => {
       </section>
 
       {/* Instagram Section */}
-      <InstagramSection />
+      <Suspense fallback={null}>
+        <InstagramSection />
+      </Suspense>
 
       {/* New Members Section */}
       <NewMembersSection />
