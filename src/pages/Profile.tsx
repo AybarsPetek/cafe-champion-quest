@@ -78,6 +78,33 @@ const Profile = () => {
     }
   };
 
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast({ title: "Hata", description: "Lütfen tüm alanları doldurun.", variant: "destructive" });
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast({ title: "Hata", description: "Yeni şifre en az 8 karakter olmalıdır.", variant: "destructive" });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Hata", description: "Şifreler eşleşmiyor.", variant: "destructive" });
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast({ title: "Başarılı", description: "Şifreniz başarıyla değiştirildi." });
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      toast({ title: "Hata", description: error.message || "Şifre değiştirilemedi.", variant: "destructive" });
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   if (!user || isLoading) {
     return (
       <div className="min-h-screen">
