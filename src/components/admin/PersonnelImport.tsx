@@ -365,6 +365,8 @@ const PersonnelImport = () => {
                     <TableRow key={idx}>
                       <TableCell className="font-medium">{result.name}</TableCell>
                       <TableCell>{result.phone}</TableCell>
+                      <TableCell className="text-sm">{result.email || "-"}</TableCell>
+                      <TableCell className="text-sm font-mono">{result.tempPassword || "-"}</TableCell>
                       <TableCell>
                         {result.status === "created" && (
                           <Badge className="bg-green-500/10 text-green-600 border-green-500/30 gap-1">
