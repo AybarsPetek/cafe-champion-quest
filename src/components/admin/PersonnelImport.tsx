@@ -162,6 +162,21 @@ const PersonnelImport = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const exportResults = () => {
+    const exportData = importResults.map((r) => ({
+      "Personel Adı": r.name,
+      "Telefon": r.phone,
+      "E-posta": r.email || "-",
+      "Geçici Şifre": r.tempPassword || "-",
+      "Sonuç": r.status === "created" ? "Oluşturuldu" : r.status === "updated" ? "Güncellendi" : "Hata",
+      "Detay": r.message,
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "İçe Aktarma Sonuçları");
+    XLSX.writeFile(wb, `import-sonuc-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   const newCount = previewResults.filter((r) => r.matchStatus === "new").length;
   const updateCount = previewResults.filter((r) => r.matchStatus === "update").length;
 
