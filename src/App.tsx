@@ -53,6 +53,11 @@ const App = () => (
           <Route path="/courses" element={<Courses />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/library" element={
+            <ProtectedRoute>
+              <Library />
+            </ProtectedRoute>
+          } />
           <Route path="/forum" element={<Forum />} />
           <Route path="/forum/category/:categoryId" element={<ForumCategory />} />
           <Route path="/forum/topic/:topicId" element={<ForumTopic />} />

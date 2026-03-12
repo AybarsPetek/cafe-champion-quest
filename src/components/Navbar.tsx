@@ -59,6 +59,7 @@ const Navbar = () => {
   const navItems = [
     { path: "/", label: "Ana Sayfa", icon: Home },
     { path: "/courses", label: "Eğitimler", icon: BookOpen },
+    { path: "/library", label: "Kütüphane", icon: Library },
     { path: "/forum", label: "Forum", icon: MessageCircle },
     { path: "/leaderboard", label: "Sıralama", icon: Trophy },
     { path: "/dashboard", label: "Panelim", icon: User },
