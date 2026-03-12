@@ -41,6 +41,14 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/pending-approval" element={<PendingApproval />} />
+          <Route
+            path="/change-password"
+            element={
+              <ProtectedRoute allowPasswordChange>
+                <ChangePassword />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/courses" element={<Courses />} />
           <Route path="/payment" element={<Payment />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
