@@ -41,15 +41,24 @@ const UserManagement = () => {
   });
 
   const invokeAdminFunction = async (functionName: string, body: Record<string, any>) => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    // Force a fresh token check from the server (not cached)
+    const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
+    
+    if (sessionError || !session?.access_token) {
+      // Fallback to getSession if refresh fails
+      const { data: fallback } = await supabase.auth.getSession();
+      if (!fallback.session?.access_token) {
+        throw new Error("Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+      }
+      return supabase.functions.invoke(functionName, {
+        body,
+        headers: { Authorization: `Bearer ${fallback.session.access_token}` },
+      });
+    }
 
     return supabase.functions.invoke(functionName, {
       body,
-      headers: session?.access_token
-        ? { Authorization: `Bearer ${session.access_token}` }
-        : undefined,
+      headers: { Authorization: `Bearer ${session.access_token}` },
     });
   };
 
