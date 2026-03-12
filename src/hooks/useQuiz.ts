@@ -345,81 +345,17 @@ export const useSubmitQuiz = () => {
       userId: string;
       quizId: string;
     }) => {
-      // Fetch questions with correct answers
-      const { data: questions, error: questionsError } = await supabase
-        .from('quiz_questions' as any)
-        .select('id, points')
-        .eq('quiz_id', quizId);
-
-      if (questionsError) throw questionsError;
-
-      const questionIds = (questions as any[]).map((q: any) => q.id);
-
-      // Fetch options
-      const { data: options, error: optionsError } = await supabase
-        .from('quiz_options' as any)
-        .select('id, question_id, is_correct')
-        .in('question_id', questionIds);
-
-      if (optionsError) throw optionsError;
-
-      // Calculate score
-      let totalScore = 0;
-      const totalPoints = (questions as any[]).reduce((acc: number, q: any) => acc + q.points, 0);
-      
-      const answerRecords = answers.map(answer => {
-        const option = (options as any[]).find((o: any) => o.id === answer.selectedOptionId);
-        const question = (questions as any[]).find((q: any) => q.id === answer.questionId);
-        const isCorrect = option?.is_correct || false;
-        const pointsEarned = isCorrect && question ? question.points : 0;
-        
-        if (isCorrect) totalScore += pointsEarned;
-
-        return {
-          attempt_id: attemptId,
-          question_id: answer.questionId,
-          selected_option_id: answer.selectedOptionId,
-          is_correct: isCorrect,
-          points_earned: pointsEarned,
-        };
+      const { data, error } = await supabase.rpc('submit_quiz' as any, {
+        p_attempt_id: attemptId,
+        p_user_id: userId,
+        p_quiz_id: quizId,
+        p_answers: JSON.stringify(answers),
+        p_time_spent: timeSpent,
       });
 
-      // Insert answers
-      const { error: answersError } = await supabase
-        .from('user_quiz_answers' as any)
-        .insert(answerRecords as any);
+      if (error) throw error;
 
-      if (answersError) throw answersError;
-
-      // Get quiz passing score
-      const { data: quiz, error: quizError } = await supabase
-        .from('quizzes' as any)
-        .select('passing_score')
-        .eq('id', quizId)
-        .single();
-
-      if (quizError) throw quizError;
-
-      const scorePercentage = Math.round((totalScore / totalPoints) * 100);
-      const passed = scorePercentage >= (quiz as any).passing_score;
-
-      // Update attempt
-      const { data: attemptData, error: attemptError } = await supabase
-        .from('user_quiz_attempts' as any)
-        .update({
-          completed_at: new Date().toISOString(),
-          score: totalScore,
-          total_points: totalPoints,
-          passed,
-          time_spent_seconds: timeSpent,
-        } as any)
-        .eq('id', attemptId)
-        .select()
-        .single();
-
-      if (attemptError) throw attemptError;
-
-      return { ...(attemptData as any), scorePercentage };
+      return data as unknown as { score: number; total_points: number; passed: boolean; scorePercentage: number };
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['user-quiz-attempts', variables.userId, variables.quizId] });
@@ -437,7 +373,8 @@ export const useSubmitQuiz = () => {
         });
       }
     },
-    onError: () => {
+    onError: (error: Error) => {
+      console.error('Quiz submit error:', error);
       toast({
         title: "Hata",
         description: "Quiz gönderilirken bir hata oluştu.",

@@ -1035,6 +1035,16 @@ export type Database = {
         Returns: boolean
       }
       is_user_approved: { Args: { user_id: string }; Returns: boolean }
+      submit_quiz: {
+        Args: {
+          p_answers: Json
+          p_attempt_id: string
+          p_quiz_id: string
+          p_time_spent: number
+          p_user_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "user"
