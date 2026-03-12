@@ -172,6 +172,8 @@ const Admin = () => {
       duration_minutes: course.duration_minutes,
       points: course.points,
       instructor: course.instructor || "",
+      instructor_title: course.instructor_title || "",
+      instructor_bio: course.instructor_bio || "",
       image_url: course.image_url || "",
     });
     setCourseDialogOpen(true);

@@ -19,6 +19,8 @@ export interface CourseDetail {
   level: string;
   points: number;
   instructor: string | null;
+  instructor_title: string | null;
+  instructor_bio: string | null;
   enrolled_count: number | null;
   rating: number | null;
   videos: CourseVideo[];
