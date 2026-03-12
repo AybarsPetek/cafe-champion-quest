@@ -73,6 +73,8 @@ const Admin = () => {
     duration_minutes: 0,
     points: 0,
     instructor: "",
+    instructor_title: "",
+    instructor_bio: "",
     image_url: "",
   });
   const [videoFormData, setVideoFormData] = useState({
@@ -105,15 +107,17 @@ const Admin = () => {
 
   const resetCourseForm = () => {
     setSelectedCourse(null);
-    setCourseFormData({
-      title: "",
-      description: "",
-      level: "Başlangıç",
-      duration_minutes: 0,
-      points: 0,
-      instructor: "",
-      image_url: "",
-    });
+      setCourseFormData({
+        title: "",
+        description: "",
+        level: "Başlangıç",
+        duration_minutes: 0,
+        points: 0,
+        instructor: "",
+        instructor_title: "",
+        instructor_bio: "",
+        image_url: "",
+      });
   };
 
   const resetVideoForm = () => {
@@ -168,6 +172,8 @@ const Admin = () => {
       duration_minutes: course.duration_minutes,
       points: course.points,
       instructor: course.instructor || "",
+      instructor_title: course.instructor_title || "",
+      instructor_bio: course.instructor_bio || "",
       image_url: course.image_url || "",
     });
     setCourseDialogOpen(true);
@@ -397,6 +403,24 @@ const Admin = () => {
                               onChange={(e) => setCourseFormData({ ...courseFormData, instructor: e.target.value })}
                             />
                           </div>
+                          <div className="grid gap-2">
+                            <Label htmlFor="instructor_title">Eğitmen Unvanı</Label>
+                            <Input
+                              id="instructor_title"
+                              value={courseFormData.instructor_title}
+                              onChange={(e) => setCourseFormData({ ...courseFormData, instructor_title: e.target.value })}
+                              placeholder="Örn: Baş Barista"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="instructor_bio">Eğitmen Hakkında</Label>
+                          <Input
+                            id="instructor_bio"
+                            value={courseFormData.instructor_bio}
+                            onChange={(e) => setCourseFormData({ ...courseFormData, instructor_bio: e.target.value })}
+                            placeholder="Örn: 10+ yıllık deneyime sahip profesyonel barista"
+                          />
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="image_url">Görsel URL</Label>

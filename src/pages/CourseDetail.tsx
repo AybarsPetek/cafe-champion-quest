@@ -263,12 +263,16 @@ const CourseDetail = () => {
                   </div>
                   <div>
                     <div className="font-semibold">{course.instructor}</div>
-                    <div className="text-sm text-muted-foreground">Baş Barista</div>
+                    {course.instructor_title && (
+                      <div className="text-sm text-muted-foreground">{course.instructor_title}</div>
+                    )}
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  10+ yıllık deneyime sahip profesyonel barista ve eğitmen
-                </p>
+                {course.instructor_bio && (
+                  <p className="text-sm text-muted-foreground">
+                    {course.instructor_bio}
+                  </p>
+                )}
               </CardContent>
             </Card>
 
