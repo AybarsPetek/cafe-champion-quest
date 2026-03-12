@@ -35,14 +35,19 @@ const ChangePassword = () => {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        await supabase
+        const { error: profileError } = await supabase
           .from("profiles")
           .update({ must_change_password: false })
           .eq("id", user.id);
+        
+        if (profileError) throw profileError;
       }
 
       toast({ title: "Başarılı", description: "Şifreniz güncellendi." });
-      navigate("/dashboard", { replace: true });
+      
+      // Small delay to ensure profile update propagates before ProtectedRoute re-checks
+      await new Promise(resolve => setTimeout(resolve, 300));
+      window.location.href = "/dashboard";
     } catch (err: any) {
       const message = err.message || "";
       if (message.includes("same password") || err.code === "same_password") {
