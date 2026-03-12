@@ -79,6 +79,7 @@ const UserManagement = () => {
     const exportData = filteredUsers.map((user: any) => ({
       "Ad Soyad": user.full_name || "",
       "E-posta": emailMap[user.id]?.email || "",
+      "Geçici Şifre": tempPasswordMap[user.id] || "",
       "Telefon": user.phone || "",
       "Görev": user.position || "",
       "Mağaza": user.store_name || "",
