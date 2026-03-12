@@ -21,6 +21,7 @@ const UserManagement = () => {
   const updateProfile = useUpdateUserProfileAdmin();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
