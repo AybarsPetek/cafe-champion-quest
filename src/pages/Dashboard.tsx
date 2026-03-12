@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Award, BookOpen, Star, Trophy, CalendarClock, CheckCircle2, AlertTriangle } from "lucide-react";
+import type { LucideProps } from "lucide-react";
+import dynamicIconImports from "lucide-react/dynamicIconImports";
 import CourseCard from "@/components/CourseCard";
 import { format, isPast, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
