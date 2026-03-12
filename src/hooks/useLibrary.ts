@@ -115,7 +115,15 @@ export const useUploadLibraryFile = () => {
   return useMutation({
     mutationFn: async ({ file, categoryId, name, description }: { file: File; categoryId: string; name: string; description?: string }) => {
       const fileExt = file.name.split('.').pop();
-      const filePath = `${categoryId}/${Date.now()}-${file.name}`;
+      // Sanitize filename: remove special chars, spaces, Turkish chars
+      const safeName = name
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[ğĞ]/g, 'g').replace(/[üÜ]/g, 'u').replace(/[şŞ]/g, 's')
+        .replace(/[ıİ]/g, 'i').replace(/[öÖ]/g, 'o').replace(/[çÇ]/g, 'c')
+        .replace(/[^a-zA-Z0-9-_]/g, '_')
+        .replace(/_+/g, '_')
+        .substring(0, 100);
+      const filePath = `${categoryId}/${Date.now()}-${safeName}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('library-files')
