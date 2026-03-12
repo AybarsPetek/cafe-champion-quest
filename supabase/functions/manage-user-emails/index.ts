@@ -13,28 +13,38 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header");
-
-    const supabaseAdmin = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    );
-
-    // Extract JWT token and verify with admin client
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user: caller }, error: userError } = await supabaseAdmin.auth.getUser(token);
-    
-    if (userError || !caller) {
-      console.error("Auth error:", userError?.message);
-      throw new Error("Unauthorized");
+    if (!authHeader) {
+      console.error("No authorization header found");
+      throw new Error("No authorization header");
     }
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    // Extract JWT token and verify
+    const token = authHeader.replace("Bearer ", "");
+    
+    // Use the admin client to verify the JWT token
+    const { data: { user: caller }, error: userError } = await supabaseAdmin.auth.getUser(token);
+
+    if (userError || !caller) {
+      console.error("Auth verification failed:", userError?.message || "No user returned");
+      throw new Error("Unauthorized - invalid token");
+    }
+
+    // Check admin role
     const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
       _user_id: caller.id,
       _role: "admin",
     });
-    if (!isAdmin) throw new Error("Admin access required");
+    if (!isAdmin) {
+      console.error("User is not admin:", caller.id);
+      throw new Error("Admin access required");
+    }
 
     const { action, userId, newEmail } = await req.json();
 
@@ -71,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     throw new Error("Invalid action");
   } catch (error: any) {
-    console.error("Error:", error);
+    console.error("Edge function error:", error.message);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { "Content-Type": "application/json", ...corsHeaders },
