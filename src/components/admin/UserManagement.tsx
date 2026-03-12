@@ -9,10 +9,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle } from "lucide-react";
+import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle, Download } from "lucide-react";
 import { useAdminUsers, useUpdateUserRole, useUpdateUserProfileAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import * as XLSX from "xlsx";
 
 const UserManagement = () => {
   const { data: users, isLoading, refetch } = useAdminUsers();
@@ -66,6 +67,26 @@ const UserManagement = () => {
       userEmail.toLowerCase().includes(query)
     );
   });
+
+  const handleExportExcel = () => {
+    if (!filteredUsers || filteredUsers.length === 0) return;
+    const exportData = filteredUsers.map((user: any) => ({
+      "Ad Soyad": user.full_name || "",
+      "E-posta": emailMap[user.id]?.email || "",
+      "Telefon": user.phone || "",
+      "Görev": user.position || "",
+      "Mağaza": user.store_name || "",
+      "Seviye": user.level || "Başlangıç",
+      "Puan": user.total_points || 0,
+      "Durum": user.is_approved ? "Onaylı" : "Onay Bekliyor",
+      "Rol": user.role === "admin" ? "Admin" : "Kullanıcı",
+      "Kayıt Tarihi": user.created_at ? new Date(user.created_at).toLocaleDateString("tr-TR") : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Kullanıcılar");
+    XLSX.writeFile(wb, `kullanicilar-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
 
   const handleView = (user: any) => {
     setSelectedUser(user);
@@ -152,14 +173,20 @@ const UserManagement = () => {
             <CardTitle>Kullanıcı Yönetimi</CardTitle>
             <CardDescription>Kullanıcı bilgilerini görüntüleyin, düzenleyin ve rollerini yönetin</CardDescription>
           </div>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="İsim, mağaza, telefon veya e-posta ara..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="İsim, mağaza, telefon veya e-posta ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button variant="outline" onClick={handleExportExcel} disabled={!filteredUsers || filteredUsers.length === 0}>
+              <Download className="w-4 h-4 mr-2" />
+              Excel
+            </Button>
           </div>
         </div>
       </CardHeader>

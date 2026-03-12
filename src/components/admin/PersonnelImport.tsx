@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Upload, FileSpreadsheet, CheckCircle, XCircle, RefreshCw, AlertTriangle, UserPlus, UserCheck } from "lucide-react";
+import { Upload, FileSpreadsheet, CheckCircle, XCircle, RefreshCw, AlertTriangle, UserPlus, UserCheck, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
@@ -31,6 +31,8 @@ interface ImportResult {
   phone: string;
   status: "created" | "updated" | "error";
   message: string;
+  email?: string;
+  tempPassword?: string;
 }
 
 const PersonnelImport = () => {
@@ -158,6 +160,21 @@ const PersonnelImport = () => {
     setStep("upload");
     setFileName("");
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const exportResults = () => {
+    const exportData = importResults.map((r) => ({
+      "Personel Adı": r.name,
+      "Telefon": r.phone,
+      "E-posta": r.email || "-",
+      "Geçici Şifre": r.tempPassword || "-",
+      "Sonuç": r.status === "created" ? "Oluşturuldu" : r.status === "updated" ? "Güncellendi" : "Hata",
+      "Detay": r.message,
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "İçe Aktarma Sonuçları");
+    XLSX.writeFile(wb, `import-sonuc-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const newCount = previewResults.filter((r) => r.matchStatus === "new").length;
@@ -319,10 +336,16 @@ const PersonnelImport = () => {
                   )}
                 </div>
               </div>
-              <Button onClick={reset}>
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Yeni İçe Aktarma
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={exportResults}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Excel İndir
+                </Button>
+                <Button onClick={reset}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Yeni İçe Aktarma
+                </Button>
+              </div>
             </div>
 
             <div className="max-h-[400px] overflow-auto rounded-md border">
@@ -331,6 +354,8 @@ const PersonnelImport = () => {
                   <TableRow>
                     <TableHead>Personel Adı</TableHead>
                     <TableHead>Telefon</TableHead>
+                    <TableHead>E-posta</TableHead>
+                    <TableHead>Geçici Şifre</TableHead>
                     <TableHead>Sonuç</TableHead>
                     <TableHead>Detay</TableHead>
                   </TableRow>
@@ -340,6 +365,8 @@ const PersonnelImport = () => {
                     <TableRow key={idx}>
                       <TableCell className="font-medium">{result.name}</TableCell>
                       <TableCell>{result.phone}</TableCell>
+                      <TableCell className="text-sm">{result.email || "-"}</TableCell>
+                      <TableCell className="text-sm font-mono">{result.tempPassword || "-"}</TableCell>
                       <TableCell>
                         {result.status === "created" && (
                           <Badge className="bg-green-500/10 text-green-600 border-green-500/30 gap-1">
