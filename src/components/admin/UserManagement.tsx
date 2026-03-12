@@ -41,15 +41,24 @@ const UserManagement = () => {
   });
 
   const invokeAdminFunction = async (functionName: string, body: Record<string, any>) => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    // Force a fresh token check from the server (not cached)
+    const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
+    
+    if (sessionError || !session?.access_token) {
+      // Fallback to getSession if refresh fails
+      const { data: fallback } = await supabase.auth.getSession();
+      if (!fallback.session?.access_token) {
+        throw new Error("Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+      }
+      return supabase.functions.invoke(functionName, {
+        body,
+        headers: { Authorization: `Bearer ${fallback.session.access_token}` },
+      });
+    }
 
     return supabase.functions.invoke(functionName, {
       body,
-      headers: session?.access_token
-        ? { Authorization: `Bearer ${session.access_token}` }
-        : undefined,
+      headers: { Authorization: `Bearer ${session.access_token}` },
     });
   };
 
@@ -64,19 +73,14 @@ const UserManagement = () => {
           supabase.from("user_temp_passwords").select("user_id, temp_password"),
         ]);
 
-        let finalEmailRes = emailRes;
-        if (emailRes.error?.message?.toLowerCase().includes("unauthorized")) {
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          finalEmailRes = await invokeAdminFunction("manage-user-emails", { action: "list" });
-        }
-        if (finalEmailRes.error) {
-          console.error("Email fetch error:", finalEmailRes.error);
-          toast({ title: "Uyarı", description: "E-posta bilgileri yüklenemedi. Sayfayı yenileyin.", variant: "destructive" });
-        } else if (finalEmailRes.data?.emailMap) {
-          setEmailMap(finalEmailRes.data.emailMap);
-        } else if (finalEmailRes.data?.error) {
-          console.error("Email function error:", finalEmailRes.data.error);
-          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${finalEmailRes.data.error}`, variant: "destructive" });
+        if (emailRes.error) {
+          console.error("Email fetch error:", emailRes.error);
+          toast({ title: "Uyarı", description: "E-posta bilgileri yüklenemedi. Sayfayı yenileyin veya tekrar giriş yapın.", variant: "destructive" });
+        } else if (emailRes.data?.emailMap) {
+          setEmailMap(emailRes.data.emailMap);
+        } else if (emailRes.data?.error) {
+          console.error("Email function error:", emailRes.data.error);
+          toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${emailRes.data.error}`, variant: "destructive" });
         }
         if (!pwRes.error && pwRes.data) {
           const pwMap: Record<string, string> = {};
