@@ -354,6 +354,8 @@ const PersonnelImport = () => {
                   <TableRow>
                     <TableHead>Personel Adı</TableHead>
                     <TableHead>Telefon</TableHead>
+                    <TableHead>E-posta</TableHead>
+                    <TableHead>Geçici Şifre</TableHead>
                     <TableHead>Sonuç</TableHead>
                     <TableHead>Detay</TableHead>
                   </TableRow>
