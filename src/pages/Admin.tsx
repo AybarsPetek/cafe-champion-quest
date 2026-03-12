@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import Navbar from "@/components/Navbar";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import AdminSidebar from "@/components/admin/AdminSidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard, Building, ClipboardList, FileSpreadsheet } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Pencil, Trash2, Users, BookOpen, Video, Award, Download, UserCheck, HelpCircle, Upload, Link, CreditCard, Building, ClipboardList, FileSpreadsheet, Menu } from "lucide-react";
 import QuizManagement from "@/components/admin/QuizManagement";
 import PaymentManagement from "@/components/admin/PaymentManagement";
 import ContactManagement from "@/components/admin/ContactManagement";
@@ -61,6 +62,7 @@ const Admin = () => {
   const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState("pending");
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -107,17 +109,17 @@ const Admin = () => {
 
   const resetCourseForm = () => {
     setSelectedCourse(null);
-      setCourseFormData({
-        title: "",
-        description: "",
-        level: "Başlangıç",
-        duration_minutes: 0,
-        points: 0,
-        instructor: "",
-        instructor_title: "",
-        instructor_bio: "",
-        image_url: "",
-      });
+    setCourseFormData({
+      title: "",
+      description: "",
+      level: "Başlangıç",
+      duration_minutes: 0,
+      points: 0,
+      instructor: "",
+      instructor_title: "",
+      instructor_bio: "",
+      image_url: "",
+    });
   };
 
   const resetVideoForm = () => {
@@ -142,7 +144,6 @@ const Admin = () => {
     setUploadProgress(10);
 
     try {
-      // Simulate progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 500);
@@ -188,7 +189,6 @@ const Admin = () => {
       duration_minutes: video.duration_minutes,
       order_index: video.order_index,
     });
-    // Detect if URL is from storage
     if (video.video_url?.includes('supabase.co/storage')) {
       setUploadMode('file');
     } else {
@@ -197,628 +197,456 @@ const Admin = () => {
     setVideoDialogOpen(true);
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Admin Paneli</h1>
-          <p className="text-muted-foreground">Sistemi yönetin ve içerikleri düzenleyin</p>
-        </div>
+  const getTabTitle = () => {
+    const titles: Record<string, { title: string; desc: string }> = {
+      pending: { title: "Onay Bekleyen", desc: "Yeni kayıt olan kullanıcıları onaylayın veya reddedin" },
+      courses: { title: "Kurs Yönetimi", desc: "Kursları görüntüleyin, düzenleyin ve silin" },
+      videos: { title: "Video Yönetimi", desc: "Videoları görüntüleyin, düzenleyin ve silin" },
+      quizzes: { title: "Quiz Yönetimi", desc: "Kurslarınız için quiz oluşturun ve yönetin" },
+      certificates: { title: "Sertifika Yönetimi", desc: "Tamamlanan kurslar için sertifika oluşturun" },
+      payments: { title: "Ödeme Ayarları", desc: "Ödeme planlarını ve banka bilgilerini yönetin" },
+      contact: { title: "İletişim Ayarları", desc: "Şirket iletişim bilgilerini düzenleyin" },
+      training: { title: "Eğitim Takip", desc: "Personellere atanan eğitimleri takip edin" },
+      users: { title: "Kullanıcı Yönetimi", desc: "Kullanıcı bilgilerini görüntüleyin ve düzenleyin" },
+      import: { title: "Personel İçe Aktarma", desc: "Excel dosyasından toplu personel içe aktarın" },
+    };
+    return titles[activeTab] || { title: "", desc: "" };
+  };
 
-        <Tabs defaultValue="pending" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10 lg:w-[1300px]">
-            <TabsTrigger value="pending">
-              <UserCheck className="w-4 h-4 mr-2" />
-              Onay Bekleyen
-              {pendingUsers && pendingUsers.length > 0 && (
-                <span className="ml-2 px-2 py-0.5 bg-accent text-accent-foreground rounded-full text-xs">
-                  {pendingUsers.length}
-                </span>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="courses">
-              <BookOpen className="w-4 h-4 mr-2" />
-              Kurslar
-            </TabsTrigger>
-            <TabsTrigger value="videos">
-              <Video className="w-4 h-4 mr-2" />
-              Videolar
-            </TabsTrigger>
-            <TabsTrigger value="quizzes">
-              <HelpCircle className="w-4 h-4 mr-2" />
-              Quizler
-            </TabsTrigger>
-            <TabsTrigger value="certificates">
-              <Award className="w-4 h-4 mr-2" />
-              Sertifikalar
-            </TabsTrigger>
-            <TabsTrigger value="payments">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Ödemeler
-            </TabsTrigger>
-            <TabsTrigger value="contact">
-              <Building className="w-4 h-4 mr-2" />
-              İletişim
-            </TabsTrigger>
-            <TabsTrigger value="training">
-              <ClipboardList className="w-4 h-4 mr-2" />
-              Eğitim Takip
-            </TabsTrigger>
-            <TabsTrigger value="users">
-              <Users className="w-4 h-4 mr-2" />
-              Kullanıcılar
-            </TabsTrigger>
-            <TabsTrigger value="import">
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              İçe Aktar
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="pending">
-            <Card>
-              <CardHeader>
-                <CardTitle>Onay Bekleyen Kullanıcılar</CardTitle>
-                <CardDescription>Yeni kayıt olan kullanıcıları onaylayın veya reddedin</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ad Soyad</TableHead>
-                      <TableHead>Kayıt Tarihi</TableHead>
-                      <TableHead>İşlemler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {pendingUsers && pendingUsers.length > 0 ? (
-                      pendingUsers.map((user: any) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">
-                            {user.full_name || "İsimsiz"}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(user.created_at).toLocaleDateString("tr-TR")}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => approveUser.mutate(user.id)}
-                                disabled={approveUser.isPending}
-                              >
-                                <UserCheck className="w-4 h-4 mr-1" />
-                                Onayla
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => rejectUser.mutate(user.id)}
-                                disabled={rejectUser.isPending}
-                              >
-                                <Trash2 className="w-4 h-4 mr-1" />
-                                Reddet
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={3} className="text-center text-muted-foreground">
-                          Onay bekleyen kullanıcı bulunmuyor
+  const renderContent = () => {
+    switch (activeTab) {
+      case "pending":
+        return (
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Ad Soyad</TableHead>
+                    <TableHead className="hidden sm:table-cell">Kayıt Tarihi</TableHead>
+                    <TableHead>İşlemler</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {pendingUsers && pendingUsers.length > 0 ? (
+                    pendingUsers.map((user: any) => (
+                      <TableRow key={user.id}>
+                        <TableCell className="font-medium">{user.full_name || "İsimsiz"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          {new Date(user.created_at).toLocaleDateString("tr-TR")}
                         </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="courses">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Kurs Yönetimi</CardTitle>
-                    <CardDescription>Kursları görüntüleyin, düzenleyin ve silin</CardDescription>
-                  </div>
-                  <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button onClick={resetCourseForm}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Yeni Kurs
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>{selectedCourse ? "Kurs Düzenle" : "Yeni Kurs Ekle"}</DialogTitle>
-                        <DialogDescription>
-                          Kurs bilgilerini doldurun
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="title">Kurs Başlığı</Label>
-                          <Input
-                            id="title"
-                            value={courseFormData.title}
-                            onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="description">Açıklama</Label>
-                          <Textarea
-                            id="description"
-                            value={courseFormData.description}
-                            onChange={(e) => setCourseFormData({ ...courseFormData, description: e.target.value })}
-                            rows={4}
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="level">Seviye</Label>
-                            <Select
-                              value={courseFormData.level}
-                              onValueChange={(value) => setCourseFormData({ ...courseFormData, level: value })}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Başlangıç">Başlangıç</SelectItem>
-                                <SelectItem value="Orta">Orta</SelectItem>
-                                <SelectItem value="İleri">İleri</SelectItem>
-                                <SelectItem value="Uzman">Uzman</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="duration">Süre (dakika)</Label>
-                            <Input
-                              id="duration"
-                              type="number"
-                              value={courseFormData.duration_minutes}
-                              onChange={(e) => setCourseFormData({ ...courseFormData, duration_minutes: parseInt(e.target.value) })}
-                            />
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="points">Puan</Label>
-                            <Input
-                              id="points"
-                              type="number"
-                              value={courseFormData.points}
-                              onChange={(e) => setCourseFormData({ ...courseFormData, points: parseInt(e.target.value) })}
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="instructor">Eğitmen</Label>
-                            <Input
-                              id="instructor"
-                              value={courseFormData.instructor}
-                              onChange={(e) => setCourseFormData({ ...courseFormData, instructor: e.target.value })}
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="instructor_title">Eğitmen Unvanı</Label>
-                            <Input
-                              id="instructor_title"
-                              value={courseFormData.instructor_title}
-                              onChange={(e) => setCourseFormData({ ...courseFormData, instructor_title: e.target.value })}
-                              placeholder="Örn: Baş Barista"
-                            />
-                          </div>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="instructor_bio">Eğitmen Hakkında</Label>
-                          <Input
-                            id="instructor_bio"
-                            value={courseFormData.instructor_bio}
-                            onChange={(e) => setCourseFormData({ ...courseFormData, instructor_bio: e.target.value })}
-                            placeholder="Örn: 10+ yıllık deneyime sahip profesyonel barista"
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="image_url">Görsel URL</Label>
-                          <Input
-                            id="image_url"
-                            value={courseFormData.image_url}
-                            onChange={(e) => setCourseFormData({ ...courseFormData, image_url: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setCourseDialogOpen(false)}>İptal</Button>
-                        <Button onClick={handleCourseSubmit}>Kaydet</Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Başlık</TableHead>
-                      <TableHead>Seviye</TableHead>
-                      <TableHead>Süre</TableHead>
-                      <TableHead>Puan</TableHead>
-                      <TableHead>İşlemler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {courses?.map((course) => (
-                      <TableRow key={course.id}>
-                        <TableCell className="font-medium">{course.title}</TableCell>
-                        <TableCell>{course.level}</TableCell>
-                        <TableCell>{course.duration_minutes} dk</TableCell>
-                        <TableCell>{course.points} puan</TableCell>
                         <TableCell>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => openEditCourse(course)}>
+                            <Button size="sm" onClick={() => approveUser.mutate(user.id)} disabled={approveUser.isPending}>
+                              <UserCheck className="w-4 h-4 mr-1" />
+                              <span className="hidden sm:inline">Onayla</span>
+                            </Button>
+                            <Button size="sm" variant="destructive" onClick={() => rejectUser.mutate(user.id)} disabled={rejectUser.isPending}>
+                              <Trash2 className="w-4 h-4 mr-1" />
+                              <span className="hidden sm:inline">Reddet</span>
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center text-muted-foreground py-12">
+                        Onay bekleyen kullanıcı bulunmuyor
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        );
+
+      case "courses":
+        return (
+          <>
+            <div className="flex justify-end mb-4">
+              <Dialog open={courseDialogOpen} onOpenChange={setCourseDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={resetCourseForm}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Yeni Kurs
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>{selectedCourse ? "Kurs Düzenle" : "Yeni Kurs Ekle"}</DialogTitle>
+                    <DialogDescription>Kurs bilgilerini doldurun</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="title">Kurs Başlığı</Label>
+                      <Input id="title" value={courseFormData.title} onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="description">Açıklama</Label>
+                      <Textarea id="description" value={courseFormData.description} onChange={(e) => setCourseFormData({ ...courseFormData, description: e.target.value })} rows={4} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="level">Seviye</Label>
+                        <Select value={courseFormData.level} onValueChange={(value) => setCourseFormData({ ...courseFormData, level: value })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Başlangıç">Başlangıç</SelectItem>
+                            <SelectItem value="Orta">Orta</SelectItem>
+                            <SelectItem value="İleri">İleri</SelectItem>
+                            <SelectItem value="Uzman">Uzman</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="duration">Süre (dakika)</Label>
+                        <Input id="duration" type="number" value={courseFormData.duration_minutes} onChange={(e) => setCourseFormData({ ...courseFormData, duration_minutes: parseInt(e.target.value) })} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="points">Puan</Label>
+                        <Input id="points" type="number" value={courseFormData.points} onChange={(e) => setCourseFormData({ ...courseFormData, points: parseInt(e.target.value) })} />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="instructor">Eğitmen</Label>
+                        <Input id="instructor" value={courseFormData.instructor} onChange={(e) => setCourseFormData({ ...courseFormData, instructor: e.target.value })} />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="instructor_title">Eğitmen Unvanı</Label>
+                        <Input id="instructor_title" value={courseFormData.instructor_title} onChange={(e) => setCourseFormData({ ...courseFormData, instructor_title: e.target.value })} placeholder="Örn: Baş Barista" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="instructor_bio">Eğitmen Hakkında</Label>
+                        <Input id="instructor_bio" value={courseFormData.instructor_bio} onChange={(e) => setCourseFormData({ ...courseFormData, instructor_bio: e.target.value })} placeholder="Örn: 10+ yıl deneyim" />
+                      </div>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="image_url">Görsel URL</Label>
+                      <Input id="image_url" value={courseFormData.image_url} onChange={(e) => setCourseFormData({ ...courseFormData, image_url: e.target.value })} />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setCourseDialogOpen(false)}>İptal</Button>
+                    <Button onClick={handleCourseSubmit}>Kaydet</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Başlık</TableHead>
+                    <TableHead className="hidden sm:table-cell">Seviye</TableHead>
+                    <TableHead className="hidden md:table-cell">Süre</TableHead>
+                    <TableHead className="hidden md:table-cell">Puan</TableHead>
+                    <TableHead>İşlemler</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {courses?.map((course) => (
+                    <TableRow key={course.id}>
+                      <TableCell>
+                        <div>
+                          <span className="font-medium">{course.title}</span>
+                          <div className="sm:hidden text-xs text-muted-foreground mt-0.5">
+                            {course.level} · {course.duration_minutes} dk · {course.points} puan
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="secondary">{course.level}</Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">{course.duration_minutes} dk</TableCell>
+                      <TableCell className="hidden md:table-cell">{course.points} puan</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="outline" onClick={() => openEditCourse(course)}>
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => deleteCourse.mutate(course.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
+        );
+
+      case "videos":
+        return (
+          <>
+            <div className="flex justify-end mb-4">
+              <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={resetVideoForm}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Yeni Video
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>{selectedVideo ? "Video Düzenle" : "Yeni Video Ekle"}</DialogTitle>
+                    <DialogDescription>Video bilgilerini doldurun veya dosya yükleyin</DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="course_select">Kurs</Label>
+                      <Select value={videoFormData.course_id} onValueChange={(value) => setVideoFormData({ ...videoFormData, course_id: value })}>
+                        <SelectTrigger><SelectValue placeholder="Kurs seçin" /></SelectTrigger>
+                        <SelectContent>
+                          {courses?.map((course) => (
+                            <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="video_title">Video Başlığı</Label>
+                      <Input id="video_title" value={videoFormData.title} onChange={(e) => setVideoFormData({ ...videoFormData, title: e.target.value })} />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label>Video Kaynağı</Label>
+                      <div className="flex gap-2">
+                        <Button type="button" variant={uploadMode === 'url' ? 'default' : 'outline'} size="sm" onClick={() => setUploadMode('url')} className="flex-1">
+                          <Link className="w-4 h-4 mr-2" />URL
+                        </Button>
+                        <Button type="button" variant={uploadMode === 'file' ? 'default' : 'outline'} size="sm" onClick={() => setUploadMode('file')} className="flex-1" disabled={!videoFormData.course_id}>
+                          <Upload className="w-4 h-4 mr-2" />Dosya Yükle
+                        </Button>
+                      </div>
+                    </div>
+                    {uploadMode === 'url' ? (
+                      <div className="grid gap-2">
+                        <Label htmlFor="video_url">Video URL (YouTube, Vimeo, vb.)</Label>
+                        <Input id="video_url" value={videoFormData.video_url} onChange={(e) => setVideoFormData({ ...videoFormData, video_url: e.target.value })} placeholder="https://www.youtube.com/watch?v=..." />
+                      </div>
+                    ) : (
+                      <div className="grid gap-2">
+                        <Label>Video Dosyası (MP4, max 1GB)</Label>
+                        <input ref={videoFileInputRef} type="file" accept="video/mp4,video/webm,video/ogg" className="hidden" onChange={handleVideoFileUpload} />
+                        <div className="space-y-2">
+                          <Button type="button" variant="outline" onClick={() => videoFileInputRef.current?.click()} disabled={isUploading || !videoFormData.course_id} className="w-full">
+                            <Upload className="w-4 h-4 mr-2" />
+                            {isUploading ? "Yükleniyor..." : "Video Dosyası Seç"}
+                          </Button>
+                          {isUploading && (
+                            <div className="space-y-1">
+                              <Progress value={uploadProgress} className="h-2" />
+                              <p className="text-xs text-muted-foreground text-center">%{uploadProgress} yüklendi</p>
+                            </div>
+                          )}
+                          {videoFormData.video_url && videoFormData.video_url.includes('supabase.co') && (
+                            <p className="text-xs text-primary flex items-center gap-1">✓ Video yüklendi</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="video_duration">Süre (dakika)</Label>
+                        <Input id="video_duration" type="number" value={videoFormData.duration_minutes} onChange={(e) => setVideoFormData({ ...videoFormData, duration_minutes: parseInt(e.target.value) || 0 })} />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="order_index">Sıra</Label>
+                        <Input id="order_index" type="number" value={videoFormData.order_index} onChange={(e) => setVideoFormData({ ...videoFormData, order_index: parseInt(e.target.value) || 0 })} />
+                      </div>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setVideoDialogOpen(false)}>İptal</Button>
+                    <Button onClick={handleVideoSubmit} disabled={isUploading}>{isUploading ? "Yükleniyor..." : "Kaydet"}</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Kurs</TableHead>
+                    <TableHead>Video Başlığı</TableHead>
+                    <TableHead className="hidden md:table-cell">URL</TableHead>
+                    <TableHead className="hidden sm:table-cell">Süre</TableHead>
+                    <TableHead className="hidden sm:table-cell">Sıra</TableHead>
+                    <TableHead>İşlemler</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {videos && videos.length > 0 ? (
+                    videos.map((video: any) => (
+                      <TableRow key={video.id}>
+                        <TableCell className="font-medium">{video.courses?.title || "Bilinmiyor"}</TableCell>
+                        <TableCell>{video.title}</TableCell>
+                        <TableCell className="hidden md:table-cell max-w-[200px] truncate">{video.video_url || "-"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{video.duration_minutes} dk</TableCell>
+                        <TableCell className="hidden sm:table-cell">{video.order_index}</TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="outline" onClick={() => openEditVideo(video)}>
                               <Pencil className="w-4 h-4" />
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => deleteCourse.mutate(course.id)}
-                            >
+                            <Button size="sm" variant="destructive" onClick={() => deleteVideo.mutate(video.id)}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">Henüz video eklenmemiş</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </>
+        );
 
-          <TabsContent value="videos">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <CardTitle>Video Yönetimi</CardTitle>
-                    <CardDescription>Videoları görüntüleyin, düzenleyin ve silin</CardDescription>
-                  </div>
-                  <Dialog open={videoDialogOpen} onOpenChange={setVideoDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button onClick={resetVideoForm}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Yeni Video
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                      <DialogHeader>
-                        <DialogTitle>{selectedVideo ? "Video Düzenle" : "Yeni Video Ekle"}</DialogTitle>
-                        <DialogDescription>
-                          Video bilgilerini doldurun veya dosya yükleyin
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="grid gap-4 py-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="course_select">Kurs</Label>
-                          <Select
-                            value={videoFormData.course_id}
-                            onValueChange={(value) => setVideoFormData({ ...videoFormData, course_id: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Kurs seçin" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {courses?.map((course) => (
-                                <SelectItem key={course.id} value={course.id}>
-                                  {course.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="video_title">Video Başlığı</Label>
-                          <Input
-                            id="video_title"
-                            value={videoFormData.title}
-                            onChange={(e) => setVideoFormData({ ...videoFormData, title: e.target.value })}
-                          />
-                        </div>
-                        
-                        {/* Upload Mode Toggle */}
-                        <div className="grid gap-2">
-                          <Label>Video Kaynağı</Label>
-                          <div className="flex gap-2">
-                            <Button
-                              type="button"
-                              variant={uploadMode === 'url' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => setUploadMode('url')}
-                              className="flex-1"
-                            >
-                              <Link className="w-4 h-4 mr-2" />
-                              URL
-                            </Button>
-                            <Button
-                              type="button"
-                              variant={uploadMode === 'file' ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => setUploadMode('file')}
-                              className="flex-1"
-                              disabled={!videoFormData.course_id}
-                            >
-                              <Upload className="w-4 h-4 mr-2" />
-                              Dosya Yükle
-                            </Button>
-                          </div>
-                        </div>
+      case "quizzes":
+        return <QuizManagement />;
 
-                        {uploadMode === 'url' ? (
-                          <div className="grid gap-2">
-                            <Label htmlFor="video_url">Video URL (YouTube, Vimeo, vb.)</Label>
-                            <Input
-                              id="video_url"
-                              value={videoFormData.video_url}
-                              onChange={(e) => setVideoFormData({ ...videoFormData, video_url: e.target.value })}
-                              placeholder="https://www.youtube.com/watch?v=..."
-                            />
-                          </div>
-                        ) : (
-                          <div className="grid gap-2">
-                            <Label>Video Dosyası (MP4, max 1GB)</Label>
-                            <input
-                              ref={videoFileInputRef}
-                              type="file"
-                              accept="video/mp4,video/webm,video/ogg"
-                              className="hidden"
-                              onChange={handleVideoFileUpload}
-                            />
-                            <div className="space-y-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => videoFileInputRef.current?.click()}
-                                disabled={isUploading || !videoFormData.course_id}
-                                className="w-full"
-                              >
-                                <Upload className="w-4 h-4 mr-2" />
-                                {isUploading ? "Yükleniyor..." : "Video Dosyası Seç"}
+      case "payments":
+        return <PaymentManagement />;
+
+      case "certificates":
+        return (
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Kullanıcı</TableHead>
+                  <TableHead>Kurs</TableHead>
+                  <TableHead className="hidden sm:table-cell">Tamamlanma</TableHead>
+                  <TableHead>Durum</TableHead>
+                  <TableHead>İşlemler</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {certificates && certificates.length > 0 ? (
+                  certificates.map((cert: any) => {
+                    const hasCertificate = cert.certificates && cert.certificates.length > 0;
+                    return (
+                      <TableRow key={`${cert.user_id}-${cert.course_id}`}>
+                        <TableCell className="font-medium">{cert.profiles?.full_name || "İsimsiz"}</TableCell>
+                        <TableCell>{cert.courses?.title || "Bilinmiyor"}</TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          {cert.completed_at ? new Date(cert.completed_at).toLocaleDateString("tr-TR") : "-"}
+                        </TableCell>
+                        <TableCell>
+                          {hasCertificate ? (
+                            <Badge className="bg-primary/10 text-primary border-primary/20">
+                              <Award className="w-3 h-3 mr-1" />Verildi
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary">Verilmedi</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {!hasCertificate && (
+                              <Button size="sm" onClick={() => issueCertificate.mutate({ userId: cert.user_id, courseId: cert.course_id })} disabled={issueCertificate.isPending}>
+                                <Award className="w-4 h-4 mr-1" />
+                                <span className="hidden sm:inline">Sertifika Ver</span>
                               </Button>
-                              {isUploading && (
-                                <div className="space-y-1">
-                                  <Progress value={uploadProgress} className="h-2" />
-                                  <p className="text-xs text-muted-foreground text-center">
-                                    %{uploadProgress} yüklendi
-                                  </p>
-                                </div>
-                              )}
-                              {videoFormData.video_url && videoFormData.video_url.includes('supabase.co') && (
-                                <p className="text-xs text-primary flex items-center gap-1">
-                                  ✓ Video yüklendi
-                                </p>
-                              )}
-                            </div>
+                            )}
+                            {hasCertificate && (
+                              <Button size="sm" variant="outline" onClick={() => generateCertificate.mutate({ userId: cert.user_id, courseId: cert.course_id, userName: cert.profiles?.full_name || "Kullanıcı", courseName: cert.courses?.title || "Kurs" })} disabled={generateCertificate.isPending}>
+                                <Download className="w-4 h-4 mr-1" />
+                                <span className="hidden sm:inline">PDF</span>
+                              </Button>
+                            )}
                           </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="grid gap-2">
-                            <Label htmlFor="video_duration">Süre (dakika)</Label>
-                            <Input
-                              id="video_duration"
-                              type="number"
-                              value={videoFormData.duration_minutes}
-                              onChange={(e) => setVideoFormData({ ...videoFormData, duration_minutes: parseInt(e.target.value) || 0 })}
-                            />
-                          </div>
-                          <div className="grid gap-2">
-                            <Label htmlFor="order_index">Sıra</Label>
-                            <Input
-                              id="order_index"
-                              type="number"
-                              value={videoFormData.order_index}
-                              onChange={(e) => setVideoFormData({ ...videoFormData, order_index: parseInt(e.target.value) || 0 })}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setVideoDialogOpen(false)}>İptal</Button>
-                        <Button onClick={handleVideoSubmit} disabled={isUploading}>
-                          {isUploading ? "Yükleniyor..." : "Kaydet"}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Kurs</TableHead>
-                      <TableHead>Video Başlığı</TableHead>
-                      <TableHead>URL</TableHead>
-                      <TableHead>Süre</TableHead>
-                      <TableHead>Sıra</TableHead>
-                      <TableHead>İşlemler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {videos && videos.length > 0 ? (
-                      videos.map((video: any) => {
-                        const courseTitle = video.courses?.title || "Bilinmiyor";
-                        return (
-                          <TableRow key={video.id}>
-                            <TableCell className="font-medium">
-                              {courseTitle}
-                            </TableCell>
-                            <TableCell>{video.title}</TableCell>
-                            <TableCell className="max-w-[200px] truncate">
-                              {video.video_url || "-"}
-                            </TableCell>
-                            <TableCell>{video.duration_minutes} dk</TableCell>
-                            <TableCell>{video.order_index}</TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => openEditVideo(video)}
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => deleteVideo.mutate(video.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground">
-                          Henüz video eklenmemiş
                         </TableCell>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-12">Henüz tamamlanmış kurs bulunmuyor</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        );
+
+      case "training":
+        return <TrainingManagement />;
+
+      case "contact":
+        return <ContactManagement />;
+
+      case "users":
+        return <UserManagement />;
+
+      case "import":
+        return <PersonnelImport />;
+
+      default:
+        return null;
+    }
+  };
+
+  const { title, desc } = getTabTitle();
+
+  return (
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AdminSidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          pendingCount={pendingUsers?.length}
+        />
+
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Header */}
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 md:px-6">
+            <SidebarTrigger className="shrink-0" />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-base font-semibold text-foreground truncate">{title}</h1>
+              <p className="text-xs text-muted-foreground truncate hidden sm:block">{desc}</p>
+            </div>
+
+            {/* Quick stats */}
+            <div className="hidden lg:flex items-center gap-4 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-primary" />
+                <span>{courses?.length || 0} kurs</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="h-2 w-2 rounded-full bg-accent" />
+                <span>{users?.length || 0} kullanıcı</span>
+              </div>
+              {pendingUsers && pendingUsers.length > 0 && (
+                <Badge variant="destructive" className="text-[10px] h-5">
+                  {pendingUsers.length} onay bekliyor
+                </Badge>
+              )}
+            </div>
+          </header>
+
+          {/* Content */}
+          <main className="flex-1 p-4 md:p-6 overflow-auto">
+            <Card className="shadow-sm">
+              <CardContent className="p-4 md:p-6">
+                {renderContent()}
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="quizzes">
-            <QuizManagement />
-          </TabsContent>
-
-          <TabsContent value="payments">
-            <PaymentManagement />
-          </TabsContent>
-
-          <TabsContent value="certificates">
-            <Card>
-              <CardHeader>
-                <CardTitle>Sertifika Yönetimi</CardTitle>
-                <CardDescription>Tamamlanan kurslar için sertifika oluşturun ve yönetin</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Kullanıcı</TableHead>
-                      <TableHead>Kurs</TableHead>
-                      <TableHead>Tamamlanma Tarihi</TableHead>
-                      <TableHead>Sertifika Durumu</TableHead>
-                      <TableHead>İşlemler</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {certificates && certificates.length > 0 ? (
-                      certificates.map((cert: any) => {
-                        const hasCertificate = cert.certificates && cert.certificates.length > 0;
-                        return (
-                          <TableRow key={`${cert.user_id}-${cert.course_id}`}>
-                            <TableCell className="font-medium">
-                              {cert.profiles?.full_name || "İsimsiz"}
-                            </TableCell>
-                            <TableCell>{cert.courses?.title || "Bilinmiyor"}</TableCell>
-                            <TableCell>
-                              {cert.completed_at ? new Date(cert.completed_at).toLocaleDateString("tr-TR") : "-"}
-                            </TableCell>
-                            <TableCell>
-                              {hasCertificate ? (
-                                <span className="flex items-center gap-2 text-primary">
-                                  <Award className="w-4 h-4" />
-                                  Verildi
-                                  <span className="text-xs text-muted-foreground">
-                                    ({cert.certificates[0].certificate_number})
-                                  </span>
-                                </span>
-                              ) : (
-                                <span className="text-muted-foreground">Verilmedi</span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2">
-                                {!hasCertificate && (
-                                  <Button
-                                    size="sm"
-                                    onClick={() => {
-                                      issueCertificate.mutate({
-                                        userId: cert.user_id,
-                                        courseId: cert.course_id,
-                                      });
-                                    }}
-                                    disabled={issueCertificate.isPending}
-                                  >
-                                    <Award className="w-4 h-4 mr-1" />
-                                    Sertifika Ver
-                                  </Button>
-                                )}
-                                {hasCertificate && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      generateCertificate.mutate({
-                                        userId: cert.user_id,
-                                        courseId: cert.course_id,
-                                        userName: cert.profiles?.full_name || "Kullanıcı",
-                                        courseName: cert.courses?.title || "Kurs",
-                                      });
-                                    }}
-                                    disabled={generateCertificate.isPending}
-                                  >
-                                    <Download className="w-4 h-4 mr-1" />
-                                    PDF İndir
-                                  </Button>
-                                )}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    ) : (
-                      <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground">
-                          Henüz tamamlanmış kurs bulunmuyor
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="training">
-            <TrainingManagement />
-          </TabsContent>
-
-          <TabsContent value="contact">
-            <ContactManagement />
-          </TabsContent>
-
-          <TabsContent value="users">
-            <UserManagement />
-          </TabsContent>
-
-          <TabsContent value="import">
-            <PersonnelImport />
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 };
 
