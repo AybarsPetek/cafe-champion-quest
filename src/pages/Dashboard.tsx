@@ -223,7 +223,8 @@ const Dashboard = () => {
                       badge.earned ? "bg-accent/20" : "bg-muted"
                     }`}
                   >
-                    <Award
+                    <DynamicBadgeIcon
+                      name={badge.icon || "award"}
                       className={`h-8 w-8 ${
                         badge.earned ? "text-accent" : "text-muted-foreground"
                       }`}
