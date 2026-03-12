@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,15 @@ const Quiz = () => {
   const [startTime, setStartTime] = useState<number>(0);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const [result, setResult] = useState<{ score: number; total: number; passed: boolean; percentage: number } | null>(null);
+  
+  // Use refs for values needed in timer callback to avoid dependency issues
+  const answersRef = useRef(answers);
+  const attemptIdRef = useRef(attemptId);
+  const startTimeRef = useRef(startTime);
+  const isSubmittingRef = useRef(false);
+  answersRef.current = answers;
+  attemptIdRef.current = attemptId;
+  startTimeRef.current = startTime;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -62,19 +71,24 @@ const Quiz = () => {
   }, [quizLoading, questionsLoading, user]);
 
   const handleSubmit = useCallback(async () => {
-    if (!user || !quiz || !attemptId || !questions) return;
+    if (!user || !quiz || !questions || isSubmittingRef.current) return;
+    
+    const currentAttemptId = attemptIdRef.current;
+    if (!currentAttemptId) return;
 
+    isSubmittingRef.current = true;
     setQuizState('submitting');
     
-    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
-    const answerArray = Object.entries(answers).map(([questionId, selectedOptionId]) => ({
+    const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000);
+    const currentAnswers = answersRef.current;
+    const answerArray = Object.entries(currentAnswers).map(([questionId, selectedOptionId]) => ({
       questionId,
       selectedOptionId,
     }));
 
     try {
       const result = await submitQuiz.mutateAsync({
-        attemptId,
+        attemptId: currentAttemptId,
         answers: answerArray,
         timeSpent,
         userId: user.id,
@@ -90,17 +104,23 @@ const Quiz = () => {
       setQuizState('result');
     } catch {
       setQuizState('taking');
+    } finally {
+      isSubmittingRef.current = false;
     }
-  }, [user, quiz, attemptId, questions, answers, startTime, submitQuiz]);
+  }, [user, quiz, questions, submitQuiz]);
 
-  // Timer countdown
+  // Timer countdown - no dependency on handleSubmit to prevent timer resets
+  const handleSubmitRef = useRef(handleSubmit);
+  handleSubmitRef.current = handleSubmit;
+  
   useEffect(() => {
     if (quizState !== 'taking' || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
-          handleSubmit();
+          // Schedule submit outside of setState
+          setTimeout(() => handleSubmitRef.current(), 0);
           return 0;
         }
         return prev - 1;
@@ -108,7 +128,7 @@ const Quiz = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [quizState, timeLeft, handleSubmit]);
+  }, [quizState, timeLeft]);
 
   const handleStartQuiz = async () => {
     if (!user || !quiz) return;
