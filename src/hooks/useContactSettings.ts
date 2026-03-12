@@ -101,7 +101,7 @@ export const useUpdateContactSettings = () => {
     },
     onError: (error) => {
       toast.error("İletişim bilgileri güncellenirken hata oluştu");
-      console.error(error);
+      if (import.meta.env.DEV) console.error(error);
     },
   });
 };
