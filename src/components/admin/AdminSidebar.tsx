@@ -58,6 +58,7 @@ const settingsItems = [
 
 const AdminSidebar = ({ activeTab, onTabChange, pendingCount }: AdminSidebarProps) => {
   const { state } = useSidebar();
+  const navigate = useNavigate();
   const collapsed = state === "collapsed";
 
   const renderItem = (item: typeof mainItems[0]) => (
@@ -101,6 +102,23 @@ const AdminSidebar = ({ activeTab, onTabChange, pendingCount }: AdminSidebarProp
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-2">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => navigate("/dashboard")}
+                  tooltip="Dashboard'a Dön"
+                  className="transition-all duration-200"
+                >
+                  <LayoutDashboard className="h-4 w-4 shrink-0" />
+                  {!collapsed && <span className="flex-1 truncate">Dashboard'a Dön</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel className="text-[11px] uppercase tracking-wider text-muted-foreground/70 px-2">
             İçerik
