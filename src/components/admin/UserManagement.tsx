@@ -176,8 +176,10 @@ const UserManagement = () => {
           // Update email if changed
           if (email && email !== currentEmail) {
             try {
-              const { data, error } = await supabase.functions.invoke("manage-user-emails", {
-                body: { action: "update", userId: selectedUser.id, newEmail: email },
+              const { data, error } = await invokeAdminFunction("manage-user-emails", {
+                action: "update",
+                userId: selectedUser.id,
+                newEmail: email,
               });
               if (error) throw error;
               setEmailMap((prev) => ({
