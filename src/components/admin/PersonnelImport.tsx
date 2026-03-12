@@ -31,6 +31,8 @@ interface ImportResult {
   phone: string;
   status: "created" | "updated" | "error";
   message: string;
+  email?: string;
+  tempPassword?: string;
 }
 
 const PersonnelImport = () => {

@@ -152,6 +152,8 @@ Deno.serve(async (req) => {
                 phone: person.phone,
                 status: "created",
                 message: `Kullanıcı oluşturuldu (${email})`,
+                email,
+                tempPassword,
               });
             }
           }
