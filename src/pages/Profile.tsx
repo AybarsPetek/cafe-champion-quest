@@ -243,6 +243,74 @@ const Profile = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Password Change */}
+          <Card className="lg:col-span-3 shadow-soft">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lock className="w-5 h-5" />
+                Şifre Değiştir
+              </CardTitle>
+              <CardDescription>Hesap şifrenizi güncelleyin</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-4 max-w-2xl">
+                <div className="space-y-2">
+                  <Label htmlFor="new_password">Yeni Şifre</Label>
+                  <div className="relative">
+                    <Input
+                      id="new_password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="En az 8 karakter"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm_password">Yeni Şifre (Tekrar)</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm_password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Şifrenizi tekrar girin"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={changingPassword}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Lock className="w-4 h-4" />
+                  {changingPassword ? "Değiştiriliyor..." : "Şifreyi Değiştir"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
