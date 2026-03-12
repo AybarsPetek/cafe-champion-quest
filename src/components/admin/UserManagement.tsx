@@ -68,6 +68,26 @@ const UserManagement = () => {
     );
   });
 
+  const handleExportExcel = () => {
+    if (!filteredUsers || filteredUsers.length === 0) return;
+    const exportData = filteredUsers.map((user: any) => ({
+      "Ad Soyad": user.full_name || "",
+      "E-posta": emailMap[user.id]?.email || "",
+      "Telefon": user.phone || "",
+      "Görev": user.position || "",
+      "Mağaza": user.store_name || "",
+      "Seviye": user.level || "Başlangıç",
+      "Puan": user.total_points || 0,
+      "Durum": user.is_approved ? "Onaylı" : "Onay Bekliyor",
+      "Rol": user.role === "admin" ? "Admin" : "Kullanıcı",
+      "Kayıt Tarihi": user.created_at ? new Date(user.created_at).toLocaleDateString("tr-TR") : "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Kullanıcılar");
+    XLSX.writeFile(wb, `kullanicilar-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   const handleView = (user: any) => {
     setSelectedUser(user);
     setViewDialogOpen(true);
