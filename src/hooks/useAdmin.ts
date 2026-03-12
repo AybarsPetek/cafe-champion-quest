@@ -65,11 +65,9 @@ export const useAdminVideos = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching admin videos:', error);
+        if (import.meta.env.DEV) console.error('Error fetching admin videos:', error);
         throw error;
       }
-      
-      console.log('Admin videos fetched:', data);
       return data;
     },
   });

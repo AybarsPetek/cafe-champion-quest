@@ -14,8 +14,6 @@ export const useVideoProgress = () => {
       userId: string;
       videoId: string;
     }) => {
-      console.log('Marking video complete:', { userId, videoId });
-      
       const { data, error } = await supabase
         .from("user_video_progress")
         .upsert(
@@ -33,16 +31,13 @@ export const useVideoProgress = () => {
         .maybeSingle();
 
       if (error) {
-        console.error('Error marking video complete:', error);
+        if (import.meta.env.DEV) console.error('Error marking video complete:', error);
         throw error;
       }
       
-      console.log('Video marked complete successfully:', data);
       return data;
     },
     onSuccess: async (data, variables) => {
-      console.log('Success callback triggered');
-      
       // Check if course is completed
       const { data: courseProgress } = await supabase
         .from("user_course_progress")
@@ -75,11 +70,10 @@ export const useVideoProgress = () => {
             });
           }
         } catch (emailError) {
-          console.error('Failed to send course completion email:', emailError);
+          if (import.meta.env.DEV) console.error('Failed to send course completion email:', emailError);
         }
       }
       
-      // Invalidate all related queries to refresh the UI
       queryClient.invalidateQueries({ queryKey: ["course"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard", variables.userId] });
       
@@ -94,7 +88,7 @@ export const useVideoProgress = () => {
         description: "Video ilerlemeniz kaydedilemedi.",
         variant: "destructive",
       });
-      console.error("Error marking video complete:", error);
+      if (import.meta.env.DEV) console.error("Error marking video complete:", error);
     },
   });
 

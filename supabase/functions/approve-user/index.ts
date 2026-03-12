@@ -27,8 +27,39 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
+    // --- Authorization: verify caller is admin ---
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseAdmin.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    const callerId = claimsData.claims.sub;
+    const { data: isAdmin } = await supabaseAdmin.rpc("has_role", {
+      _user_id: callerId,
+      _role: "admin",
+    });
+
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden" }),
+        { status: 403, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+    // --- End authorization ---
+
     const { userId }: ApproveUserRequest = await req.json();
-    console.log("Approving user:", userId);
 
     // Get user profile
     const { data: profile, error: profileError } = await supabaseAdmin
@@ -38,7 +69,6 @@ const handler = async (req: Request): Promise<Response> => {
       .single();
 
     if (profileError) {
-      console.error("Error fetching profile:", profileError);
       throw profileError;
     }
 
@@ -46,7 +76,6 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: { user }, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
 
     if (userError) {
-      console.error("Error fetching user:", userError);
       throw userError;
     }
 
@@ -57,16 +86,13 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("id", userId);
 
     if (updateError) {
-      console.error("Error updating profile:", updateError);
       throw updateError;
     }
-
-    console.log("User approved successfully");
 
     // Send approval email
     if (user?.email) {
       try {
-        const emailResponse = await supabaseAdmin.functions.invoke("send-notification", {
+        await supabaseAdmin.functions.invoke("send-notification", {
           body: {
             type: "account_approved",
             email: user.email,
@@ -75,10 +101,7 @@ const handler = async (req: Request): Promise<Response> => {
             },
           },
         });
-
-        console.log("Approval email sent:", emailResponse);
       } catch (emailError) {
-        console.error("Failed to send approval email:", emailError);
         // Don't throw error, approval was successful even if email failed
       }
     }
@@ -94,7 +117,6 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
   } catch (error: any) {
-    console.error("Error approving user:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

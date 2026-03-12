@@ -190,7 +190,7 @@ export const useCertificate = () => {
       });
     },
     onError: (error) => {
-      console.error("Certificate generation error:", error);
+      if (import.meta.env.DEV) console.error("Certificate generation error:", error);
       toast({
         title: "Hata",
         description: "Sertifika oluşturulurken bir hata oluştu.",
