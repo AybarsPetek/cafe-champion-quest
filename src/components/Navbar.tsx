@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookOpen, User, LogOut, Shield, Trophy, MessageCircle, Settings, Menu, X } from "lucide-react";
+import { Home, BookOpen, User, LogOut, Shield, Trophy, MessageCircle, Settings, Menu, X, Library } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
