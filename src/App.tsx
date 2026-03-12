@@ -26,6 +26,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ChangePassword from "./pages/ChangePassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import PwaUpdatePrompt from "./components/PwaUpdatePrompt";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PwaUpdatePrompt />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
