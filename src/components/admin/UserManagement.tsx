@@ -40,13 +40,26 @@ const UserManagement = () => {
     position: "",
   });
 
+  const invokeAdminFunction = async (functionName: string, body: Record<string, any>) => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    return supabase.functions.invoke(functionName, {
+      body,
+      headers: session?.access_token
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : undefined,
+    });
+  };
+
   // Fetch email data and temp passwords
   useEffect(() => {
     const fetchData = async () => {
       setEmailLoading(true);
       try {
         const [emailRes, pwRes] = await Promise.all([
-          supabase.functions.invoke("manage-user-emails", { body: { action: "list" } }),
+          invokeAdminFunction("manage-user-emails", { action: "list" }),
           supabase.from("user_temp_passwords").select("user_id, temp_password"),
         ]);
         if (emailRes.error) {
