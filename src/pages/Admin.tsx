@@ -107,15 +107,17 @@ const Admin = () => {
 
   const resetCourseForm = () => {
     setSelectedCourse(null);
-    setCourseFormData({
-      title: "",
-      description: "",
-      level: "Başlangıç",
-      duration_minutes: 0,
-      points: 0,
-      instructor: "",
-      image_url: "",
-    });
+      setCourseFormData({
+        title: "",
+        description: "",
+        level: "Başlangıç",
+        duration_minutes: 0,
+        points: 0,
+        instructor: "",
+        instructor_title: "",
+        instructor_bio: "",
+        image_url: "",
+      });
   };
 
   const resetVideoForm = () => {
