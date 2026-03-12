@@ -22,6 +22,7 @@ import ForumNewTopic from "./pages/ForumNewTopic";
 import Quiz from "./pages/Quiz";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
+import ChangePassword from "./pages/ChangePassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 
