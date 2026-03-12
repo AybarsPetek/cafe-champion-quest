@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle, Download } from "lucide-react";
+import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle, Download, KeyRound } from "lucide-react";
 import { useAdminUsers, useUpdateUserRole, useUpdateUserProfileAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ const UserManagement = () => {
   const updateProfile = useUpdateUserProfileAdmin();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -93,6 +94,31 @@ const UserManagement = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Kullanıcılar");
     XLSX.writeFile(wb, `kullanicilar-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const handleResetPasswords = async () => {
+    setResetLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("reset-user-passwords", {
+        body: { userIds: [] },
+      });
+      if (error) throw error;
+      toast({
+        title: "Başarılı",
+        description: `${data.successCount} kullanıcıya geçici şifre atandı.`,
+      });
+      // Refresh temp password map
+      const { data: pwData } = await supabase.from("user_temp_passwords").select("user_id, temp_password");
+      if (pwData) {
+        const pwMap: Record<string, string> = {};
+        pwData.forEach((r: any) => { pwMap[r.user_id] = r.temp_password; });
+        setTempPasswordMap(pwMap);
+      }
+    } catch (err: any) {
+      toast({ title: "Hata", description: err.message || "Şifre atama başarısız.", variant: "destructive" });
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   const handleView = (user: any) => {
@@ -193,6 +219,15 @@ const UserManagement = () => {
             <Button variant="outline" onClick={handleExportExcel} disabled={!filteredUsers || filteredUsers.length === 0}>
               <Download className="w-4 h-4 mr-2" />
               Excel
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleResetPasswords}
+              disabled={resetLoading}
+              title="Geçici şifresi olmayan kullanıcılara yeni şifre ata"
+            >
+              <KeyRound className="w-4 h-4 mr-2" />
+              {resetLoading ? "İşleniyor..." : "Şifre Ata"}
             </Button>
           </div>
         </div>
