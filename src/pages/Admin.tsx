@@ -595,6 +595,9 @@ const Admin = () => {
       case "import":
         return <PersonnelImport />;
 
+      case "library":
+        return <LibraryManagement />;
+
       default:
         return null;
     }

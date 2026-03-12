@@ -42,6 +42,7 @@ const mainItems = [
   { id: "videos", label: "Videolar", icon: Video },
   { id: "quizzes", label: "Quizler", icon: HelpCircle },
   { id: "certificates", label: "Sertifikalar", icon: Award },
+  { id: "library", label: "E-Kütüphane", icon: Library },
 ];
 
 const managementItems = [
