@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Award, BookOpen, Star, Trophy, CalendarClock, CheckCircle2, AlertTriangle } from "lucide-react";
+import type { LucideProps } from "lucide-react";
+import dynamicIconImports from "lucide-react/dynamicIconImports";
 import CourseCard from "@/components/CourseCard";
 import { format, isPast, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -12,6 +14,18 @@ import { useUserDashboard } from "@/hooks/useUserDashboard";
 import { supabase } from "@/integrations/supabase/client";
 import PwaInstallGuide from "@/components/PwaInstallGuide";
 import { User } from "@supabase/supabase-js";
+const DynamicBadgeIcon = ({ name, ...props }: { name: string } & Omit<LucideProps, 'ref'>) => {
+  const iconName = name as keyof typeof dynamicIconImports;
+  if (dynamicIconImports[iconName]) {
+    const LucideIcon = lazy(dynamicIconImports[iconName]);
+    return (
+      <Suspense fallback={<Award {...props} />}>
+        <LucideIcon {...props} />
+      </Suspense>
+    );
+  }
+  return <Award {...props} />;
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -209,7 +223,8 @@ const Dashboard = () => {
                       badge.earned ? "bg-accent/20" : "bg-muted"
                     }`}
                   >
-                    <Award
+                    <DynamicBadgeIcon
+                      name={badge.icon || "award"}
                       className={`h-8 w-8 ${
                         badge.earned ? "text-accent" : "text-muted-foreground"
                       }`}
