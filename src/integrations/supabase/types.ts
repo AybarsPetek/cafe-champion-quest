@@ -315,6 +315,8 @@ export type Database = {
           id: string
           image_url: string | null
           instructor: string | null
+          instructor_bio: string | null
+          instructor_title: string | null
           is_mandatory: boolean
           level: string
           points: number
@@ -330,6 +332,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           instructor?: string | null
+          instructor_bio?: string | null
+          instructor_title?: string | null
           is_mandatory?: boolean
           level: string
           points?: number
@@ -345,6 +349,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           instructor?: string | null
+          instructor_bio?: string | null
+          instructor_title?: string | null
           is_mandatory?: boolean
           level?: string
           points?: number
