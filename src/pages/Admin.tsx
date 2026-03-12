@@ -600,6 +600,9 @@ const Admin = () => {
       case "library":
         return <LibraryManagement />;
 
+      case "instagram":
+        return <InstagramManagement />;
+
       default:
         return null;
     }

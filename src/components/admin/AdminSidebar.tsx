@@ -55,6 +55,7 @@ const managementItems = [
 const settingsItems = [
   { id: "payments", label: "Ödemeler", icon: CreditCard },
   { id: "contact", label: "İletişim", icon: Building },
+  { id: "instagram", label: "Instagram", icon: Instagram },
 ];
 
 const AdminSidebar = ({ activeTab, onTabChange, pendingCount }: AdminSidebarProps) => {
