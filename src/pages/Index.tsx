@@ -1,10 +1,12 @@
+import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, BookOpen, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import NewMembersSection from "@/components/NewMembersSection";
-import InstagramSection from "@/components/InstagramSection";
 import heroImage from "@/assets/hero-barista.jpg";
+
+const InstagramSection = lazy(() => import("@/components/InstagramSection"));
 
 const Index = () => {
   const features = [
