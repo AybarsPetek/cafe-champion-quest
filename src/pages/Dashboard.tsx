@@ -14,6 +14,18 @@ import { useUserDashboard } from "@/hooks/useUserDashboard";
 import { supabase } from "@/integrations/supabase/client";
 import PwaInstallGuide from "@/components/PwaInstallGuide";
 import { User } from "@supabase/supabase-js";
+const DynamicBadgeIcon = ({ name, ...props }: { name: string } & Omit<LucideProps, 'ref'>) => {
+  const iconName = name as keyof typeof dynamicIconImports;
+  if (dynamicIconImports[iconName]) {
+    const LucideIcon = lazy(dynamicIconImports[iconName]);
+    return (
+      <Suspense fallback={<Award {...props} />}>
+        <LucideIcon {...props} />
+      </Suspense>
+    );
+  }
+  return <Award {...props} />;
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
