@@ -58,10 +58,17 @@ const UserManagement = () => {
     const fetchData = async () => {
       setEmailLoading(true);
       try {
+        const emailRequest = invokeAdminFunction("manage-user-emails", { action: "list" });
         const [emailRes, pwRes] = await Promise.all([
-          invokeAdminFunction("manage-user-emails", { action: "list" }),
+          emailRequest,
           supabase.from("user_temp_passwords").select("user_id, temp_password"),
         ]);
+
+        let finalEmailRes = emailRes;
+        if (emailRes.error?.message?.toLowerCase().includes("unauthorized")) {
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          finalEmailRes = await invokeAdminFunction("manage-user-emails", { action: "list" });
+        }
         if (emailRes.error) {
           console.error("Email fetch error:", emailRes.error);
           toast({ title: "Uyarı", description: "E-posta bilgileri yüklenemedi. Sayfayı yenileyin.", variant: "destructive" });
