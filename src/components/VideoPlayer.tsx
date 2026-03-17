@@ -7,9 +7,10 @@ interface VideoPlayerProps {
   onVideoComplete?: (completed: boolean) => void;
 }
 
-const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [maxWatchedTime, setMaxWatchedTime] = useState(0);
+  const [hasEnded, setHasEnded] = useState(false);
 
   const isDirectVideoUrl = (url: string): boolean => {
     return (
