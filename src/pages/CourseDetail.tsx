@@ -50,6 +50,7 @@ const CourseDetail = () => {
 
   const handleVideoClick = async (videoId: string) => {
     setCurrentVideoId(videoId);
+    setVideoCompleted(false);
     
     // Update last watched video in database
     if (user && id) {
