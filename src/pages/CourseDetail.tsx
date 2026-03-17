@@ -18,6 +18,7 @@ const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User | null>(null);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+  const [videoCompleted, setVideoCompleted] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -49,6 +50,7 @@ const CourseDetail = () => {
 
   const handleVideoClick = async (videoId: string) => {
     setCurrentVideoId(videoId);
+    setVideoCompleted(false);
     
     // Update last watched video in database
     if (user && id) {
@@ -122,12 +124,13 @@ const CourseDetail = () => {
                     : course.title
                 }
                 onVideoEnd={handleVideoEnd}
+                onVideoComplete={setVideoCompleted}
               />
               {user && currentVideoId && (
                 <CardContent className="pt-4 space-y-3">
-                  <Button onClick={handleMarkComplete} className="w-full">
+                  <Button onClick={handleMarkComplete} className="w-full" disabled={!videoCompleted}>
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    Videoyu Tamamla
+                    {videoCompleted ? "Videoyu Tamamla" : "Video izlenmesi tamamlanmalı"}
                   </Button>
                 </CardContent>
               )}

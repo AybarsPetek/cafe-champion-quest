@@ -4,11 +4,13 @@ interface VideoPlayerProps {
   videoUrl: string | null;
   title: string;
   onVideoEnd?: () => void;
+  onVideoComplete?: (completed: boolean) => void;
 }
 
-const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [maxWatchedTime, setMaxWatchedTime] = useState(0);
+  const [hasEnded, setHasEnded] = useState(false);
 
   const isDirectVideoUrl = (url: string): boolean => {
     return (
@@ -60,6 +62,8 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
   // Reset max watched time when video URL changes
   useEffect(() => {
     setMaxWatchedTime(0);
+    setHasEnded(false);
+    onVideoComplete?.(false);
   }, [videoUrl]);
 
   // Handle time update - track max watched position
@@ -109,7 +113,11 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
           onContextMenu={(e) => e.preventDefault()}
           onTimeUpdate={handleTimeUpdate}
           onSeeking={handleSeeking}
-          onEnded={onVideoEnd}
+          onEnded={() => {
+            setHasEnded(true);
+            onVideoComplete?.(true);
+            onVideoEnd?.();
+          }}
         >
           <source src={embedUrl} type="video/mp4" />
           Tarayıcınız video oynatmayı desteklemiyor.
