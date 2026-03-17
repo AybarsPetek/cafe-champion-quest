@@ -4,6 +4,7 @@ interface VideoPlayerProps {
   videoUrl: string | null;
   title: string;
   onVideoEnd?: () => void;
+  onVideoComplete?: (completed: boolean) => void;
 }
 
 const VideoPlayer = ({ videoUrl, title, onVideoEnd }: VideoPlayerProps) => {
