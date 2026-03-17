@@ -127,9 +127,9 @@ const CourseDetail = () => {
               />
               {user && currentVideoId && (
                 <CardContent className="pt-4 space-y-3">
-                  <Button onClick={handleMarkComplete} className="w-full">
+                  <Button onClick={handleMarkComplete} className="w-full" disabled={!videoCompleted}>
                     <CheckCircle className="mr-2 h-4 w-4" />
-                    Videoyu Tamamla
+                    {videoCompleted ? "Videoyu Tamamla" : "Video izlenmesi tamamlanmalı"}
                   </Button>
                 </CardContent>
               )}
