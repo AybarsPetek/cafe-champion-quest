@@ -62,6 +62,8 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlay
   // Reset max watched time when video URL changes
   useEffect(() => {
     setMaxWatchedTime(0);
+    setHasEnded(false);
+    onVideoComplete?.(false);
   }, [videoUrl]);
 
   // Handle time update - track max watched position
