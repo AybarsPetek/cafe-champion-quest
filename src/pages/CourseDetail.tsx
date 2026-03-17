@@ -123,6 +123,7 @@ const CourseDetail = () => {
                     : course.title
                 }
                 onVideoEnd={handleVideoEnd}
+                onVideoComplete={setVideoCompleted}
               />
               {user && currentVideoId && (
                 <CardContent className="pt-4 space-y-3">
