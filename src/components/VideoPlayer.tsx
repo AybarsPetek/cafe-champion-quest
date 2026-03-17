@@ -113,7 +113,11 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlay
           onContextMenu={(e) => e.preventDefault()}
           onTimeUpdate={handleTimeUpdate}
           onSeeking={handleSeeking}
-          onEnded={onVideoEnd}
+          onEnded={() => {
+            setHasEnded(true);
+            onVideoComplete?.(true);
+            onVideoEnd?.();
+          }}
         >
           <source src={embedUrl} type="video/mp4" />
           Tarayıcınız video oynatmayı desteklemiyor.
