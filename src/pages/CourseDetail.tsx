@@ -18,6 +18,7 @@ const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [user, setUser] = useState<User | null>(null);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+  const [videoCompleted, setVideoCompleted] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
