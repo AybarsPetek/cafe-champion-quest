@@ -57,7 +57,7 @@ const handler = async (req: Request): Promise<Response> => {
     const callerEmail = (claimsData.claims as any).email as string;
 
     // For admin-only actions, verify admin role
-    if (type === "account_approved" || type === "training_reminder" || type === "new_signup") {
+    if (type === "account_approved" || type === "training_reminder") {
       const supabaseAdmin = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -77,8 +77,8 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // For course_completed, ensure target email matches caller
-    if (type === "course_completed" && email && email !== callerEmail) {
+    // For new_signup and course_completed, ensure target email matches caller
+    if ((type === "new_signup" || type === "course_completed") && email && email !== callerEmail) {
       return new Response(JSON.stringify({ error: "Forbidden: email mismatch" }), {
         status: 403,
         headers: { "Content-Type": "application/json", ...corsHeaders },
