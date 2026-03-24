@@ -20,6 +20,7 @@ import UserManagement from "@/components/admin/UserManagement";
 import PersonnelImport from "@/components/admin/PersonnelImport";
 import LibraryManagement from "@/components/admin/LibraryManagement";
 import InstagramManagement from "@/components/admin/InstagramManagement";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import {
   useAdminUsers,
   useAdminCourses,
