@@ -80,7 +80,7 @@ export const useQuizQuestions = (quizId: string) => {
       const questionIds = (questions as any[]).map((q: any) => q.id);
       
       const { data: options, error: optionsError } = await supabase
-        .from('quiz_options' as any)
+        .from('quiz_options_safe' as any)
         .select('*')
         .in('question_id', questionIds)
         .order('order_index');

@@ -938,6 +938,13 @@ export type Database = {
             referencedRelation: "quiz_options"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_quiz_answers_selected_option_id_fkey"
+            columns: ["selected_option_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_options_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_quiz_attempts: {
@@ -1095,6 +1102,35 @@ export type Database = {
           total_points?: number | null
         }
         Relationships: []
+      }
+      quiz_options_safe: {
+        Row: {
+          id: string | null
+          option_text: string | null
+          order_index: number | null
+          question_id: string | null
+        }
+        Insert: {
+          id?: string | null
+          option_text?: string | null
+          order_index?: number | null
+          question_id?: string | null
+        }
+        Update: {
+          id?: string | null
+          option_text?: string | null
+          order_index?: number | null
+          question_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_badges_public: {
         Row: {

@@ -28,52 +28,61 @@ const handler = async (req: Request): Promise<Response> => {
     const { type, email, userId, data }: NotificationRequest = await req.json();
     console.log("Sending notification:", { type, email, userId, data });
 
-    // Authenticate caller - require valid JWT for all types except new_signup
+    // Authenticate caller - require valid JWT for all notification types
     const authHeader = req.headers.get("Authorization");
     
-    if (type !== "new_signup") {
-      if (!authHeader?.startsWith("Bearer ")) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        });
-      }
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
 
-      const supabaseAuth = createClient(
+    const supabaseAuth = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    const callerUserId = claimsData.claims.sub as string;
+    const callerEmail = (claimsData.claims as any).email as string;
+
+    // For admin-only actions, verify admin role
+    if (type === "account_approved" || type === "training_reminder") {
+      const supabaseAdmin = createClient(
         Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_ANON_KEY")!,
-        { global: { headers: { Authorization: authHeader } } }
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
       );
+      const { data: roleData } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", callerUserId)
+        .eq("role", "admin")
+        .maybeSingle();
 
-      const token = authHeader.replace("Bearer ", "");
-      const { data: claimsData, error: claimsError } = await supabaseAuth.auth.getClaims(token);
-      if (claimsError || !claimsData?.claims) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
+      if (!roleData) {
+        return new Response(JSON.stringify({ error: "Forbidden: admin only" }), {
+          status: 403,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         });
       }
+    }
 
-      // For admin-only actions (account_approved, training_reminder), verify admin role
-      if (type === "account_approved" || type === "training_reminder") {
-        const supabaseAdmin = createClient(
-          Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-        );
-        const { data: roleData } = await supabaseAdmin
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", claimsData.claims.sub)
-          .eq("role", "admin")
-          .maybeSingle();
-
-        if (!roleData) {
-          return new Response(JSON.stringify({ error: "Forbidden: admin only" }), {
-            status: 403,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-      }
+    // For new_signup and course_completed, ensure target email matches caller
+    if ((type === "new_signup" || type === "course_completed") && email && email !== callerEmail) {
+      return new Response(JSON.stringify({ error: "Forbidden: email mismatch" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
     let targetEmail = email;
