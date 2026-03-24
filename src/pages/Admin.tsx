@@ -202,6 +202,7 @@ const Admin = () => {
 
   const getTabTitle = () => {
     const titles: Record<string, { title: string; desc: string }> = {
+      analytics: { title: "Analitik Dashboard", desc: "Platform kullanım istatistikleri ve performans metrikleri" },
       pending: { title: "Onay Bekleyen", desc: "Yeni kayıt olan kullanıcıları onaylayın veya reddedin" },
       courses: { title: "Kurs Yönetimi", desc: "Kursları görüntüleyin, düzenleyin ve silin" },
       videos: { title: "Video Yönetimi", desc: "Videoları görüntüleyin, düzenleyin ve silin" },
