@@ -147,10 +147,12 @@ Deno.serve(async (req) => {
                 .update({ is_approved: true, position: person.position || null, must_change_password: true })
                 .eq("id", newUser.user.id);
 
-              // Save temp password for admin reference
+              // Store hashed temp password (not plaintext)
+              const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(tempPassword));
+              const hashHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
               await adminClient
                 .from("user_temp_passwords")
-                .upsert({ user_id: newUser.user.id, temp_password: tempPassword }, { onConflict: "user_id" });
+                .upsert({ user_id: newUser.user.id, temp_password: hashHex }, { onConflict: "user_id" });
 
               results.push({
                 name: person.full_name,

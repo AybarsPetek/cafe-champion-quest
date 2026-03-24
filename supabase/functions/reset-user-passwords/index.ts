@@ -79,9 +79,12 @@ Deno.serve(async (req) => {
           continue;
         }
 
+        // Store hashed temp password (not plaintext)
+        const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(tempPassword));
+        const hashHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
         await adminClient
           .from("user_temp_passwords")
-          .upsert({ user_id: userId, temp_password: tempPassword }, { onConflict: "user_id" });
+          .upsert({ user_id: userId, temp_password: hashHex }, { onConflict: "user_id" });
 
         await adminClient
           .from("profiles")

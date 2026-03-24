@@ -9,24 +9,22 @@ const InstagramEmbed = ({ postUrl }: { postUrl: string }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (containerRef.current) {
-      // Clean URL to get embed URL
-      let cleanUrl = postUrl.split("?")[0];
-      if (!cleanUrl.endsWith("/")) cleanUrl += "/";
-      const embedUrl = `${cleanUrl}embed/captioned/`;
+    if (!containerRef.current) return;
+    // Clean URL to get embed URL
+    let cleanUrl = postUrl.split("?")[0];
+    if (!cleanUrl.endsWith("/")) cleanUrl += "/";
+    const embedUrl = `${cleanUrl}embed/captioned/`;
 
-      containerRef.current.innerHTML = `
-        <iframe 
-          src="${embedUrl}" 
-          class="w-full border-0 rounded-lg overflow-hidden"
-          style="min-height: 480px; max-width: 540px;"
-          allowtransparency="true" 
-          scrolling="no" 
-          frameborder="0"
-          loading="lazy"
-        ></iframe>
-      `;
-    }
+    // Use DOM APIs instead of innerHTML to prevent XSS
+    const iframe = document.createElement("iframe");
+    iframe.src = embedUrl;
+    iframe.className = "w-full border-0 rounded-lg overflow-hidden";
+    iframe.style.cssText = "min-height: 480px; max-width: 540px;";
+    iframe.setAttribute("allowtransparency", "true");
+    iframe.scrolling = "no";
+    iframe.setAttribute("frameborder", "0");
+    iframe.loading = "lazy";
+    containerRef.current.replaceChildren(iframe);
   }, [postUrl]);
 
   return (
