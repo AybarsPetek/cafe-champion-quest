@@ -14,6 +14,7 @@ import {
   Coffee,
   Library,
   Instagram,
+  PieChart,
 } from "lucide-react";
 import {
   Sidebar,
