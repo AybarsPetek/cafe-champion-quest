@@ -133,18 +133,21 @@ const Navbar = () => {
           {/* Mobile Navigation */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 border-primary/30 bg-primary/5 shadow-sm"
+              >
+                <Menu className="h-5 w-5 text-primary" />
                 <span className="sr-only">Menü</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 p-0">
+            <SheetContent side="right" className="w-72 p-0 [&>button]:top-3 [&>button]:right-3">
               <div className="flex flex-col gap-1 p-4 pt-12">
-                <SheetClose asChild>
-                  <div className="flex flex-col gap-1">
-                    <NavLinks />
-                  </div>
-                </SheetClose>
+                <NavLinks onClick={() => {
+                  const closeBtn = document.querySelector('[data-radix-collection-item][data-state]') as HTMLElement;
+                  closeBtn?.click();
+                }} />
               </div>
             </SheetContent>
           </Sheet>
