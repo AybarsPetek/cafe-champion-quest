@@ -39,6 +39,7 @@ interface AdminSidebarProps {
 }
 
 const mainItems = [
+  { id: "analytics", label: "Analitik", icon: PieChart },
   { id: "pending", label: "Onay Bekleyen", icon: UserCheck, badge: true },
   { id: "courses", label: "Kurslar", icon: BookOpen },
   { id: "videos", label: "Videolar", icon: Video },
