@@ -20,6 +20,7 @@ import UserManagement from "@/components/admin/UserManagement";
 import PersonnelImport from "@/components/admin/PersonnelImport";
 import LibraryManagement from "@/components/admin/LibraryManagement";
 import InstagramManagement from "@/components/admin/InstagramManagement";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import {
   useAdminUsers,
   useAdminCourses,
@@ -64,7 +65,7 @@ const Admin = () => {
   const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("analytics");
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -201,6 +202,7 @@ const Admin = () => {
 
   const getTabTitle = () => {
     const titles: Record<string, { title: string; desc: string }> = {
+      analytics: { title: "Analitik Dashboard", desc: "Platform kullanım istatistikleri ve performans metrikleri" },
       pending: { title: "Onay Bekleyen", desc: "Yeni kayıt olan kullanıcıları onaylayın veya reddedin" },
       courses: { title: "Kurs Yönetimi", desc: "Kursları görüntüleyin, düzenleyin ve silin" },
       videos: { title: "Video Yönetimi", desc: "Videoları görüntüleyin, düzenleyin ve silin" },
@@ -219,6 +221,8 @@ const Admin = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "analytics":
+        return <AnalyticsDashboard />;
       case "pending":
         return (
           <Card className="border-0 shadow-none bg-transparent">
