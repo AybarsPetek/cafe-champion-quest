@@ -65,7 +65,7 @@ const Admin = () => {
   const [uploadMode, setUploadMode] = useState<'url' | 'file'>('url');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("analytics");
 
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
