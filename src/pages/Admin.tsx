@@ -221,6 +221,8 @@ const Admin = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case "analytics":
+        return <AnalyticsDashboard />;
       case "pending":
         return (
           <Card className="border-0 shadow-none bg-transparent">
