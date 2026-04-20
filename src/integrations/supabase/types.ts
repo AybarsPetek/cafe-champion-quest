@@ -656,7 +656,6 @@ export type Database = {
           id: string
           is_approved: boolean
           level: string | null
-          must_change_password: boolean
           phone: string | null
           position: string | null
           store_name: string | null
@@ -672,7 +671,6 @@ export type Database = {
           id: string
           is_approved?: boolean
           level?: string | null
-          must_change_password?: boolean
           phone?: string | null
           position?: string | null
           store_name?: string | null
@@ -688,7 +686,6 @@ export type Database = {
           id?: string
           is_approved?: boolean
           level?: string | null
-          must_change_password?: boolean
           phone?: string | null
           position?: string | null
           store_name?: string | null
@@ -1011,27 +1008,6 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_temp_passwords: {
-        Row: {
-          created_at: string
-          id: string
-          temp_password: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          temp_password: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          temp_password?: string
           user_id?: string
         }
         Relationships: []

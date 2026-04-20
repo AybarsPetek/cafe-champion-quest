@@ -32,7 +32,7 @@ interface ImportResult {
   status: "created" | "updated" | "error";
   message: string;
   email?: string;
-  tempPassword?: string;
+  passwordLink?: string;
 }
 
 const PersonnelImport = () => {
@@ -127,7 +127,11 @@ const PersonnelImport = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("import-personnel", {
-        body: { action: "import", personnel: parsedData },
+        body: {
+          action: "import",
+          personnel: parsedData,
+          redirectTo: window.location.origin,
+        },
       });
 
       if (error) throw error;
@@ -167,7 +171,7 @@ const PersonnelImport = () => {
       "Personel Adı": r.name,
       "Telefon": r.phone,
       "E-posta": r.email || "-",
-      "Geçici Şifre": r.tempPassword || "-",
+      "Şifre Oluşturma Linki": r.passwordLink || "-",
       "Sonuç": r.status === "created" ? "Oluşturuldu" : r.status === "updated" ? "Güncellendi" : "Hata",
       "Detay": r.message,
     }));
@@ -355,7 +359,7 @@ const PersonnelImport = () => {
                     <TableHead>Personel Adı</TableHead>
                     <TableHead>Telefon</TableHead>
                     <TableHead>E-posta</TableHead>
-                    <TableHead>Geçici Şifre</TableHead>
+                    <TableHead>Şifre Linki</TableHead>
                     <TableHead>Sonuç</TableHead>
                     <TableHead>Detay</TableHead>
                   </TableRow>
@@ -366,7 +370,21 @@ const PersonnelImport = () => {
                       <TableCell className="font-medium">{result.name}</TableCell>
                       <TableCell>{result.phone}</TableCell>
                       <TableCell className="text-sm">{result.email || "-"}</TableCell>
-                      <TableCell className="text-sm font-mono">{result.tempPassword || "-"}</TableCell>
+                      <TableCell className="text-xs font-mono max-w-[220px] truncate">
+                        {result.passwordLink ? (
+                          <a
+                            href={result.passwordLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                            title={result.passwordLink}
+                          >
+                            Linki aç
+                          </a>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
                       <TableCell>
                         {result.status === "created" && (
                           <Badge className="bg-green-500/10 text-green-600 border-green-500/30 gap-1">

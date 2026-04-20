@@ -29,7 +29,6 @@ const Quiz = lazy(() => import("./pages/Quiz"));
 const Library = lazy(() => import("./pages/Library"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const ChangePassword = lazy(() => import("./pages/ChangePassword"));
 
 const queryClient = new QueryClient();
 
@@ -54,14 +53,6 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/pending-approval" element={<PendingApproval />} />
-            <Route
-              path="/change-password"
-              element={
-                <ProtectedRoute allowPasswordChange>
-                  <ChangePassword />
-                </ProtectedRoute>
-              }
-            />
             <Route path="/courses" element={<Courses />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/leaderboard" element={<Leaderboard />} />

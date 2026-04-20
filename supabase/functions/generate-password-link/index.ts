@@ -36,66 +36,74 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!roleData) throw new Error("Admin yetkisi gerekli");
 
-    const { userIds } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { userIds, redirectTo } = body as { userIds?: string[]; redirectTo?: string };
 
-    // If specific user IDs provided, use those; otherwise get all users without temp passwords
+    // Determine redirect target. The frontend should pass its own origin so the
+    // generated link goes back to the correct site (preview / custom domain).
+    const origin = redirectTo || req.headers.get("origin") || "";
+    const finalRedirect = `${origin.replace(/\/$/, "")}/reset-password`;
+
+    // If no userIds provided, generate links for ALL non-admin users
     let targetUserIds: string[] = userIds || [];
-
     if (targetUserIds.length === 0) {
-      // Get all non-admin profiles that still need to change their password
-      // (i.e. must_change_password = true). Users who already changed their
-      // password are skipped so we don't overwrite their chosen password.
-      const { data: profiles } = await adminClient
-        .from("profiles")
-        .select("id, must_change_password");
-
+      const { data: profiles } = await adminClient.from("profiles").select("id");
       const { data: adminRoles } = await adminClient
         .from("user_roles")
         .select("user_id")
         .eq("role", "admin");
-
       const adminSet = new Set((adminRoles || []).map((r: any) => r.user_id));
-
       targetUserIds = (profiles || [])
-        .filter((p: any) => p.must_change_password === true && !adminSet.has(p.id))
+        .filter((p: any) => !adminSet.has(p.id))
         .map((p: any) => p.id);
     }
+
+    // Fetch emails for the target users
+    const { data: { users: authUsers } } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
+    const emailMap = new Map<string, string>();
+    (authUsers || []).forEach((u: any) => {
+      if (u.email) emailMap.set(u.id, u.email);
+    });
 
     const results: any[] = [];
 
     for (const userId of targetUserIds) {
-      try {
-        const tempPassword = `Temp${Math.floor(1000 + Math.random() * 9000)}!`;
+      const email = emailMap.get(userId);
+      if (!email) {
+        results.push({ userId, status: "error", message: "E-posta bulunamadı" });
+        continue;
+      }
 
-        const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, {
-          password: tempPassword,
+      try {
+        const { data, error } = await adminClient.auth.admin.generateLink({
+          type: "recovery",
+          email,
+          options: { redirectTo: finalRedirect },
         });
 
-        if (updateError) {
-          results.push({ userId, status: "error", message: updateError.message });
+        if (error) {
+          results.push({ userId, email, status: "error", message: error.message });
           continue;
         }
 
-        // Store hashed temp password (not plaintext)
-        const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(tempPassword));
-        const hashHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
-        await adminClient
-          .from("user_temp_passwords")
-          .upsert({ user_id: userId, temp_password: hashHex }, { onConflict: "user_id" });
+        const link = data?.properties?.action_link;
+        if (!link) {
+          results.push({ userId, email, status: "error", message: "Link üretilemedi" });
+          continue;
+        }
 
-        await adminClient
-          .from("profiles")
-          .update({ must_change_password: true })
-          .eq("id", userId);
-
-        results.push({ userId, status: "success", tempPassword });
+        results.push({ userId, email, status: "success", link });
       } catch (err: any) {
-        results.push({ userId, status: "error", message: err.message });
+        results.push({ userId, email, status: "error", message: err.message });
       }
     }
 
     return new Response(
-      JSON.stringify({ results, totalProcessed: results.length, successCount: results.filter((r: any) => r.status === "success").length }),
+      JSON.stringify({
+        results,
+        totalProcessed: results.length,
+        successCount: results.filter((r: any) => r.status === "success").length,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err: any) {

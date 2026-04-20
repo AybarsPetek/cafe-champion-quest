@@ -9,11 +9,20 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle, Download, KeyRound } from "lucide-react";
+import { Pencil, User, Search, Eye, Mail, CheckCircle, XCircle, Download, Link2, Copy, ExternalLink } from "lucide-react";
 import { useAdminUsers, useUpdateUserRole, useUpdateUserProfileAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import * as XLSX from "xlsx";
+
+interface LinkResult {
+  userId: string;
+  email?: string;
+  status: "success" | "error";
+  link?: string;
+  message?: string;
+  fullName?: string;
+}
 
 const UserManagement = () => {
   const { data: users, isLoading, refetch } = useAdminUsers();
@@ -21,12 +30,14 @@ const UserManagement = () => {
   const updateProfile = useUpdateUserProfileAdmin();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [resetLoading, setResetLoading] = useState(false);
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [singleLinkLoadingId, setSingleLinkLoadingId] = useState<string | null>(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [linkResultsDialogOpen, setLinkResultsDialogOpen] = useState(false);
+  const [linkResults, setLinkResults] = useState<LinkResult[]>([]);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [emailMap, setEmailMap] = useState<Record<string, { email: string; email_confirmed_at: string | null }>>({});
-  const [tempPasswordMap, setTempPasswordMap] = useState<Record<string, string>>({});
   const [emailLoading, setEmailLoading] = useState(false);
   const [editFormData, setEditFormData] = useState({
     full_name: "",
@@ -41,11 +52,9 @@ const UserManagement = () => {
   });
 
   const invokeAdminFunction = async (functionName: string, body: Record<string, any>) => {
-    // Force a fresh token check from the server (not cached)
     const { data: { session }, error: sessionError } = await supabase.auth.refreshSession();
-    
+
     if (sessionError || !session?.access_token) {
-      // Fallback to getSession if refresh fails
       const { data: fallback } = await supabase.auth.getSession();
       if (!fallback.session?.access_token) {
         throw new Error("Oturum bulunamadı. Lütfen tekrar giriş yapın.");
@@ -62,16 +71,11 @@ const UserManagement = () => {
     });
   };
 
-  // Fetch email data and temp passwords
   useEffect(() => {
     const fetchData = async () => {
       setEmailLoading(true);
       try {
-        const emailRequest = invokeAdminFunction("manage-user-emails", { action: "list" });
-        const [emailRes, pwRes] = await Promise.all([
-          emailRequest,
-          supabase.from("user_temp_passwords").select("user_id, temp_password"),
-        ]);
+        const emailRes = await invokeAdminFunction("manage-user-emails", { action: "list" });
 
         if (emailRes.error) {
           console.error("Email fetch error:", emailRes.error);
@@ -81,11 +85,6 @@ const UserManagement = () => {
         } else if (emailRes.data?.error) {
           console.error("Email function error:", emailRes.data.error);
           toast({ title: "Uyarı", description: `E-posta bilgileri alınamadı: ${emailRes.data.error}`, variant: "destructive" });
-        }
-        if (!pwRes.error && pwRes.data) {
-          const pwMap: Record<string, string> = {};
-          pwRes.data.forEach((r: any) => { pwMap[r.user_id] = r.temp_password; });
-          setTempPasswordMap(pwMap);
         }
       } catch (err: any) {
         console.error("Failed to fetch data:", err);
@@ -113,7 +112,6 @@ const UserManagement = () => {
     const exportData = filteredUsers.map((user: any) => ({
       "Ad Soyad": user.full_name || "",
       "E-posta": emailMap[user.id]?.email || "",
-      "Geçici Şifre": tempPasswordMap[user.id] || "",
       "Telefon": user.phone || "",
       "Görev": user.position || "",
       "Mağaza": user.store_name || "",
@@ -129,27 +127,74 @@ const UserManagement = () => {
     XLSX.writeFile(wb, `kullanicilar-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
-  const handleResetPasswords = async () => {
-    setResetLoading(true);
+  const generateLinks = async (userIds: string[]) => {
+    const { data, error } = await invokeAdminFunction("generate-password-link", {
+      userIds,
+      redirectTo: window.location.origin,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const handleBulkGenerateLinks = async () => {
+    setLinkLoading(true);
     try {
-      const { data, error } = await invokeAdminFunction("reset-user-passwords", { userIds: [] });
-      if (error) throw error;
-      toast({
-        title: "Başarılı",
-        description: `${data.successCount} kullanıcıya geçici şifre atandı.`,
+      const data = await generateLinks([]);
+      const enriched: LinkResult[] = (data.results || []).map((r: any) => {
+        const u = users?.find((x: any) => x.id === r.userId);
+        return { ...r, fullName: u?.full_name || "İsimsiz" };
       });
-      // Refresh temp password map
-      const { data: pwData } = await supabase.from("user_temp_passwords").select("user_id, temp_password");
-      if (pwData) {
-        const pwMap: Record<string, string> = {};
-        pwData.forEach((r: any) => { pwMap[r.user_id] = r.temp_password; });
-        setTempPasswordMap(pwMap);
-      }
+      setLinkResults(enriched);
+      setLinkResultsDialogOpen(true);
+      toast({
+        title: "Linkler oluşturuldu",
+        description: `${data.successCount} kullanıcı için şifre oluşturma linki üretildi.`,
+      });
     } catch (err: any) {
-      toast({ title: "Hata", description: err.message || "Şifre atama başarısız.", variant: "destructive" });
+      toast({ title: "Hata", description: err.message || "Link oluşturulamadı.", variant: "destructive" });
     } finally {
-      setResetLoading(false);
+      setLinkLoading(false);
     }
+  };
+
+  const handleSingleGenerateLink = async (user: any) => {
+    setSingleLinkLoadingId(user.id);
+    try {
+      const data = await generateLinks([user.id]);
+      const enriched: LinkResult[] = (data.results || []).map((r: any) => ({
+        ...r,
+        fullName: user.full_name || "İsimsiz",
+      }));
+      setLinkResults(enriched);
+      setLinkResultsDialogOpen(true);
+    } catch (err: any) {
+      toast({ title: "Hata", description: err.message || "Link oluşturulamadı.", variant: "destructive" });
+    } finally {
+      setSingleLinkLoadingId(null);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Kopyalandı", description: "Link panoya kopyalandı." });
+    } catch {
+      toast({ title: "Hata", description: "Kopyalanamadı.", variant: "destructive" });
+    }
+  };
+
+  const exportLinksAsExcel = () => {
+    const successResults = linkResults.filter((r) => r.status === "success");
+    if (successResults.length === 0) return;
+    const exportData = successResults.map((r) => ({
+      "Ad Soyad": r.fullName || "",
+      "E-posta": r.email || "",
+      "Şifre Oluşturma Linki": r.link || "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Şifre Linkleri");
+    XLSX.writeFile(wb, `sifre-linkleri-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
   const handleView = (user: any) => {
@@ -179,12 +224,10 @@ const UserManagement = () => {
     const { email, ...profileData } = editFormData;
     const currentEmail = emailMap[selectedUser.id]?.email || "";
 
-    // Update profile
     updateProfile.mutate(
       { userId: selectedUser.id, data: profileData },
       {
         onSuccess: async () => {
-          // Update email if changed
           if (email && email !== currentEmail) {
             try {
               const { data, error } = await invokeAdminFunction("manage-user-emails", {
@@ -237,9 +280,9 @@ const UserManagement = () => {
         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
           <div>
             <CardTitle>Kullanıcı Yönetimi</CardTitle>
-            <CardDescription>Kullanıcı bilgilerini görüntüleyin, düzenleyin ve rollerini yönetin</CardDescription>
+            <CardDescription>Kullanıcı bilgilerini görüntüleyin, düzenleyin ve şifre linkleri üretin</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="relative w-full md:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -255,12 +298,12 @@ const UserManagement = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={handleResetPasswords}
-              disabled={resetLoading}
-              title="Geçici şifresi olmayan kullanıcılara yeni şifre ata"
+              onClick={handleBulkGenerateLinks}
+              disabled={linkLoading}
+              title="Tüm kullanıcılar için şifre oluşturma linki üret"
             >
-              <KeyRound className="w-4 h-4 mr-2" />
-              {resetLoading ? "İşleniyor..." : "Şifre Ata"}
+              <Link2 className="w-4 h-4 mr-2" />
+              {linkLoading ? "Oluşturuluyor..." : "Toplu Şifre Linki Üret"}
             </Button>
           </div>
         </div>
@@ -342,6 +385,15 @@ const UserManagement = () => {
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => handleEdit(user)} title="Düzenle">
                           <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSingleGenerateLink(user)}
+                          disabled={singleLinkLoadingId === user.id}
+                          title="Şifre oluşturma linki üret"
+                        >
+                          <Link2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -504,14 +556,6 @@ const UserManagement = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>İşe Giriş Tarihi</Label>
-                <Input
-                  type="date"
-                  value={editFormData.employment_date}
-                  onChange={(e) => setEditFormData({ ...editFormData, employment_date: e.target.value })}
-                />
-              </div>
-              <div className="grid gap-2">
                 <Label>Seviye</Label>
                 <Select
                   value={editFormData.level}
@@ -526,14 +570,14 @@ const UserManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="grid gap-2">
-              <Label>Toplam Puan</Label>
-              <Input
-                type="number"
-                value={editFormData.total_points}
-                onChange={(e) => setEditFormData({ ...editFormData, total_points: parseInt(e.target.value) || 0 })}
-              />
+              <div className="grid gap-2">
+                <Label>Toplam Puan</Label>
+                <Input
+                  type="number"
+                  value={editFormData.total_points}
+                  onChange={(e) => setEditFormData({ ...editFormData, total_points: parseInt(e.target.value) || 0 })}
+                />
+              </div>
             </div>
             <div className="grid gap-2">
               <Label>Hakkında</Label>
@@ -549,6 +593,68 @@ const UserManagement = () => {
             <Button onClick={handleSave} disabled={updateProfile.isPending}>
               {updateProfile.isPending ? "Kaydediliyor..." : "Kaydet"}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Link Results Dialog */}
+      <Dialog open={linkResultsDialogOpen} onOpenChange={setLinkResultsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Şifre Oluşturma Linkleri</DialogTitle>
+            <DialogDescription>
+              Aşağıdaki linkleri kullanıcılara WhatsApp, SMS veya e-posta ile gönderin. Linke tıkladıklarında doğrudan
+              kendi şifrelerini belirleyebilecekler. Linkler tek kullanımlıktır.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            {linkResults.length > 1 && (
+              <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={exportLinksAsExcel}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Tümünü Excel olarak indir
+                </Button>
+              </div>
+            )}
+            <div className="rounded-md border divide-y">
+              {linkResults.map((r, idx) => (
+                <div key={idx} className="p-3 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{r.fullName || "—"}</p>
+                      <p className="text-xs text-muted-foreground truncate">{r.email || "E-posta yok"}</p>
+                    </div>
+                    {r.status === "success" ? (
+                      <Badge className="bg-green-500/10 text-green-600 border-green-500/30 gap-1 shrink-0">
+                        <CheckCircle className="w-3 h-3" /> Üretildi
+                      </Badge>
+                    ) : (
+                      <Badge variant="destructive" className="gap-1 shrink-0">
+                        <XCircle className="w-3 h-3" /> Hata
+                      </Badge>
+                    )}
+                  </div>
+                  {r.status === "success" && r.link ? (
+                    <div className="flex items-center gap-2">
+                      <Input value={r.link} readOnly className="text-xs font-mono" />
+                      <Button size="sm" variant="outline" onClick={() => copyToClipboard(r.link!)} title="Kopyala">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" asChild title="Linki aç">
+                        <a href={r.link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </Button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-destructive">{r.message}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setLinkResultsDialogOpen(false)}>Kapat</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
