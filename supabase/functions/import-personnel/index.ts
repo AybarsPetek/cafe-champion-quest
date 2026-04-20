@@ -12,7 +12,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify admin
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("Yetkilendirme gerekli");
 
@@ -20,7 +19,6 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify caller is admin
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -29,7 +27,6 @@ Deno.serve(async (req) => {
 
     const adminClient = createClient(supabaseUrl, serviceKey);
 
-    // Check admin role
     const { data: roleData } = await adminClient
       .from("user_roles")
       .select("role")
@@ -38,19 +35,17 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!roleData) throw new Error("Admin yetkisi gerekli");
 
-    const { personnel, action } = await req.json();
-    // action: "preview" | "import"
+    const { personnel, action, redirectTo } = await req.json();
+    const origin = redirectTo || req.headers.get("origin") || "";
+    const finalRedirect = `${origin.replace(/\/$/, "")}/reset-password`;
 
     if (action === "preview") {
-      // Match existing users by phone
       const { data: profiles } = await adminClient.from("profiles").select("id, full_name, phone, store_name");
-      
-      // Get emails
       const { data: { users: authUsers } } = await adminClient.auth.admin.listUsers({ perPage: 1000 });
-      
+
       const phoneToProfile: Record<string, any> = {};
       const emailToProfile: Record<string, any> = {};
-      
+
       profiles?.forEach((p: any) => {
         if (p.phone) {
           const normalized = p.phone.replace(/\D/g, "").replace(/^0/, "").slice(-10);
@@ -82,8 +77,7 @@ Deno.serve(async (req) => {
 
     if (action === "import") {
       const results: any[] = [];
-      
-      // Get existing profiles by phone
+
       const { data: profiles } = await adminClient.from("profiles").select("id, phone");
       const phoneToId: Record<string, string> = {};
       profiles?.forEach((p: any) => {
@@ -99,7 +93,6 @@ Deno.serve(async (req) => {
           const existingId = phoneToId[normalizedPhone];
 
           if (existingId) {
-            // Update existing profile
             const updateData: any = {};
             if (person.full_name) updateData.full_name = person.full_name;
             if (person.phone) updateData.phone = person.phone;
@@ -118,13 +111,14 @@ Deno.serve(async (req) => {
               message: error ? error.message : "Profil güncellendi",
             });
           } else {
-            // Create new user with email based on phone
+            // Create a new user with a random strong password (never shown).
+            // The user will set their own password via the recovery link below.
             const email = `${normalizedPhone}@personnel.local`;
-            const tempPassword = `Temp${Math.floor(1000 + Math.random() * 9000)}!`;
+            const randomPassword = crypto.randomUUID() + crypto.randomUUID();
 
             const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
               email,
-              password: tempPassword,
+              password: randomPassword,
               email_confirm: true,
               user_metadata: {
                 full_name: person.full_name,
@@ -141,26 +135,34 @@ Deno.serve(async (req) => {
                 message: createError.message,
               });
             } else {
-              // Update profile with position and approve
               await adminClient
                 .from("profiles")
-                .update({ is_approved: true, position: person.position || null, must_change_password: true })
+                .update({ is_approved: true, position: person.position || null })
                 .eq("id", newUser.user.id);
 
-              // Store hashed temp password (not plaintext)
-              const hashedPassword = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(tempPassword));
-              const hashHex = Array.from(new Uint8Array(hashedPassword)).map(b => b.toString(16).padStart(2, '0')).join('');
-              await adminClient
-                .from("user_temp_passwords")
-                .upsert({ user_id: newUser.user.id, temp_password: hashHex }, { onConflict: "user_id" });
+              // Generate password setup link
+              let passwordLink: string | null = null;
+              try {
+                const { data: linkData } = await adminClient.auth.admin.generateLink({
+                  type: "recovery",
+                  email,
+                  options: { redirectTo: finalRedirect },
+                });
+                passwordLink = linkData?.properties?.action_link ?? null;
+              } catch (linkErr) {
+                // Non-fatal: user is created, admin can re-generate the link later.
+                console.error("Link generation failed:", linkErr);
+              }
 
               results.push({
                 name: person.full_name,
                 phone: person.phone,
                 status: "created",
-                message: `Kullanıcı oluşturuldu (${email})`,
+                message: passwordLink
+                  ? `Kullanıcı oluşturuldu (${email})`
+                  : `Kullanıcı oluşturuldu, link sonradan üretilebilir (${email})`,
                 email,
-                tempPassword,
+                passwordLink,
               });
             }
           }
