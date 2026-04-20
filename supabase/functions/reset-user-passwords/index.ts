@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
 
     for (const userId of targetUserIds) {
       try {
-        const tempPassword = `Temp${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}!`;
+        const tempPassword = `Temp${Math.floor(1000 + Math.random() * 9000)}!`;
 
         const { error: updateError } = await adminClient.auth.admin.updateUserById(userId, {
           password: tempPassword,
