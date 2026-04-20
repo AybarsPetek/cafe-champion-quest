@@ -41,12 +41,14 @@ const CourseDetail = () => {
   const hasPassedQuiz = quizAttempts?.some(a => a.passed === true) || false;
 
   useEffect(() => {
+    // Only initialize once when course first loads; do not override user's manual selection on refetch
+    if (currentVideoId) return;
     if (course?.lastWatchedVideoId) {
       setCurrentVideoId(course.lastWatchedVideoId);
     } else if (course?.videos && course.videos.length > 0) {
       setCurrentVideoId(course.videos[0].id);
     }
-  }, [course]);
+  }, [course, currentVideoId]);
 
   const goToVideo = async (videoId: string) => {
     console.log('goToVideo called:', { videoId, previous: currentVideoId });
