@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
           } else {
             // Create new user with email based on phone
             const email = `${normalizedPhone}@personnel.local`;
-            const tempPassword = `Temp${normalizedPhone}${Date.now().toString(36).slice(-4)}!`;
+            const tempPassword = `Temp${Math.floor(1000 + Math.random() * 9000)}!`;
 
             const { data: newUser, error: createError } = await adminClient.auth.admin.createUser({
               email,
