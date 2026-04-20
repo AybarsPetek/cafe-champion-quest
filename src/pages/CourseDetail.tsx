@@ -48,11 +48,10 @@ const CourseDetail = () => {
     }
   }, [course]);
 
-  const handleVideoClick = async (videoId: string) => {
+  const goToVideo = async (videoId: string) => {
     setCurrentVideoId(videoId);
     setVideoCompleted(false);
-    
-    // Update last watched video in database
+
     if (user && id) {
       await supabase
         .from("user_course_progress")
@@ -69,17 +68,41 @@ const CourseDetail = () => {
     }
   };
 
+  const getNextVideoId = (): string | null => {
+    if (!course?.videos || !currentVideoId) return null;
+    const currentIndex = course.videos.findIndex((v) => v.id === currentVideoId);
+    if (currentIndex === -1 || currentIndex >= course.videos.length - 1) return null;
+    return course.videos[currentIndex + 1].id;
+  };
+
+  const handleVideoClick = (videoId: string) => {
+    goToVideo(videoId);
+  };
+
+  const advanceToNextIfAvailable = () => {
+    const nextId = getNextVideoId();
+    if (nextId) {
+      goToVideo(nextId);
+    }
+  };
+
   const handleMarkComplete = () => {
     if (user && currentVideoId) {
       console.log('Manually marking video complete:', { userId: user.id, videoId: currentVideoId });
-      markVideoComplete.mutate({ userId: user.id, videoId: currentVideoId });
+      markVideoComplete.mutate(
+        { userId: user.id, videoId: currentVideoId },
+        { onSuccess: () => advanceToNextIfAvailable() }
+      );
     }
   };
 
   const handleVideoEnd = () => {
     if (user && currentVideoId) {
       console.log('Video ended, auto-marking complete:', { userId: user.id, videoId: currentVideoId });
-      markVideoComplete.mutate({ userId: user.id, videoId: currentVideoId });
+      markVideoComplete.mutate(
+        { userId: user.id, videoId: currentVideoId },
+        { onSuccess: () => advanceToNextIfAvailable() }
+      );
     }
   };
 
