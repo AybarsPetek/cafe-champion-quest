@@ -155,6 +155,7 @@ const CourseDetail = () => {
                 }
                 onVideoEnd={handleVideoEnd}
                 onVideoComplete={setVideoCompleted}
+                allowSeeking={course.allow_seeking ?? false}
               />
               {user && currentVideoId && (
                 <CardContent className="pt-4 space-y-3">

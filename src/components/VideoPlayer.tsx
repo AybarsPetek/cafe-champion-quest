@@ -5,9 +5,10 @@ interface VideoPlayerProps {
   title: string;
   onVideoEnd?: () => void;
   onVideoComplete?: (completed: boolean) => void;
+  allowSeeking?: boolean;
 }
 
-const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete, allowSeeking = false }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [maxWatchedTime, setMaxWatchedTime] = useState(0);
   const [hasEnded, setHasEnded] = useState(false);
@@ -77,8 +78,9 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlay
     }
   };
 
-  // Prevent seeking beyond max watched time
+  // Prevent seeking beyond max watched time (only when seeking is disabled)
   const handleSeeking = () => {
+    if (allowSeeking) return;
     const video = videoRef.current;
     if (video && video.currentTime > maxWatchedTime + 0.5) {
       console.log('Seeking prevented - max watched:', maxWatchedTime, 'attempted:', video.currentTime);
@@ -122,9 +124,11 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlay
           <source src={embedUrl} type="video/mp4" />
           Tarayıcınız video oynatmayı desteklemiyor.
         </video>
-        <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none">
-          İleri sarma devre dışı
-        </div>
+        {!allowSeeking && (
+          <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none">
+            İleri sarma devre dışı
+          </div>
+        )}
       </div>
     );
   }
@@ -138,9 +142,11 @@ const VideoPlayer = ({ videoUrl, title, onVideoEnd, onVideoComplete }: VideoPlay
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         className="absolute inset-0 w-full h-full rounded-lg"
       />
-      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none">
-        ⚠️ YouTube videolarında ileri sarma kısıtlaması sınırlıdır
-      </div>
+      {!allowSeeking && (
+        <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded pointer-events-none">
+          ⚠️ YouTube videolarında ileri sarma kısıtlaması sınırlıdır
+        </div>
+      )}
     </div>
   );
 };

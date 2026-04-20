@@ -23,6 +23,7 @@ export interface CourseDetail {
   instructor_bio: string | null;
   enrolled_count: number | null;
   rating: number | null;
+  allow_seeking: boolean;
   videos: CourseVideo[];
   progress: number;
   lastWatchedVideoId?: string;

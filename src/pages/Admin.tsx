@@ -81,6 +81,7 @@ const Admin = () => {
     instructor_title: "",
     instructor_bio: "",
     image_url: "",
+    allow_seeking: false,
   });
   const [videoFormData, setVideoFormData] = useState({
     course_id: "",
@@ -122,6 +123,7 @@ const Admin = () => {
       instructor_title: "",
       instructor_bio: "",
       image_url: "",
+      allow_seeking: false,
     });
   };
 
@@ -179,6 +181,7 @@ const Admin = () => {
       instructor_title: course.instructor_title || "",
       instructor_bio: course.instructor_bio || "",
       image_url: course.image_url || "",
+      allow_seeking: course.allow_seeking ?? false,
     });
     setCourseDialogOpen(true);
   };
@@ -336,6 +339,19 @@ const Admin = () => {
                     <div className="grid gap-2">
                       <Label htmlFor="image_url">Görsel URL</Label>
                       <Input id="image_url" value={courseFormData.image_url} onChange={(e) => setCourseFormData({ ...courseFormData, image_url: e.target.value })} />
+                    </div>
+                    <div className="flex items-center justify-between rounded-lg border p-3">
+                      <div className="space-y-0.5">
+                        <Label htmlFor="allow_seeking">İleri sarmaya izin ver</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Açıkken bu kursun videolarında kullanıcı ileri sarabilir. Kapalıyken ileri sarma engellenir.
+                        </p>
+                      </div>
+                      <Switch
+                        id="allow_seeking"
+                        checked={courseFormData.allow_seeking}
+                        onCheckedChange={(checked) => setCourseFormData({ ...courseFormData, allow_seeking: checked })}
+                      />
                     </div>
                   </div>
                   <DialogFooter>
