@@ -42,25 +42,22 @@ Deno.serve(async (req) => {
     let targetUserIds: string[] = userIds || [];
 
     if (targetUserIds.length === 0) {
-      // Get all non-admin profiles that don't have a temp password yet
+      // Get all non-admin profiles that still need to change their password
+      // (i.e. must_change_password = true). Users who already changed their
+      // password are skipped so we don't overwrite their chosen password.
       const { data: profiles } = await adminClient
         .from("profiles")
-        .select("id");
-
-      const { data: existingPws } = await adminClient
-        .from("user_temp_passwords")
-        .select("user_id");
+        .select("id, must_change_password");
 
       const { data: adminRoles } = await adminClient
         .from("user_roles")
         .select("user_id")
         .eq("role", "admin");
 
-      const existingSet = new Set((existingPws || []).map((p: any) => p.user_id));
       const adminSet = new Set((adminRoles || []).map((r: any) => r.user_id));
 
       targetUserIds = (profiles || [])
-        .filter((p: any) => !existingSet.has(p.id) && !adminSet.has(p.id))
+        .filter((p: any) => p.must_change_password === true && !adminSet.has(p.id))
         .map((p: any) => p.id);
     }
 
