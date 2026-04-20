@@ -49,11 +49,14 @@ const CourseDetail = () => {
   }, [course]);
 
   const goToVideo = async (videoId: string) => {
+    console.log('goToVideo called:', { videoId, previous: currentVideoId });
     setCurrentVideoId(videoId);
     setVideoCompleted(false);
+    // Scroll player into view so the change is visible
+    window.scrollTo({ top: 0, behavior: "smooth" });
 
     if (user && id) {
-      await supabase
+      const { error } = await supabase
         .from("user_course_progress")
         .upsert(
           {
@@ -65,6 +68,7 @@ const CourseDetail = () => {
             onConflict: "user_id,course_id",
           }
         );
+      if (error) console.error('Failed to update last_watched_video_id:', error);
     }
   };
 
