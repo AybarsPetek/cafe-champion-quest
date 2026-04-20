@@ -142,6 +142,7 @@ const CourseDetail = () => {
             {/* Video Player */}
             <Card className="overflow-hidden shadow-soft">
               <VideoPlayer
+                key={currentVideoId || course.id}
                 videoUrl={
                   currentVideoId
                     ? course.videos.find((v) => v.id === currentVideoId)?.video_url || null
