@@ -308,6 +308,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          allow_seeking: boolean
           created_at: string | null
           description: string
           duration_minutes: number
@@ -325,6 +326,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          allow_seeking?: boolean
           created_at?: string | null
           description: string
           duration_minutes: number
@@ -342,6 +344,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          allow_seeking?: boolean
           created_at?: string | null
           description?: string
           duration_minutes?: number
