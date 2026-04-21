@@ -174,7 +174,10 @@ Deno.serve(async (req) => {
                   email,
                   options: { redirectTo: finalRedirect },
                 });
-                passwordLink = linkData?.properties?.action_link ?? null;
+                const longLink = linkData?.properties?.action_link ?? null;
+                if (longLink) {
+                  passwordLink = await createShortLink(longLink);
+                }
               } catch (linkErr) {
                 // Non-fatal: user is created, admin can re-generate the link later.
                 console.error("Link generation failed:", linkErr);
@@ -183,6 +186,7 @@ Deno.serve(async (req) => {
               results.push({
                 name: person.full_name,
                 phone: person.phone,
+                store_name: person.store_name || "",
                 status: "created",
                 message: passwordLink
                   ? `Kullanıcı oluşturuldu (${email})`
