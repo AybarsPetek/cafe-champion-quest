@@ -811,6 +811,33 @@ export type Database = {
           },
         ]
       }
+      short_links: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string
+          id: string
+          target_url: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at: string
+          id?: string
+          target_url: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string
+          id?: string
+          target_url?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string
