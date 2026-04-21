@@ -41,8 +41,20 @@ Deno.serve(async (req) => {
 
     // Determine redirect target. The frontend should pass its own origin so the
     // generated link goes back to the correct site (preview / custom domain).
-    const origin = redirectTo || req.headers.get("origin") || "";
-    const finalRedirect = `${origin.replace(/\/$/, "")}/reset-password`;
+    const origin = (redirectTo || req.headers.get("origin") || "").replace(/\/$/, "");
+    const finalRedirect = `${origin}/reset-password`;
+
+    // Helper: generate a short, URL-safe random code (~8 chars)
+    const makeShortCode = () => {
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(8));
+      let out = "";
+      for (let i = 0; i < bytes.length; i++) out += alphabet[bytes[i] % alphabet.length];
+      return out;
+    };
+
+    // 7 days expiry
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
     // If no userIds provided, generate links for ALL non-admin users
     let targetUserIds: string[] = userIds || [];
@@ -92,7 +104,30 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        results.push({ userId, email, status: "success", link });
+        // Create a short link entry
+        let shortLink = link;
+        try {
+          let code = "";
+          let inserted = false;
+          for (let attempt = 0; attempt < 5 && !inserted; attempt++) {
+            code = makeShortCode();
+            const { error: insertErr } = await adminClient
+              .from("short_links")
+              .insert({ code, target_url: link, created_by: user.id, expires_at: expiresAt });
+            if (!insertErr) {
+              inserted = true;
+            } else if (!insertErr.message?.includes("duplicate")) {
+              break;
+            }
+          }
+          if (inserted && origin) {
+            shortLink = `${origin}/s/${code}`;
+          }
+        } catch (e) {
+          console.error("short link create failed", e);
+        }
+
+        results.push({ userId, email, status: "success", link: shortLink });
       } catch (err: any) {
         results.push({ userId, email, status: "error", message: err.message });
       }
