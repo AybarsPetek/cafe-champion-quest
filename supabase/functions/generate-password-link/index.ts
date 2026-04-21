@@ -104,7 +104,30 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        results.push({ userId, email, status: "success", link });
+        // Create a short link entry
+        let shortLink = link;
+        try {
+          let code = "";
+          let inserted = false;
+          for (let attempt = 0; attempt < 5 && !inserted; attempt++) {
+            code = makeShortCode();
+            const { error: insertErr } = await adminClient
+              .from("short_links")
+              .insert({ code, target_url: link, created_by: user.id, expires_at: expiresAt });
+            if (!insertErr) {
+              inserted = true;
+            } else if (!insertErr.message?.includes("duplicate")) {
+              break;
+            }
+          }
+          if (inserted && origin) {
+            shortLink = `${origin}/s/${code}`;
+          }
+        } catch (e) {
+          console.error("short link create failed", e);
+        }
+
+        results.push({ userId, email, status: "success", link: shortLink });
       } catch (err: any) {
         results.push({ userId, email, status: "error", message: err.message });
       }
