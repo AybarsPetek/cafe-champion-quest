@@ -22,6 +22,7 @@ interface LinkResult {
   link?: string;
   message?: string;
   fullName?: string;
+  storeName?: string;
 }
 
 const UserManagement = () => {
@@ -142,7 +143,11 @@ const UserManagement = () => {
       const data = await generateLinks([]);
       const enriched: LinkResult[] = (data.results || []).map((r: any) => {
         const u = users?.find((x: any) => x.id === r.userId);
-        return { ...r, fullName: u?.full_name || "İsimsiz" };
+        return {
+          ...r,
+          fullName: u?.full_name || "İsimsiz",
+          storeName: u?.store_name || "",
+        };
       });
       setLinkResults(enriched);
       setLinkResultsDialogOpen(true);
@@ -164,6 +169,7 @@ const UserManagement = () => {
       const enriched: LinkResult[] = (data.results || []).map((r: any) => ({
         ...r,
         fullName: user.full_name || "İsimsiz",
+        storeName: user.store_name || "",
       }));
       setLinkResults(enriched);
       setLinkResultsDialogOpen(true);
@@ -188,6 +194,7 @@ const UserManagement = () => {
     if (successResults.length === 0) return;
     const exportData = successResults.map((r) => ({
       "Ad Soyad": r.fullName || "",
+      "Mağaza": r.storeName || "",
       "E-posta": r.email || "",
       "Şifre Oluşturma Linki": r.link || "",
     }));

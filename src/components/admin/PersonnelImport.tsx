@@ -29,6 +29,7 @@ interface PreviewResult extends ParsedPerson {
 interface ImportResult {
   name: string;
   phone: string;
+  store_name?: string;
   status: "created" | "updated" | "error";
   message: string;
   email?: string;
@@ -170,6 +171,7 @@ const PersonnelImport = () => {
     const exportData = importResults.map((r) => ({
       "Personel Adı": r.name,
       "Telefon": r.phone,
+      "Mağaza": r.store_name || "",
       "E-posta": r.email || "-",
       "Şifre Oluşturma Linki": r.passwordLink || "-",
       "Sonuç": r.status === "created" ? "Oluşturuldu" : r.status === "updated" ? "Güncellendi" : "Hata",

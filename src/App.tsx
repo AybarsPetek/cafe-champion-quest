@@ -29,6 +29,7 @@ const Quiz = lazy(() => import("./pages/Quiz"));
 const Library = lazy(() => import("./pages/Library"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ShortLinkRedirect = lazy(() => import("./pages/ShortLinkRedirect"));
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/iletisim" element={<Contact />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/s/:code" element={<ShortLinkRedirect />} />
             <Route path="/pending-approval" element={<PendingApproval />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/payment" element={<Payment />} />
