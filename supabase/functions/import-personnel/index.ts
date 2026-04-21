@@ -36,8 +36,34 @@ Deno.serve(async (req) => {
     if (!roleData) throw new Error("Admin yetkisi gerekli");
 
     const { personnel, action, redirectTo } = await req.json();
-    const origin = redirectTo || req.headers.get("origin") || "";
-    const finalRedirect = `${origin.replace(/\/$/, "")}/reset-password`;
+    const origin = (redirectTo || req.headers.get("origin") || "").replace(/\/$/, "");
+    const finalRedirect = `${origin}/reset-password`;
+
+    const makeShortCode = () => {
+      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(8));
+      let out = "";
+      for (let i = 0; i < bytes.length; i++) out += alphabet[bytes[i] % alphabet.length];
+      return out;
+    };
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const createShortLink = async (longUrl: string): Promise<string> => {
+      if (!origin) return longUrl;
+      try {
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const code = makeShortCode();
+          const { error: insertErr } = await adminClient
+            .from("short_links")
+            .insert({ code, target_url: longUrl, created_by: user.id, expires_at: expiresAt });
+          if (!insertErr) return `${origin}/s/${code}`;
+          if (!insertErr.message?.includes("duplicate")) break;
+        }
+      } catch (e) {
+        console.error("short link create failed", e);
+      }
+      return longUrl;
+    };
 
     if (action === "preview") {
       const { data: profiles } = await adminClient.from("profiles").select("id, full_name, phone, store_name");
