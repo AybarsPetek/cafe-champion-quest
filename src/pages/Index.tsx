@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, BookOpen, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import NewMembersSection from "@/components/NewMembersSection";
+import SEO from "@/components/SEO";
 import heroImage from "@/assets/hero-barista.jpg";
 
 const InstagramSection = lazy(() => import("@/components/InstagramSection"));
@@ -29,6 +30,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO />
       <Navbar />
       
       {/* Hero Section */}
