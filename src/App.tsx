@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import PwaUpdatePrompt from "./components/PwaUpdatePrompt";
 import MobileBottomNav from "./components/MobileBottomNav";
+import { AuthProvider } from "./contexts/AuthContext";
 
 // Lazy load all non-index routes
 const Landing = lazy(() => import("./pages/Landing"));
@@ -46,14 +47,15 @@ const App = () => (
   <HelmetProvider>
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <PwaUpdatePrompt />
-          <BrowserRouter>
-            <div className="pb-16 md:pb-0">
-              <Suspense fallback={<PageLoader />}>
-                <Routes>
+        <BrowserRouter>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <PwaUpdatePrompt />
+              <div className="pb-16 md:pb-0">
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/tanitim" element={<Landing />} />
                   <Route path="/iletisim" element={<Contact />} />
@@ -126,8 +128,9 @@ const App = () => (
               </Suspense>
               <MobileBottomNav />
             </div>
-          </BrowserRouter>
-        </TooltipProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </BrowserRouter>
       </QueryClientProvider>
     </ThemeProvider>
   </HelmetProvider>
