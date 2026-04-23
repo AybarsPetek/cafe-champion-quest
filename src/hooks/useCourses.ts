@@ -13,6 +13,7 @@ export interface Course {
   enrolled_count: number | null;
   rating: number | null;
   progress?: number;
+  last_watched_video_id?: string | null;
 }
 
 export const useCourses = (userId?: string) => {
@@ -30,20 +31,31 @@ export const useCourses = (userId?: string) => {
       if (userId) {
         const { data: progressData } = await supabase
           .from("user_course_progress")
-          .select("course_id, progress_percentage")
+          .select("course_id, progress_percentage, last_watched_video_id")
           .eq("user_id", userId);
 
         const progressMap = new Map(
-          progressData?.map((p) => [p.course_id, p.progress_percentage]) || []
+          progressData?.map((p) => [
+            p.course_id,
+            { progress: p.progress_percentage, lastVideo: p.last_watched_video_id },
+          ]) || []
         );
 
-        return courses.map((course) => ({
-          ...course,
-          progress: progressMap.get(course.id) || 0,
-        }));
+        return courses.map((course) => {
+          const entry = progressMap.get(course.id);
+          return {
+            ...course,
+            progress: entry?.progress || 0,
+            last_watched_video_id: entry?.lastVideo || null,
+          };
+        });
       }
 
-      return courses.map((course) => ({ ...course, progress: 0 }));
+      return courses.map((course) => ({
+        ...course,
+        progress: 0,
+        last_watched_video_id: null,
+      }));
     },
   });
 };

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Star, Play } from "lucide-react";
+import { Clock, Play, RotateCcw } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface CourseCardProps {
@@ -13,6 +13,7 @@ interface CourseCardProps {
   level: string;
   points: number;
   progress?: number;
+  lastWatchedVideoId?: string | null;
 }
 
 const CourseCard = ({
@@ -24,13 +25,21 @@ const CourseCard = ({
   level,
   points,
   progress = 0,
+  lastWatchedVideoId,
 }: CourseCardProps) => {
+  const inProgress = progress > 0 && progress < 100;
+  const targetUrl =
+    inProgress && lastWatchedVideoId
+      ? `/course/${id}?video=${lastWatchedVideoId}`
+      : `/course/${id}`;
+
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-hover">
       <div className="relative overflow-hidden aspect-video">
         <img
           src={image}
           alt={title}
+          loading="lazy"
           className="w-full h-full object-cover transition-transform group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
@@ -52,7 +61,7 @@ const CourseCard = ({
 
       <CardContent>
         <p className="text-muted-foreground line-clamp-2">{description}</p>
-        
+
         {progress > 0 && (
           <div className="mt-4">
             <div className="flex items-center justify-between text-sm mb-1">
@@ -71,9 +80,18 @@ const CourseCard = ({
 
       <CardFooter>
         <Button asChild className="w-full gap-2">
-          <Link to={`/course/${id}`}>
-            <Play className="h-4 w-4" />
-            {progress > 0 ? "Devam Et" : "Başla"}
+          <Link to={targetUrl}>
+            {inProgress && lastWatchedVideoId ? (
+              <>
+                <RotateCcw className="h-4 w-4" />
+                Kaldığın yerden devam et
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4" />
+                {progress > 0 ? "Devam Et" : "Başla"}
+              </>
+            )}
           </Link>
         </Button>
       </CardFooter>
