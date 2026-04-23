@@ -4,10 +4,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import PwaUpdatePrompt from "./components/PwaUpdatePrompt";
+import MobileBottomNav from "./components/MobileBottomNav";
 
 // Lazy load all non-index routes
 const Landing = lazy(() => import("./pages/Landing"));
@@ -40,87 +43,94 @@ const PageLoader = () => (
 );
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <PwaUpdatePrompt />
-      <BrowserRouter>
-        <Suspense fallback={<PageLoader />}>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/tanitim" element={<Landing />} />
-            <Route path="/iletisim" element={<Contact />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/s/:code" element={<ShortLinkRedirect />} />
-            <Route path="/pending-approval" element={<PendingApproval />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/library" element={
-              <ProtectedRoute>
-                <Library />
-              </ProtectedRoute>
-            } />
-            <Route path="/forum" element={<Forum />} />
-            <Route path="/forum/category/:categoryId" element={<ForumCategory />} />
-            <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
-            <Route
-              path="/forum/new"
-              element={
-                <ProtectedRoute>
-                  <ForumNewTopic />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route 
-              path="/course/:id" 
-              element={
-                <ProtectedRoute>
-                  <CourseDetail />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/quiz/:courseId" 
-              element={
-                <ProtectedRoute>
-                  <Quiz />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <AdminRoute>
-                  <Admin />
-                </AdminRoute>
-              } 
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <HelmetProvider>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <PwaUpdatePrompt />
+          <BrowserRouter>
+            <div className="pb-16 md:pb-0">
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/tanitim" element={<Landing />} />
+                  <Route path="/iletisim" element={<Contact />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
+                  <Route path="/s/:code" element={<ShortLinkRedirect />} />
+                  <Route path="/pending-approval" element={<PendingApproval />} />
+                  <Route path="/courses" element={<Courses />} />
+                  <Route path="/payment" element={<Payment />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/library" element={
+                    <ProtectedRoute>
+                      <Library />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/forum" element={<Forum />} />
+                  <Route path="/forum/category/:categoryId" element={<ForumCategory />} />
+                  <Route path="/forum/topic/:topicId" element={<ForumTopic />} />
+                  <Route
+                    path="/forum/new"
+                    element={
+                      <ProtectedRoute>
+                        <ForumNewTopic />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/course/:id"
+                    element={
+                      <ProtectedRoute>
+                        <CourseDetail />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/quiz/:courseId"
+                    element={
+                      <ProtectedRoute>
+                        <Quiz />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <Admin />
+                      </AdminRoute>
+                    }
+                  />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <MobileBottomNav />
+            </div>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </HelmetProvider>
 );
 
 export default App;

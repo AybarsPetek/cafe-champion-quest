@@ -4,13 +4,18 @@ import Navbar from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Award, BookOpen, Star, Trophy, CalendarClock, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Award, BookOpen, Star, Trophy, CalendarClock, CheckCircle2, AlertTriangle, Coffee, Library } from "lucide-react";
 import type { LucideProps } from "lucide-react";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
 import CourseCard from "@/components/CourseCard";
+import EmptyState from "@/components/EmptyState";
+import SEO from "@/components/SEO";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 import { format, isPast, parseISO } from "date-fns";
 import { tr } from "date-fns/locale";
 import { useUserDashboard } from "@/hooks/useUserDashboard";
+import { useProfile } from "@/hooks/useProfile";
+import { getGreeting, getFirstName } from "@/lib/greeting";
 import { supabase } from "@/integrations/supabase/client";
 import PwaInstallGuide from "@/components/PwaInstallGuide";
 import { User } from "@supabase/supabase-js";
@@ -46,17 +51,20 @@ const Dashboard = () => {
   }, []);
 
   const { data: dashboardData, isLoading } = useUserDashboard(user?.id || "");
+  const { data: profile } = useProfile(user?.id || "");
 
   if (!user || isLoading) {
     return (
       <div className="min-h-screen">
+        <SEO title="Panelim" />
         <Navbar />
-        <div className="container mx-auto px-4 py-12 flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <DashboardSkeleton />
       </div>
     );
   }
+
+  const firstName = getFirstName(profile?.full_name);
+  const greeting = getGreeting();
 
   const stats = [
     {
@@ -87,11 +95,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO title="Panelim" />
       <Navbar />
       <PwaInstallGuide />
       <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="mb-8 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">Hoş Geldin, Barista! ☕</h1>
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">
+            {greeting}, {firstName}! ☕
+          </h1>
           <p className="text-lg text-muted-foreground">
             İlerlemeni takip et ve yeni rozetler kazan
           </p>
@@ -183,7 +194,7 @@ const Dashboard = () => {
         )}
 
         {/* In Progress Courses */}
-        {dashboardData?.inProgressCourses && dashboardData.inProgressCourses.length > 0 && (
+        {dashboardData?.inProgressCourses && dashboardData.inProgressCourses.length > 0 ? (
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Devam Eden Eğitimler</h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -198,9 +209,21 @@ const Dashboard = () => {
                   level={course.level}
                   points={course.points}
                   progress={course.progress}
+                  lastWatchedVideoId={course.last_watched_video_id}
                 />
               ))}
             </div>
+          </div>
+        ) : (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Devam Eden Eğitimler</h2>
+            <EmptyState
+              icon={Coffee}
+              title="Henüz başladığın bir eğitim yok"
+              description="Eğitim kütüphanesini keşfet ve barista yolculuğuna başla."
+              actionLabel="Eğitimleri keşfet"
+              actionTo="/courses"
+            />
           </div>
         )}
 

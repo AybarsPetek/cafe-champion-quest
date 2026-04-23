@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Award, BookOpen, TrendingUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import NewMembersSection from "@/components/NewMembersSection";
+import SEO from "@/components/SEO";
 import heroImage from "@/assets/hero-barista.jpg";
 
 const InstagramSection = lazy(() => import("@/components/InstagramSection"));
@@ -29,6 +30,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO />
       <Navbar />
       
       {/* Hero Section */}
@@ -40,6 +42,8 @@ const Index = () => {
             className="w-full h-full object-cover"
             width={1920}
             height={852}
+            fetchPriority="high"
+            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 to-background/60" />
         </div>

@@ -604,6 +604,42 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          message: string | null
+          read_at: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          read_at?: string | null
+          title: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string | null
+          read_at?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       pricing_plans: {
         Row: {
           created_at: string
@@ -1188,6 +1224,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      notification_type:
+        | "course_assigned"
+        | "deadline_reminder"
+        | "badge_earned"
+        | "forum_reply"
+        | "quiz_result"
+        | "generic"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1316,6 +1359,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      notification_type: [
+        "course_assigned",
+        "deadline_reminder",
+        "badge_earned",
+        "forum_reply",
+        "quiz_result",
+        "generic",
+      ],
     },
   },
 } as const

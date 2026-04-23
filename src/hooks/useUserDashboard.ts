@@ -27,6 +27,7 @@ export interface InProgressCourse {
   level: string;
   points: number;
   progress: number;
+  last_watched_video_id: string | null;
 }
 
 export interface AssignedCourse {
@@ -92,6 +93,7 @@ export const useUserDashboard = (userId: string) => {
         .select(
           `
           progress_percentage,
+          last_watched_video_id,
           courses (
             id,
             title,
@@ -121,6 +123,7 @@ export const useUserDashboard = (userId: string) => {
             level: item.courses.level,
             points: item.courses.points,
             progress: item.progress_percentage,
+            last_watched_video_id: item.last_watched_video_id,
           }))
           .filter((course: InProgressCourse) => course.id) || [];
 
