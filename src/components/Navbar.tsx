@@ -1,11 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, BookOpen, User, LogOut, Shield, Trophy, MessageCircle, Settings, Menu, X, Library } from "lucide-react";
+import { Home, BookOpen, User, LogOut, Shield, Trophy, MessageCircle, Settings, Menu, Library } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import ThemeToggle from "@/components/ThemeToggle";
 import logo from "@/assets/logo.png";
 
 const Navbar = () => {
@@ -14,6 +15,7 @@ const Navbar = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -40,7 +42,7 @@ const Navbar = () => {
         .eq('user_id', user.id)
         .eq('role', 'admin')
         .maybeSingle();
-      
+
       setIsAdmin(!!data);
     };
 
@@ -65,12 +67,14 @@ const Navbar = () => {
     { path: "/dashboard", label: "Panelim", icon: User },
   ];
 
+  const closeSheet = () => setSheetOpen(false);
+
   const NavLinks = ({ onClick }: { onClick?: () => void }) => (
     <>
       {navItems.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
-        
+
         return (
           <Button
             key={item.path}
@@ -86,7 +90,7 @@ const Navbar = () => {
           </Button>
         );
       })}
-      
+
       {isAdmin && (
         <Button variant="outline" asChild className="w-full justify-start md:w-auto md:justify-center" onClick={onClick}>
           <Link to="/admin" className="gap-2">
@@ -95,7 +99,7 @@ const Navbar = () => {
           </Link>
         </Button>
       )}
-      
+
       {user ? (
         <>
           <Button variant="ghost" asChild className="w-full justify-start md:w-auto md:justify-center" onClick={onClick}>
@@ -128,29 +132,30 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             <NavLinks />
+            <ThemeToggle className="ml-1" />
           </div>
 
-          {/* Mobile Navigation */}
-          <Sheet>
-            <SheetTrigger asChild className="md:hidden">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-10 w-10 border-primary/30 bg-primary/5 shadow-sm"
-              >
-                <Menu className="h-5 w-5 text-primary" />
-                <span className="sr-only">Menü</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-72 p-0 [&>button]:top-3 [&>button]:right-3">
-              <div className="flex flex-col gap-1 p-4 pt-12">
-                <NavLinks onClick={() => {
-                  const closeBtn = document.querySelector('[data-radix-collection-item][data-state]') as HTMLElement;
-                  closeBtn?.click();
-                }} />
-              </div>
-            </SheetContent>
-          </Sheet>
+          {/* Mobile: Theme toggle + menu */}
+          <div className="flex items-center gap-1 md:hidden">
+            <ThemeToggle />
+            <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10 border-primary/30 bg-primary/5 shadow-sm"
+                >
+                  <Menu className="h-5 w-5 text-primary" />
+                  <span className="sr-only">Menü</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 p-0 [&>button]:top-3 [&>button]:right-3">
+                <div className="flex flex-col gap-1 p-4 pt-12">
+                  <NavLinks onClick={closeSheet} />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </nav>
