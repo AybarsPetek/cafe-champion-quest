@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import VideoPlayer from "@/components/VideoPlayer";
 import ReviewsSection from "@/components/ReviewsSection";
@@ -16,6 +16,8 @@ import { User } from "@supabase/supabase-js";
 
 const CourseDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const requestedVideoId = searchParams.get("video");
   const [user, setUser] = useState<User | null>(null);
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
   const [videoCompleted, setVideoCompleted] = useState(false);
@@ -43,12 +45,15 @@ const CourseDetail = () => {
   useEffect(() => {
     // Only initialize once when course first loads; do not override user's manual selection on refetch
     if (currentVideoId) return;
-    if (course?.lastWatchedVideoId) {
+    // URL ?video= parametresi öncelikli (Dashboard'dan "kaldığın yerden devam et")
+    if (requestedVideoId && course?.videos?.some((v) => v.id === requestedVideoId)) {
+      setCurrentVideoId(requestedVideoId);
+    } else if (course?.lastWatchedVideoId) {
       setCurrentVideoId(course.lastWatchedVideoId);
     } else if (course?.videos && course.videos.length > 0) {
       setCurrentVideoId(course.videos[0].id);
     }
-  }, [course, currentVideoId]);
+  }, [course, currentVideoId, requestedVideoId]);
 
   const goToVideo = async (videoId: string) => {
     console.log('goToVideo called:', { videoId, previous: currentVideoId });
