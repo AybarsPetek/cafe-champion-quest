@@ -194,7 +194,7 @@ const Dashboard = () => {
         )}
 
         {/* In Progress Courses */}
-        {dashboardData?.inProgressCourses && dashboardData.inProgressCourses.length > 0 && (
+        {dashboardData?.inProgressCourses && dashboardData.inProgressCourses.length > 0 ? (
           <div className="mb-12">
             <h2 className="text-2xl font-bold mb-6">Devam Eden Eğitimler</h2>
             <div className="grid md:grid-cols-2 gap-6">
@@ -209,9 +209,21 @@ const Dashboard = () => {
                   level={course.level}
                   points={course.points}
                   progress={course.progress}
+                  lastWatchedVideoId={course.last_watched_video_id}
                 />
               ))}
             </div>
+          </div>
+        ) : (
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold mb-6">Devam Eden Eğitimler</h2>
+            <EmptyState
+              icon={Coffee}
+              title="Henüz başladığın bir eğitim yok"
+              description="Eğitim kütüphanesini keşfet ve barista yolculuğuna başla."
+              actionLabel="Eğitimleri keşfet"
+              actionTo="/courses"
+            />
           </div>
         )}
 
