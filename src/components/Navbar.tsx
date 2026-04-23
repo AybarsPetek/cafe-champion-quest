@@ -7,6 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
+import GlobalSearch from "@/components/GlobalSearch";
 import logo from "@/assets/logo.png";
 
 const Navbar = () => {
@@ -132,11 +134,15 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
             <NavLinks />
+            <GlobalSearch />
+            {user && <NotificationBell />}
             <ThemeToggle className="ml-1" />
           </div>
 
-          {/* Mobile: Theme toggle + menu */}
+          {/* Mobile: Search + bell + theme + menu */}
           <div className="flex items-center gap-1 md:hidden">
+            <GlobalSearch iconOnly />
+            {user && <NotificationBell />}
             <ThemeToggle />
             <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
               <SheetTrigger asChild>
