@@ -51,17 +51,20 @@ const Dashboard = () => {
   }, []);
 
   const { data: dashboardData, isLoading } = useUserDashboard(user?.id || "");
+  const { data: profile } = useProfile(user?.id || "");
 
   if (!user || isLoading) {
     return (
       <div className="min-h-screen">
+        <SEO title="Panelim" />
         <Navbar />
-        <div className="container mx-auto px-4 py-12 flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
+        <DashboardSkeleton />
       </div>
     );
   }
+
+  const firstName = getFirstName(profile?.full_name);
+  const greeting = getGreeting();
 
   const stats = [
     {
@@ -92,11 +95,14 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen">
+      <SEO title="Panelim" />
       <Navbar />
       <PwaInstallGuide />
       <div className="container mx-auto px-4 py-6 md:py-12">
         <div className="mb-8 md:mb-12">
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">Hoş Geldin, Barista! ☕</h1>
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">
+            {greeting}, {firstName}! ☕
+          </h1>
           <p className="text-lg text-muted-foreground">
             İlerlemeni takip et ve yeni rozetler kazan
           </p>
