@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import PwaUpdatePrompt from "./components/PwaUpdatePrompt";
+import IntroSplash from "./components/IntroSplash";
 
 // Lazy load all non-index routes
 const Landing = lazy(() => import("./pages/Landing"));
@@ -45,6 +46,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <PwaUpdatePrompt />
+      <IntroSplash />
       <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>
