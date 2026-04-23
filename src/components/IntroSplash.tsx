@@ -55,7 +55,7 @@ const IntroSplash = () => {
           TheCompany Coffee Academy
         </h1>
         <p className="text-sm md:text-base text-white/80 mt-3 animate-fade-in text-center px-4">
-          Çekirdekten fincana, profesyonel barista yolculuğu
+          Bir baristanın günlüğü — tutkuyla başlayan bir yolculuk
         </p>
       </div>
 
